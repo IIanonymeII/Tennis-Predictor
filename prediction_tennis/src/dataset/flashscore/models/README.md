@@ -8,5 +8,8 @@ This directory contains data models used for structuring and managing data parse
 
 ## Files
 All models use classes to store data and include a `to_dict()` function to convert the data into dictionary format.
+- **tournaments.py**  
+    Defines the data structures for tournaments.
+
 - **odds.py**  
     Defines the data structures for betting odds.
