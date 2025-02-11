@@ -1,12 +1,4 @@
 #!/usr/bin/env python3
-"""
-Module to process tournament data from Flashscore response text.
-
-The response text is expected to be a series of segments separated by '¬'.
-Each segment is in the format "prefix÷value" (or exactly "~" to indicate termination).
-Global data (from segments like MC or ML) is applied to every tournament record.
-"""
-
 import logging
 from typing import Dict, List
 import pandas as pd
