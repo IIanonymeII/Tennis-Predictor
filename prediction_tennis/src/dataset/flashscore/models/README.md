@@ -13,3 +13,13 @@ All models use classes to store data and include a `to_dict()` function to conve
 
 - **odds.py**  
     Defines the data structures for betting odds.
+
+## Structure
+
+```shell
+utils/
+├── __init__.py
+├── REAMDE.md
+├── tournaments.py
+└── odds.py
+```

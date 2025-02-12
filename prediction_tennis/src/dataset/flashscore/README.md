@@ -7,13 +7,14 @@ This project aims to extract and organize data from Flashscore (tournaments, mat
 ```
 flashscore/ 
 ├── README.md          # This file, explaining the overall project
-├── models/            # Data models (dataclasses) for tournaments, matches, stats, and odds
+├── models/            # Data models (dataclasses)
 │   ├── README.md      # Explanation of data models and their structure
 │   ├── tournaments.py
 │   └── odds.py
 ├── parsers/           # Parsers to extract information for each domain
 │   ├── README.md      # Details on parsing logic for each data type
-│   ├── tournament_parser.py
+│   ├── tournaments_parser.py
+│   ├── tournament_dates_parser.py
 │   └── odds_parser.py
 ├── utils/             # Shared utility functions
 │   ├── README.md      # Description of available utilities
