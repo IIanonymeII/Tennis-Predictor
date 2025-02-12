@@ -66,3 +66,26 @@ def extract_odds(odd_str: str) -> tuple:
     logger.debug(f"Extracted odds: odd1={odd1}, odd2={odd2}")
 
     return (odd1, odd2)
+
+def extract_year(text: str) -> str:
+        """
+        Extract a 4-digit year from the given text using a regular expression.
+        
+        Args:
+            text (str): The text containing the year (e.g. "ATP Acapulco 2024").
+        
+        Returns:
+            str: The extracted year.
+        
+        Raises:
+            ValueError: If no 4-digit year is found in the text.
+        """
+        logger.debug("Extracting year from text: %s", text)
+        match = re.search(r"(\d{4})", text)
+        if match:
+            year = match.group(1)
+            logger.info("Year extracted: %s", year)
+            return year
+        else:
+            logger.error("Year not found in tournament text: '%s'", text)
+            raise ValueError(f"Year not found in tournament text: '{text}'")

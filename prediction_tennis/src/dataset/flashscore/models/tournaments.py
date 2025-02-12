@@ -25,3 +25,17 @@ class Tournaments:
         logger.debug(f"Converting Tournaments instance to dictionary: {self}")
 
         return asdict(self)
+    
+@dataclass
+class TournamentsDate(Tournaments):
+    tournament_name : str
+    year            : str
+    link            : str
+    winner          : str
+
+    def to_dict(self) -> Dict[str, str]:
+        """Convert to a dict"""
+        
+        logger.debug(f"Converting Tournaments Date instance to dictionary: {self}")
+        
+        return asdict(self)
