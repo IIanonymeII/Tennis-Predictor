@@ -1,11 +1,13 @@
   
-from dataclasses import asdict
+from dataclasses import asdict, replace
 import logging
 import re
 from typing import Any, Dict, List
 import pandas as pd
 
+from prediction_tennis.src.dataset.flashscore.models.matchs import Match
 from prediction_tennis.src.dataset.flashscore.models.odds import CorrectScoreOdds, HomeAwayOdds, OverUnderOdds
+from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import retrieve_flashscore_data
 from prediction_tennis.src.dataset.flashscore.utils.text_extraction import extract_odds, extract_pattern_from_text
 
 
@@ -14,14 +16,58 @@ class FlashscoreOddsParser:
     """
     Parser utilisant une machine à états pour traiter les segments du flux.
     """
-    def __init__(self, match_id: str) -> None:
+    def __init__(self) -> None:
+        """Initialize the parser state and set up logging."""
         self.logger = logging.getLogger("[FLASHSCORE][PARSER] [ODDS]")
-        self.match_id = match_id
 
+        # Mapping of bookmaker IDs to their respective names
+        self.bookmaker_mapping = {
+            "160": "Unibet",
+            "129": "Bwin",
+            "398": "Netbet",
+            "141": "betclic"
+            }
+
+        # URL for the tournament page (to be set later)
+        self.url_api : str = ""
+
+        # The current match being processed
+        self.current_match: Match = None
+
+        # Lists to store odds data for different bet types
         self.home_away_odds     : List[HomeAwayOdds]     = []
         self.over_odds          : List[OverUnderOdds]    = []
         self.under_odds         : List[OverUnderOdds]    = []
         self.correct_score_odds : List[CorrectScoreOdds] = []
+
+    def initialize_variables(self, match: Match) -> None:
+        """
+        Initializes variables related to the match odds and stores the current match details.
+
+        Args:
+            match (Match): The match object containing the match data.
+
+        This method resets the odds lists, verifies the match data, and logs relevant information.
+        """
+        self.logger.info("___ INIT ___")
+
+        # Verify that match is an instance of the Match class
+        if not isinstance(match, Match):
+            self.logger.error("Provided object is not an instance of the Match class")
+            raise ValueError("Provided object is not an instance of the Match class")
+
+        # Reset odds lists for the match
+        self.home_away_odds    : List[HomeAwayOdds] = []
+        self.over_odds         : List[OverUnderOdds] = []
+        self.under_odds        : List[OverUnderOdds] = []
+        self.correct_score_odds: List[CorrectScoreOdds] = []
+
+        # Store the current match and the API URL
+        self.current_match : Match = replace(match)
+        self.url_api: str = self.current_match.link_odd
+
+        # Log match ID and API URL for debugging purposes
+        self.logger.info(f"[{self.current_match.match_id}] : {self.url_api}")
 
     def _bet_type(self, text: str) -> str:
         """
@@ -115,30 +161,21 @@ class FlashscoreOddsParser:
         Returns:
             str: The name of the bookmaker corresponding to the extracted ID.
         """
-        self.logger.debug("Extracting bookmaker ID from sub-category: %s", text)
-
-        # Mapping of bookmaker IDs to their respective names
-        bookmaker_id_to_name = {
-            "160": "Unibet",
-            "129": "Bwin",
-            "398": "Netbet",
-            "141": "betclic"
-        }
+        self.logger.debug(f"Extracting 'BOOKMAKER ID' from sub-category: {text}")
 
         # Extract the bookmaker ID from the text using the defined pattern
         # Define regex pattern ensuring no '¬' or '÷' inside the captured group
         bookmaker_id_pattern = r"([^¬÷]+)¬OD÷"
         bookmaker_id = extract_pattern_from_text(text=text, pattern=bookmaker_id_pattern)
-        self.logger.info("Bookmaker ID extracted: %s", bookmaker_id)
 
-        try:
-            bookmaker_name = bookmaker_id_to_name.get(bookmaker_id)
+        if bookmaker_id in self.bookmaker_mapping:
+            standardized_bookmaker: str = self.bookmaker_mapping[bookmaker_id]
+            self.logger.info(f"Extracted 'BOOKMAKER ID': {standardized_bookmaker}")
+            return standardized_bookmaker
 
-        except Exception as e:
-            self.logger.error("Error retrieving bookmaker name: %s", e)
-            bookmaker_name = None
-
-        return bookmaker_name
+        # Raise error
+        self.logger.error(f"Unknown Bookmaker ID: {bookmaker_id}")
+        raise ValueError(f"Unknown Bookmaker ID: {bookmaker_id}")
     
     def _bookmaker_web_name(self, text: str) -> str:
         """
@@ -351,22 +388,31 @@ class FlashscoreOddsParser:
             except Exception as e:
                 self.logger.error(f"Error processing correct score bet data for sub-category: {sub_category}, error: {e}")
            
-    def process_data(self, data_str: str) -> None:
+    def process_data(self, match: Match) -> None:
         """Processes the bet data and prints the extracted information."""
-        market_segments = data_str.split("~OA÷")[1:]
-
         
+        # Initialize match-specific variables
+        self.initialize_variables(match=match)
+
+        # Retrieve Flashscore data
+        self.logger.info("Retrieving Flashscore data...")
+        response_txt = retrieve_flashscore_data(url=self.url_api, return_as_text=True)
+
+        # Split the data into market segments based on separator
+        market_segments = response_txt.split("~OA÷")[1:]
+
         for market_segment in market_segments:
             # it's split that why we skip the first element
             sub_categories = market_segment.split("~OB÷")[1:]
 
-            # extract Home-away , over-under, correct score, etc.
+            # Extract bet type (e.g., home-away, over-under, correct score)
             bet_type = self._bet_type(text=market_segment)
             
             for sub_category in sub_categories:
-                # Full match, set 1, set 2, etc.
+                # Extract bet variant (e.g., full match, set 1, set 2)
                 bet_variant = self._bet_variant(text=sub_category)
 
+                # Process based on the bet type
                 if bet_type == "home-away":
                     self.logger.info("[HOME - AWAY]")
                     self.process_home_away(sub_category = sub_category,
@@ -378,7 +424,8 @@ class FlashscoreOddsParser:
                 
                 elif bet_type == "correct-score":
                     self.process_correct_score(sub_category = sub_category,
-                                               bet_variant  = bet_variant)                
+                                               bet_variant  = bet_variant)
+
                 else:
                     self.logger.warning("Unknown bet type: %s", bet_type)
                     raise NotImplementedError(f"Bet type '{bet_type}' not implemented yet.")        
@@ -396,7 +443,7 @@ class FlashscoreOddsParser:
             self.logger.warning("No HomeAwayOdds available to process.")
             return data
 
-        data["match_id"] = self.match_id
+        data["match_id"] = self.current_match.match_id
         self.logger.info(f"Processing HomeAwayOdds for match_id: {data['match_id']}")
 
         for odd in self.home_away_odds:
@@ -421,7 +468,7 @@ class FlashscoreOddsParser:
             self.logger.warning("No 'Over odds' available to process.")
             return data
 
-        data["match_id"] = self.match_id
+        data["match_id"] = self.current_match.match_id
         self.logger.info(f"Processing 'Over odds' for match_id: {data['match_id']}")
 
         for odd in self.over_odds:
@@ -446,7 +493,7 @@ class FlashscoreOddsParser:
             self.logger.warning("No 'Under odds' available to process.")
             return data
 
-        data["match_id"] = self.match_id
+        data["match_id"] = self.current_match.match_id
         self.logger.info(f"Processing 'Under odds' for match_id: {data['match_id']}")
 
         for odd in self.under_odds:
@@ -471,7 +518,7 @@ class FlashscoreOddsParser:
             self.logger.warning("No 'Correct Score odds' available to process.")
             return data
 
-        data["match_id"] = self.match_id
+        data["match_id"] = self.current_match.match_id
         self.logger.info(f"Processing 'Correct Score odds' for match_id: {data['match_id']}")
 
         for odd in self.correct_score_odds:
@@ -491,38 +538,28 @@ if __name__ == "__main__":
     # Set up logging (if not already configured)
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s - %(levelname)s - %(name)s: %(message)s')
-    logger = logging.getLogger("Main")
 
-    # Build the URL and headers for the request
-    id_match = "Kx3ou23b"
-    url = f"https://2.flashscore.ninja/2/x/feed/df_od_1_{id_match}"
-    headers = {"x-fsign": "SW9D1eZo"}
+    data = Match(
+        match_id             = "Kx3ou23b",
+        link_odd             = "https://2.flashscore.ninja/2/x/feed/df_od_1_Kx3ou23b",
+        formatted_match_date = "golem",
+        match_timestamp      = "golem",
+        round                = "golem",
+        player_1             = "golem",
+        player_2             = "golem",
+        )
 
-    try:
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()  # Check for HTTP errors
-        data_str = response.text
+    parser = FlashscoreOddsParser()
+    parser.process_data(match=data)
 
-        parser = FlashscoreOddsParser(match_id=id_match)
-        
-        parser.process_data(data_str=data_str)
-        
-        print(" === HOME AWAY ===")
-        print(parser.get_home_away_odds_dict())
+    print(" === HOME AWAY ===")
+    print(parser.get_home_away_odds_dict())
 
-        print(" === OVER ===")
-        print(parser.get_over_odds_dict())
+    print(" === OVER ===")
+    print(parser.get_over_odds_dict())
 
-        print(" === UNDER ===")
-        print(parser.get_under_odds_dict())
+    print(" === UNDER ===")
+    print(parser.get_under_odds_dict())
 
-        print(" === CORRECT SCORE ===")
-        print(parser.get_correct_score_odds_dict())
-
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Error fetching URL: {e}")
-    except ValueError as e:
-        logger.error(f"Error extracting data: {e}")
-    except Exception as e:
-        logger.error(f"An unexpected error occurred: {e}")
-
+    print(" === CORRECT SCORE ===")
+    print(parser.get_correct_score_odds_dict())

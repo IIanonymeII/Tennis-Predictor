@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup, Tag
 import pandas as pd
 
 from prediction_tennis.src.dataset.flashscore.models.tournaments import Tournaments, TournamentsDate
-from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import build_full_links, retrieve_flashscore_data
+from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import validate_and_check_url, retrieve_flashscore_data
 from prediction_tennis.src.dataset.flashscore.utils.text_extraction import extract_year
 
 
@@ -126,7 +126,7 @@ class FlashscoreTournamentArchiveParser:
             raise ValueError("Href attribute missing in the link tag")
 
         try: # Build the full link and test if exist
-            link = build_full_links(base_url=self.base_url, add_slug=raw_link)
+            link = validate_and_check_url(url= f"{self.base_url}{raw_link}")
         except Exception as e:
             self.logger.error("Failed to build full link: %s", e)
             raise

@@ -11,7 +11,7 @@ import requests
 from prediction_tennis.src.dataset.flashscore.models.players import Player
 from prediction_tennis.src.dataset.flashscore.models.tournaments import TournamentsDate
 from prediction_tennis.src.dataset.flashscore.models.matchs import Match
-from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import build_full_links, retrieve_flashscore_data
+from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import retrieve_flashscore_data, validate_and_check_url
 from prediction_tennis.src.dataset.flashscore.utils.text_extraction import extract_pattern_from_text
 
 
@@ -28,7 +28,9 @@ class FlashscoreMatchInTournamentParser:
         self.url: str = "" 
 
         # Base URL for player information
-        self.url_base_player = "https://www.flashscore.com/player/" 
+        self.url_base_player = "https://www.flashscore.com/player/"
+
+        self.url_base_odd = "https://2.flashscore.ninja/2/x/feed/df_od_1_"
 
         # List to store match information
         self.list_match: List[Match] = []
@@ -290,8 +292,12 @@ class FlashscoreMatchInTournamentParser:
             match_round: str = self._match_round(text=segment)
             
             # Build player profile links
-            player_link_1: str = build_full_links(base_url=self.url_base_player, add_slug=f"{player_name_1}/{player_id_1}/")
-            player_link_2: str = build_full_links(base_url=self.url_base_player, add_slug=f"{player_name_2}/{player_id_2}/")
+            player_link_1: str = validate_and_check_url(url=f"{self.url_base_player}{player_name_1}/{player_id_1}/")
+            player_link_2: str = validate_and_check_url(url=f"{self.url_base_player}{player_name_2}/{player_id_2}/")
+
+
+            # Builds odd forthis match
+            match_link_odd: str = validate_and_check_url(url=f"{self.url_base_odd}{player_id_1}/")
 
             # Create Player objects
             player_1: Player = Player(
@@ -316,6 +322,7 @@ class FlashscoreMatchInTournamentParser:
                 round                = match_round,
                 player_1             = player_1,
                 player_2             = player_2,
+                link_odd             = match_link_odd,
                 )
             
             self.list_match.append(_match)

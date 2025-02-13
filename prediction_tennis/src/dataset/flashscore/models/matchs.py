@@ -17,6 +17,10 @@ class Match:
     player_1             : Player
     player_2             : Player
 
+    link_odd             : str
+    # link_stat
+    # link_score
+
     # score_1
     # score_1
 
