@@ -4,7 +4,7 @@ import re
 logger = logging.getLogger("[UTIL] [EXTRACT]")
 
 
-def extract_pattern_in_text(text: str, pattern: str) -> str:
+def extract_pattern_from_text(text: str, pattern: str) -> str:
     """
     Extracts a single pattern match from the given text.
 
@@ -21,7 +21,6 @@ def extract_pattern_in_text(text: str, pattern: str) -> str:
     result = re.findall(pattern, text)
 
     if len(result) == 1:
-
         logger.debug("Valid result found: %s", result[0])
         return result[0]
     
