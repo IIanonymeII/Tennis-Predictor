@@ -2,7 +2,7 @@
 
 import re
 import logging
-from typing import Dict, List
+from typing import Any, Dict, List, Set
 from bs4 import BeautifulSoup, Tag
 import pandas as pd
 
@@ -43,8 +43,8 @@ class FlashscoreTournamentArchiveParser:
         self.list_tournament_date: List[TournamentsDate] = []
         
         # Verify that the required keys exist in the tournament dictionary.
-        required_keys = set(Tournaments.__annotations__.keys())
-        missing_keys = required_keys - tournament.keys()
+        required_keys: Set = set(Tournaments.__annotations__.keys())
+        missing_keys: Set = required_keys - tournament.keys()
         if missing_keys:
             self.logger.error(f"Missing required tournament keys: {missing_keys}")
             raise ValueError(f"Missing required tournament keys: {missing_keys}")
@@ -73,7 +73,7 @@ class FlashscoreTournamentArchiveParser:
         self.logger.debug("Searching for the archive section in the HTML")
 
         # Attempt to locate the archive 'section' by its id.
-        archive_section = soup.find("section", id="tournament-page-archiv")
+        archive_section: Any = soup.find("section", id="tournament-page-archiv")
         if archive_section is None:
             self.logger.error("The tournament archive section was not found")
             raise Exception("The tournament archive section was not found")
@@ -103,13 +103,13 @@ class FlashscoreTournamentArchiveParser:
         year           : str = ""
 
         # Extract tournament season div
-        season_div = row.find("div", class_="archive__season")
+        season_div: Any = row.find("div", class_="archive__season")
         if season_div is None:
             self.logger.error("Season div not found in archive row")
             raise ValueError("Season div not found in archive row")
             
         # Extract the clickable link tag from the season div
-        link_tag = season_div.find("a", class_="archive__text--clickable")
+        link_tag: Any = season_div.find("a", class_="archive__text--clickable")
         if link_tag is None:
             self.logger.error("Link tag not found in season div")
             raise ValueError("Link tag not found in season div")
@@ -120,7 +120,7 @@ class FlashscoreTournamentArchiveParser:
 
         # Get the href attribute to build the full link
         # ex : '/tennis/atp-singles/acapulco/' , '/tennis/atp-singles/acapulco-2023/'
-        raw_link = link_tag.get("href")
+        raw_link: str = link_tag.get("href")
         if not raw_link:
             self.logger.error("Href attribute missing in the link tag")
             raise ValueError("Href attribute missing in the link tag")
@@ -154,7 +154,7 @@ class FlashscoreTournamentArchiveParser:
             id              = self.tournament_id,
             tournament_name = tournament_name,
             year            = year,
-            link            =link ,    
+            link            = link ,    
             winner          = winner)
         self.logger.info("TournamentsDate created for tournament '%s' (%s)", tournament_name, year)
         return tournament_date
@@ -203,7 +203,7 @@ class FlashscoreTournamentArchiveParser:
         
         for row in rows:
             try:
-                tournament_date = self.parse_archive_row(row=row)
+                tournament_date: TournamentsDate = self.parse_archive_row(row=row)
                 self.list_tournament_date.append(tournament_date)
             except Exception as e:
                 self.logger.error("Error parsing archive row: %s", e)
