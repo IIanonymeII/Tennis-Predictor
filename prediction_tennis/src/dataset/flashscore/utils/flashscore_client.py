@@ -41,65 +41,55 @@ def retrieve_flashscore_data(url: str, return_as_text: bool = True) -> Union[str
     logger.error(error_message)
     raise ConnectionError(error_message)
     
-def build_full_links(base_url: str, add_slug: str, after_slug: str = "") -> str:
+def validate_and_check_url(url: str) -> str:
     """
-    Build a full URL by concatenating the base URL, an additional slug, and an optional after-slug.
+    Validates a given URL and checks if it exists via an HTTP GET request.
 
     This function verifies:
-      - The base_url begins with 'https://' and ends with '/'.
-      - If after_slug is provided, then either add_slug ends with '/' or after_slug starts with '/'.
-
-    After constructing the URL, it performs an HTTP GET request to ensure the URL exists.
+      - The URL begins with 'https://'.
+      - The URL is not empty or only spaces.
+      - The URL responds without returning a 404 error.
+      - If the request is Forbidden (403), the URL is still considered valid.
+      - If the request is Unauthorized (401), the URL is still considered valid.
 
     Args:
-        base_url (str): The base URL (must start with 'https://' and end with '/').
-        add_slug (str): The slug to add after the base URL.
-        after_slug (str, optional): An optional slug to append after add_slug. Defaults to "".
+        url (str): The full URL to validate and check.
 
     Returns:
-        str: The fully constructed URL if it exists.
+        str: The validated URL if it exists.
 
     Raises:
-        ValueError: If the base URL or slug structure is invalid.
-        Exception: If an HTTP 404 status code is returned, indicating the URL does not exist.
+        ValueError: If the URL structure is invalid.
+        Exception: If the URL returns a 404 (Not Found) status.
     """
-    logger.debug("Building full URL using base URL: %s", base_url)
+    logger.debug("Validating URL: %s", url)
 
-    # Validate that base_url begins with 'https://' and ends with '/'
-    if not base_url.startswith("https://"):
-        error_msg = f"Invalid base_url '{base_url}': must start with 'https://'"
+    # Validate that URL begins with 'https://'
+    if not url.startswith("https://"):
+        error_msg = f"Invalid URL '{url}': must start with 'https://'"
         logger.error(error_msg)
         raise ValueError(error_msg)
 
-    if not base_url.endswith("/"):
-        error_msg = f"Invalid base_url '{base_url}': must end with '/'"
+    # Ensure the URL is not empty or improperly formatted
+    if not url.strip():
+        error_msg = "Invalid URL: URL cannot be empty or contain only spaces."
         logger.error(error_msg)
         raise ValueError(error_msg)
-
-    # If after_slug is provided, verify the slug structure
-    if after_slug and not (add_slug.endswith("/") or after_slug.startswith("/")):
-        error_msg = (
-            "Invalid URL structure: if after_slug is provided, "
-            "add_slug must end with '/' or after_slug must start with '/'"
-        )
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-
-    # Construct the new URL
-    new_url = base_url + add_slug + after_slug
-    logger.debug("Constructed URL: %s", new_url)
 
     # Perform an HTTP GET request to verify the URL exists
     try:
-        response = requests.get(new_url)
-    except Exception as e:
-        logger.error("Error occurred while requesting URL: %s", new_url)
-        raise Exception(f"Error occurred while requesting URL: {new_url}") from e
+        response = requests.get(url)
+        
+        # Allow 403 (Forbidden)    as a valid response
+        # Allow 401 (Unauthorized) as a valid response
+        if response.status_code == 404:
+            error_msg = f"URL not found: {url} (HTTP 404)"
+            logger.error(error_msg)
+            raise Exception(error_msg)
 
-    if response.status_code == 404:
-        error_msg = f"URL not found: {new_url} (HTTP 404)"
-        logger.error(error_msg)
-        raise Exception(error_msg)
+    except requests.exceptions.RequestException as e:
+        logger.error("Error occurred while requesting URL: %s", url)
+        raise Exception(f"Error occurred while requesting URL: {url}") from e
 
-    logger.info("URL built successfully: %s (%s)", new_url, str(response.status_code))
-    return new_url
+    logger.info("URL validated successfully: %s (%s)", url, response.status_code)
+    return url
