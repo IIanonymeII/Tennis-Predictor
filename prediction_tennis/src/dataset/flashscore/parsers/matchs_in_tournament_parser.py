@@ -22,7 +22,7 @@ class FlashscoreMatchInTournamentParser:
 
     def __init__(self) -> None:
         """Initialize the parser state and set up logging."""
-        self.logger = logging.getLogger("[MATCHS IN TOURNAMENT]")
+        self.logger = logging.getLogger("[FLASHSCORE][PARSER] [MATCHS IN TOURNAMENT]")
         
         # URL for the tournament page (to be set later)
         self.url: str = "" 

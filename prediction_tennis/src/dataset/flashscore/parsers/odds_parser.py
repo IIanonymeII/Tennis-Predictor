@@ -6,7 +6,7 @@ from typing import Any, Dict, List
 import pandas as pd
 
 from prediction_tennis.src.dataset.flashscore.models.odds import CorrectScoreOdds, HomeAwayOdds, OverUnderOdds
-from prediction_tennis.src.dataset.flashscore.utils.text_extraction import extract_odds, extract_pattern_in_text
+from prediction_tennis.src.dataset.flashscore.utils.text_extraction import extract_odds, extract_pattern_from_text
 
 
 
@@ -15,7 +15,7 @@ class FlashscoreOddsParser:
     Parser utilisant une machine à états pour traiter les segments du flux.
     """
     def __init__(self, match_id: str) -> None:
-        self.logger = logging.getLogger("[FLASHSCORE_ODDS_PARSER]")
+        self.logger = logging.getLogger("[FLASHSCORE][PARSER] [ODDS]")
         self.match_id = match_id
 
         self.home_away_odds     : List[HomeAwayOdds]     = []
@@ -36,8 +36,9 @@ class FlashscoreOddsParser:
         """
         self.logger.debug("Extracting bet type from text: %s", text)
 
-        bet_type_pattern = r"¬OAU÷(.*?)¬OAI÷"
-        bet_type = extract_pattern_in_text(text=text, pattern=bet_type_pattern)
+        # Define regex pattern ensuring no '¬' or '÷' inside the captured group
+        bet_type_pattern = r"¬OAU÷([^¬÷]+)¬OAI÷"
+        bet_type = extract_pattern_from_text(text=text, pattern=bet_type_pattern)
 
         self.logger.info("Bet type extracted: %s", bet_type)
 
@@ -56,8 +57,9 @@ class FlashscoreOddsParser:
         """
         self.logger.debug("Extracting bet variant from sub-category: %s", text)
         
-        bet_variant_pattern = r"(.*?)¬OBU÷"
-        bet_variant = extract_pattern_in_text(text=text, pattern=bet_variant_pattern)
+        # Define regex pattern ensuring no '¬' or '÷' inside the captured group
+        bet_variant_pattern = r"([^¬÷]+)¬OBU÷"
+        bet_variant = extract_pattern_from_text(text=text, pattern=bet_variant_pattern)
         
         self.logger.info("Bet variant extracted: %s", bet_variant)
         
@@ -75,8 +77,9 @@ class FlashscoreOddsParser:
         """
         self.logger.debug("Extracting threshold type from text: %s", text)
         
-        threshold_type_pattern = r"(.*?)¬OC÷"
-        threshold_type = extract_pattern_in_text(text=text, pattern=threshold_type_pattern)
+        # Define regex pattern ensuring no '¬' or '÷' inside the captured group
+        threshold_type_pattern = r"([^¬÷]+)¬OC÷"
+        threshold_type = extract_pattern_from_text(text=text, pattern=threshold_type_pattern)
 
         self.logger.info("threshold type extracted: %s", threshold_type)
 
@@ -94,8 +97,9 @@ class FlashscoreOddsParser:
         """
         self.logger.debug("Extracting threshold value from text: %s", text)
 
-        threshold_value_pattern = r"¬OC÷(.*?)(?:¬LY÷|¬LZ÷)"
-        threshold_value = extract_pattern_in_text(text=text, pattern=threshold_value_pattern)
+        # Define regex pattern ensuring no '¬' or '÷' inside the captured group
+        threshold_value_pattern = r"¬OC÷([^¬÷]+)(?:¬LY÷|¬LZ÷)"
+        threshold_value = extract_pattern_from_text(text=text, pattern=threshold_value_pattern)
 
         self.logger.info("threshold value extracted: %s", threshold_value)
 
@@ -122,8 +126,9 @@ class FlashscoreOddsParser:
         }
 
         # Extract the bookmaker ID from the text using the defined pattern
-        bookmaker_id_pattern = r"(.*?)¬OD÷"
-        bookmaker_id = extract_pattern_in_text(text=text, pattern=bookmaker_id_pattern)
+        # Define regex pattern ensuring no '¬' or '÷' inside the captured group
+        bookmaker_id_pattern = r"([^¬÷]+)¬OD÷"
+        bookmaker_id = extract_pattern_from_text(text=text, pattern=bookmaker_id_pattern)
         self.logger.info("Bookmaker ID extracted: %s", bookmaker_id)
 
         try:
@@ -147,8 +152,9 @@ class FlashscoreOddsParser:
         """
         self.logger.debug("Extracting bookmaker web name from sub-category: %s", text)
 
-        bookmaker_web_name_pattern = r"¬OD÷(.*?)¬OPI÷"
-        bookmaker_web_name = extract_pattern_in_text(text=text, pattern=bookmaker_web_name_pattern)
+        # Define regex pattern ensuring no '¬' or '÷' inside the captured group
+        bookmaker_web_name_pattern = r"¬OD÷([^¬÷]+)¬OPI÷"
+        bookmaker_web_name = extract_pattern_from_text(text=text, pattern=bookmaker_web_name_pattern)
 
         self.logger.info("Bookmaker web name extracted: %s", bookmaker_web_name)
 
@@ -166,11 +172,12 @@ class FlashscoreOddsParser:
         """
         self.logger.debug("Extracting bookmaker odd from sub-category: %s", text)
         
-        bookmaker_odd_1_pattern    = r"¬XB÷(.*?)¬XC÷"
-        bookmaker_odd_2_pattern    = r"¬XC÷(.*?)¬OG÷"
+        # Define regex pattern ensuring no '¬' or '÷' inside the captured group
+        bookmaker_odd_1_pattern    = r"¬XB÷([^¬÷]+)¬XC÷"
+        bookmaker_odd_2_pattern    = r"¬XC÷([^¬÷]+)¬OG÷"
 
-        bookmaker_odd_1 = extract_pattern_in_text(text=text, pattern=bookmaker_odd_1_pattern)
-        bookmaker_odd_2 = extract_pattern_in_text(text=text, pattern=bookmaker_odd_2_pattern)
+        bookmaker_odd_1 = extract_pattern_from_text(text=text, pattern=bookmaker_odd_1_pattern)
+        bookmaker_odd_2 = extract_pattern_from_text(text=text, pattern=bookmaker_odd_2_pattern)
 
         self.logger.debug("[BEFORE DIV] Bookmaker odd 1 extracted: %s", bookmaker_odd_1)
         self.logger.debug("[BEFORE DIV] Bookmaker odd 2 extracted: %s", bookmaker_odd_2)
@@ -196,8 +203,9 @@ class FlashscoreOddsParser:
         self.logger.debug("Extracting boolmake odd from sub-category: %s", text)
         
         # Extract the pattern from the text
-        bookmaker_odd_pattern = r"¬XC÷(.*?)¬OG÷"
-        bookmaker_odd = extract_pattern_in_text(text=text, pattern=bookmaker_odd_pattern)
+        # Define regex pattern ensuring no '¬' or '÷' inside the captured group
+        bookmaker_odd_pattern = r"¬XC÷([^¬÷]+)¬OG÷"
+        bookmaker_odd = extract_pattern_from_text(text=text, pattern=bookmaker_odd_pattern)
         
         self.logger.debug("[BEFORE DIV] Bookmaker odd extracted: %s", bookmaker_odd)
         

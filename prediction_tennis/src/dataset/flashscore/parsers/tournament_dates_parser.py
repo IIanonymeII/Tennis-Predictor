@@ -21,7 +21,7 @@ class FlashscoreTournamentArchiveParser:
 
     def __init__(self) -> None:
         """Initialize the parser"""
-        self.logger = logging.getLogger("[FLASHSCORE][TOURNAMENT DATE]")
+        self.logger = logging.getLogger("[FLASHSCORE][PARSER] [TOURNAMENT DATE]")
         self.base_url = "https://www.flashscore.com/"
         self.url: str = ""  # This will be set after initializing tournament variables.
         self.list_tournament_date: List[TournamentsDate] = []

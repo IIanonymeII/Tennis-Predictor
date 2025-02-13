@@ -5,7 +5,7 @@ import pandas as pd
 import requests
 
 from prediction_tennis.src.dataset.flashscore.models.tournaments import Tournaments
-from prediction_tennis.src.dataset.flashscore.utils.text_extraction import extract_pattern_in_text
+from prediction_tennis.src.dataset.flashscore.utils.text_extraction import extract_pattern_from_text
 
 class FlashscoreTournamentProcessor:
     """
@@ -16,7 +16,7 @@ class FlashscoreTournamentProcessor:
     """
     def __init__(self):
 
-        self.logger = logging.getLogger("[FLASHSCORE_TOURNAMENT_PARSER]")
+        self.logger = logging.getLogger("[FLASHSCORE][PARSER] [TOURNAMENT]")
         self.list_tournaments: List[Tournaments] = []
 
     def _tournament_slug(self, text: str) -> str:
@@ -31,8 +31,9 @@ class FlashscoreTournamentProcessor:
         """
         self.logger.debug("Extracting tournament slug from text: %s", text)
 
-        tournament_slug_pattern = r"¬MU÷(.*?)¬MT÷"
-        tournament_slug = extract_pattern_in_text(text=text, pattern=tournament_slug_pattern)
+        # Define regex pattern ensuring no '¬' or '÷' inside the captured group
+        tournament_slug_pattern = r"¬MU÷([^¬÷]+)¬MT÷"
+        tournament_slug = extract_pattern_from_text(text=text, pattern=tournament_slug_pattern)
 
         self.logger.info("Tournament slug extracted: %s", tournament_slug)
 
@@ -50,8 +51,9 @@ class FlashscoreTournamentProcessor:
         """
         self.logger.debug("Extracting tournament ID from text: %s", text)
 
-        tournament_id_pattern = r"¬MTI÷(.*?)¬"
-        tournament_id = extract_pattern_in_text(text=text, pattern=tournament_id_pattern)
+        # Define regex pattern ensuring no '¬' or '÷' inside the captured group
+        tournament_id_pattern = r"¬MTI÷([^¬÷]+)¬"
+        tournament_id = extract_pattern_from_text(text=text, pattern=tournament_id_pattern)
 
         self.logger.info("Tournament ID extracted: %s", tournament_id)
 
