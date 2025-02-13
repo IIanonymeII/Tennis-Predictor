@@ -11,6 +11,12 @@ All models use classes to store data and include a `to_dict()` function to conve
 - **tournaments.py**  
     Defines the data structures for tournaments.
 
+- **matchs.py**  
+    Defines the data structures for match information within tournaments.
+    
+- **players.py**  
+    Defines the data structures for players.
+
 - **odds.py**  
     Defines the data structures for betting odds.
 
@@ -21,5 +27,7 @@ utils/
 ├── __init__.py
 ├── REAMDE.md
 ├── tournaments.py
+├── matchs.py
+├── players.py
 └── odds.py
 ```

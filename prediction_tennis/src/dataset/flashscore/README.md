@@ -10,14 +10,18 @@ flashscore/
 ├── models/            # Data models (dataclasses)
 │   ├── README.md      # Explanation of data models and their structure
 │   ├── tournaments.py
+│   ├── matches.py
+│   ├── ...
 │   └── odds.py
 ├── parsers/           # Parsers to extract information for each domain
 │   ├── README.md      # Details on parsing logic for each data type
 │   ├── tournaments_parser.py
 │   ├── tournament_dates_parser.py
+│   ├── ...
 │   └── odds_parser.py
 ├── utils/             # Shared utility functions
 │   ├── README.md      # Description of available utilities
+│   ├── flashscore_client.py      
 │   └── text_extraction.py
 └── main.py            # main script
 ```
