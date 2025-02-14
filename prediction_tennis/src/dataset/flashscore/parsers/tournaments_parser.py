@@ -4,7 +4,8 @@ from typing import Dict, List
 import pandas as pd
 import requests
 
-from prediction_tennis.src.dataset.flashscore.models.tournaments import Tournaments
+from prediction_tennis.src.dataset.flashscore.models.tournaments import TournamentsMinimaliste
+from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import validate_and_check_url
 from prediction_tennis.src.dataset.flashscore.utils.text_extraction import extract_pattern_from_text
 
 class FlashscoreTournamentProcessor:
@@ -15,9 +16,14 @@ class FlashscoreTournamentProcessor:
     information about various tournaments, including their names (slugs) and unique identifiers (IDs).
     """
     def __init__(self):
-
+        """Initialize the parser state and set up logging."""
         self.logger = logging.getLogger("[FLASHSCORE][PARSER] [TOURNAMENT]")
-        self.list_tournaments: List[Tournaments] = []
+
+        # Set Base url
+        self.base_url = "https://www.flashscore.com/tennis/atp-singles/"
+
+        # Lists to store tournaments
+        self.list_tournaments: List[TournamentsMinimaliste] = []
 
     def _tournament_slug(self, text: str) -> str:
         """
@@ -59,12 +65,15 @@ class FlashscoreTournamentProcessor:
 
         return tournament_id
 
-    def process_data(self, data_str: str) -> None:
+    def process_data(self, data_str: str) -> List[TournamentsMinimaliste]:
         """
-        Processes each tournament to extract its name (slug) and ID.
+        Processes tournament data to extract each tournament's slug and ID.
 
         Args:
             data_str (str): The input data string containing tournament information.
+
+        Returns:
+            List[TournamentsMinimaliste]: A list of processed tournament objects.
         """
         # Split the input data string to extract individual tournament segments
         tournament_segments = data_str.split("~MN÷")[1:]
@@ -77,30 +86,21 @@ class FlashscoreTournamentProcessor:
 
                 self.logger.info(f"[{tournament_slug} ({tournament_id})]")
 
-                tournament = Tournaments(slug=tournament_slug, id=tournament_id)
+                # Validate and construct archive URL
+                url_archive = validate_and_check_url(url=f"{self.base_url}{tournament_slug}/archive/")
+
+                # Create a tournament object
+                tournament = TournamentsMinimaliste(
+                    slug          = tournament_slug,
+                    id            = tournament_id,
+                    link_archives = url_archive,
+                    )
+
                 self.list_tournaments.append(tournament)
 
             except Exception as e:
                 self.logger.error(f"Error processing tournament data: {e}")
-
-    def get_tournament_df(self) -> pd.DataFrame:
-        """
-        Converts the list of tournaments into a Pandas DataFrame.
-
-        Returns:
-            pd.DataFrame: A DataFrame containing the tournament data.
-        """
-        if not self.list_tournaments:
-            self.logger.warning("No tournaments available to process.")
-            # Return an empty DataFrame if no tournaments are available
-            return pd.DataFrame()
-
-        # Convert each Tournaments instance in the list to a dictionary
-        data: List[Dict[str,str]] = [tournament.to_dict() for tournament in self.list_tournaments]
-
-        self.logger.info(f"Converting {len(data)} tournaments to DataFrame.")
-
-        return pd.DataFrame(data)
+        return self.list_tournaments.copy()
 
 if __name__ == "__main__":
 
@@ -119,12 +119,7 @@ if __name__ == "__main__":
     data_str = response.text
     parser = FlashscoreTournamentProcessor()
 
-    try:
-        parser.process_data(data_str=data_str)
-        df = parser.get_tournament_df()
+    tourn_list: List[TournamentsMinimaliste] = parser.process_data(data_str=data_str)
 
-        print("=== DF ===")
-        print(df)
-        
-    except Exception as process_error:
-        logging.exception("Error processing data:")
+    for tourn in tourn_list:
+        print(tourn)

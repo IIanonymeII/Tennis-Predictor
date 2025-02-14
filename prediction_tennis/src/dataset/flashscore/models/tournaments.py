@@ -1,41 +1,47 @@
 
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 import logging
-from typing import Dict
+from typing import Dict, List
+
+from prediction_tennis.src.dataset.flashscore.models.matchs import Match
 
 
 logger = logging.getLogger("[DATACLASS] [TOURNAMENT]")
 
 @dataclass
-class Tournaments:
-    """
-    A dataclass representing a tournament with a slug (name) and an ID.
+class TournamentsMinimaliste:
+    """Minimal representation of a Tournament with essential attributes."""
+    id           : str
+    slug         : str
+    link_archives: str
 
-    Attributes:
-        slug (str): The name of the tournament, e.g., 'belgrade-2', 'brussels'.
-        id (str): The unique identifier of the tournament, e.g., 'vDAjRCsI'.
-    """
-    slug: str  # The name of the tournament
-    id: str    # The unique identifier of the tournament
+    def __post_init__(self):
+        logger.debug(f"TournamentsMinimaliste created: ID={self.id}, Slug={self.slug}")
 
-    def to_dict(self) -> Dict[str, str]:
-        """Convert to a dict"""
+    def __str__(self):
+        return f"[{self.slug}] => {self.link_archives}"
         
-        logger.debug(f"Converting Tournaments instance to dictionary: {self}")
-
-        return asdict(self)
-    
 @dataclass
-class TournamentsDate(Tournaments):
-    tournament_name : str
-    year            : str
-    link            : str
-    winner          : str
+class Tournaments(TournamentsMinimaliste):
+    """Full representation of a Tournament including matches and additional details."""
+    name        : str
+    year        : str
+    link        : str
+    link_results: str
+    winner_name : str
+    list_match  : List["Match"] = field(default_factory=list)  # Avoid mutable default argument
 
-    def to_dict(self) -> Dict[str, str]:
-        """Convert to a dict"""
+    def __post_init__(self):
+        super().__post_init__()  # Call parent post-init if needed
+        logger.info(f"Tournaments created: Name={self.name}, Year={self.year}, Matches={len(self.list_match)}")
+
+    def __str__(self):
+        return f"[{self.name.center(20)}] => {self.link_results}"
+
+    # def to_dict(self) -> Dict[str, str]:
+    #     """Convert to a dict"""
         
-        logger.debug(f"Converting Tournaments Date instance to dictionary: {self}")
+    #     logger.debug(f"Converting Tournaments Date instance to dictionary: {self}")
         
-        return asdict(self)
+    #     return asdict(self)

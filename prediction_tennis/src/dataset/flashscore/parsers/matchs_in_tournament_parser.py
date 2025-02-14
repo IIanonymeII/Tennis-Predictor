@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from dataclasses import replace
 import datetime
 import logging
 import re
@@ -9,7 +10,7 @@ import pandas as pd
 import requests
 
 from prediction_tennis.src.dataset.flashscore.models.players import Player
-from prediction_tennis.src.dataset.flashscore.models.tournaments import TournamentsDate
+from prediction_tennis.src.dataset.flashscore.models.tournaments import Tournaments
 from prediction_tennis.src.dataset.flashscore.models.matchs import Match
 from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import retrieve_flashscore_data, validate_and_check_url
 from prediction_tennis.src.dataset.flashscore.utils.text_extraction import extract_pattern_from_text
@@ -25,7 +26,7 @@ class FlashscoreMatchInTournamentParser:
         self.logger = logging.getLogger("[FLASHSCORE][PARSER] [MATCHS IN TOURNAMENT]")
         
         # URL for the tournament page (to be set later)
-        self.url: str = "" 
+        self.url_result: str = ""
 
         # Base URL for player information
         self.url_base_player = "https://www.flashscore.com/player/"
@@ -48,24 +49,22 @@ class FlashscoreMatchInTournamentParser:
             "Qualifying Finals": "qualif",
         }
 
-    def _init_variable(self, tournament : Dict[str, str]) -> None:
+    def initialize_variables(self, tournament : Tournaments) -> None:
         self.logger.info("___ INIT ___")
 
         # reset value
         self.list_match: List[Match] = []
         
-        # Verify that the required keys exist in the tournament dictionary.
-        required_keys = set(TournamentsDate.__annotations__.keys())
-        missing_keys = required_keys - tournament.keys()
-        if missing_keys:
-            self.logger.error(f"Missing required tournament keys: {missing_keys}")
-            raise ValueError(f"Missing required tournament keys: {missing_keys}")
-        
-        self.tournament_name = tournament["tournament_name"]
+        # Verify that match is an instance of the Match class
+        if not isinstance(tournament, Tournaments):
+            self.logger.error("Provided object is not an instance of the Tournaments class")
+            raise ValueError("Provided object is not an instance of the Tournaments class")
+
+        self.current_tournament: Tournaments = replace(tournament)
 
         # Construct the URL
-        self.url = tournament["link"] + "results/"
-        self.logger.info(f"[{self.tournament_name}] : {self.url}")
+        self.url_result = self.current_tournament.link_results
+        self.logger.info(f"{self.current_tournament}")
 
     def extract_flashscore_results_data(self, response: requests.Response) -> str:
         """
@@ -259,22 +258,22 @@ class FlashscoreMatchInTournamentParser:
         self.logger.info(f"Extracted 'MATCH DATE': {formatted_match_date} -> {match_timestamp}")
         return formatted_match_date, str(match_timestamp)
     
-    def find_all_matches_in_tournament(self, tournament: Dict[str, str]) -> List[Match]:
+    def find_all_matches_in_tournament(self, tournament: Tournaments) -> List[Match]:
         """
         Extracts and processes all matches from a given tournament.
 
         Args:
-            tournament (Dict[str, str]): Tournament details.
+            tournament (Tournaments): The tournament containing match data.
 
         Returns:
             List[Match]: A list of Match objects representing all extracted matches.
         """
         # Initialize match-specific variables
-        self._init_variable(tournament=tournament)
+        self.initialize_variables(tournament=tournament)
 
         # Retrieve Flashscore data
         self.logger.info("Retrieving Flashscore data...")       
-        response = retrieve_flashscore_data(url=self.url, return_as_text=False)
+        response = retrieve_flashscore_data(url=self.url_result, return_as_text=False)
         response_text: str = self.extract_flashscore_results_data(response=response)
 
         # Split response text into individual match segments
@@ -295,8 +294,7 @@ class FlashscoreMatchInTournamentParser:
             player_link_1: str = validate_and_check_url(url=f"{self.url_base_player}{player_name_1}/{player_id_1}/")
             player_link_2: str = validate_and_check_url(url=f"{self.url_base_player}{player_name_2}/{player_id_2}/")
 
-
-            # Builds odd forthis match
+            # Builds odd url for this match
             match_link_odd: str = validate_and_check_url(url=f"{self.url_base_odd}{player_id_1}/")
 
             # Create Player objects
@@ -337,15 +335,16 @@ if __name__ == "__main__":
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     )
 
-
-    data = {
-        "slug"            : "golem",
-        "id"              : "golem",
-        "tournament_name" : "acapulco-2001",
-        "year"            : "2001",
-        "link"            : "https://www.flashscore.com/tennis/atp-singles/acapulco-2001/",
-        "winner"          : "golem"
-            }
+    data = Tournaments(
+        slug          = "golem",
+        id            = "golem",
+        name          = "acapulco-2001",
+        year          = "2001",
+        link          = "https://www.flashscore.com/tennis/atp-singles/acapulco-2001/",
+        link_archives = "https://www.flashscore.com/tennis/atp-singles/acapulco/achives/",
+        link_results  = "https://www.flashscore.com/tennis/atp-singles/acapulco-2001/results/",
+        winner_name   = "golem",
+        )
 
     parser = FlashscoreMatchInTournamentParser()
     list_match: List[Match] = parser.find_all_matches_in_tournament(tournament=data)
