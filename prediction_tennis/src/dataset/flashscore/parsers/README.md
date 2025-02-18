@@ -15,6 +15,9 @@ Parses information related to a single tournament and retrieves all relevant arc
 - **matchs_in_tournament_parser.py**  
   Parses match data within tournaments. Utilizes dataclasses defined in `models/matchs.py` and `models/players.py` to manage match and player information.
 
+- **match_status_parser.py**
+  Checks the status of a match, such as "Retired," "Finished," "Walkover," etc. Utilizes relevant data models to classify and interpret match statuses.
+
 - **odds_parser.py**  
   Parses betting odds. Utilizes dataclasses defined in `models/odds.py`.
 
@@ -28,5 +31,6 @@ parsers/
 ├── tournaments_parser.py
 ├── tournament_dates_parser.py
 ├── matchs_in_tournament_parser.py
+├── match_status_parser.py
 └── odds_parser.py
 ```
