@@ -30,18 +30,56 @@ class Tournaments(TournamentsMinimaliste):
     link        : str
     link_results: str
     winner_name : str
-    list_match  : List["Match"] = field(default_factory=list)  # Avoid mutable default argument
+    list_match  : List[Match] = field(default_factory=list)  # Avoid mutable default argument
 
     def __post_init__(self):
         super().__post_init__()  # Call parent post-init if needed
         logger.info(f"Tournaments created: Name={self.name}, Year={self.year}, Matches={len(self.list_match)}")
 
+    def add_match(self, match: Match) -> None:
+        """
+        Add a Match instance to the tournament's match list.
+        
+        Args:
+            match (Match): A Match instance to add.
+        """
+        self.list_match.append(match)
+        logger.info(f"Added match {match.match_id} to tournament {self.name}")
+
     def __str__(self):
         return f"[{self.name.center(20)}] => {self.link_results}"
 
-    # def to_dict(self) -> Dict[str, str]:
-    #     """Convert to a dict"""
+    def to_dict(self) -> List[Dict[str, str]]:
+        """
+        Convert the Tournament instance to a list of dictionaries.
+        Each dictionary represents the tournament-level details merged with one match's details.
         
-    #     logger.debug(f"Converting Tournaments Date instance to dictionary: {self}")
-        
-    #     return asdict(self)
+        Returns:
+            List[Dict[str, str]]: A list where each element is a dictionary containing:
+                "name", "year", "link", "link_results", "winner_name" and match details
+                for each match in list_match.
+        """
+        result_list: List[Dict[str, str]] = []
+
+        # Base tournament info that will be merged with each match's details.
+        base_info: Dict[str, str] = {
+            "tournament_id"   : self.id,
+            "tournament_slug"   : self.slug,
+            "tournament_name": self.name,
+            "tournament_id"   : self.id,
+            "tournament_year": self.year,
+        }
+
+        if not self.list_match:
+            # No matches present, return the base info alone in a list.
+            result_list.append(base_info)
+        else:
+            for match in self.list_match:
+                # Each match should provide a flat dictionary of its details.
+                match_dict = match.to_dict()
+                # Merge tournament info with the match details.
+                combined_dict = {**base_info, **match_dict}
+                result_list.append(combined_dict)
+
+        logger.info(f"Tournament to_dict() output {len(result_list)} result")
+        return result_list

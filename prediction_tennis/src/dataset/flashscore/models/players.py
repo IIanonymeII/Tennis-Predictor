@@ -12,4 +12,4 @@ class Player:
     link        : str
 
     def __str__(self) -> str:
-        return f"{self.name} ({self.nationality}) : [{self.id}] => {self.link}"
+        return f"{self.name.center(20)} ({self.nationality.center(10)})"
