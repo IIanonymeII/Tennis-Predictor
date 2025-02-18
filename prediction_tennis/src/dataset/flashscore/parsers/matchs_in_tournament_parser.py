@@ -31,7 +31,10 @@ class FlashscoreMatchInTournamentParser:
         # Base URL for player information
         self.url_base_player = "https://www.flashscore.com/player/"
 
-        self.url_base_odd = "https://2.flashscore.ninja/2/x/feed/df_od_1_"
+        self.url_base_odd    = "https://2.flashscore.ninja/2/x/feed/df_od_1_"
+        self.url_base_stat   = "https://2.flashscore.ninja/2/x/feed/df_st_1_"
+        self.url_base_score  = "https://2.flashscore.ninja/2/x/feed/df_sur_1_"
+        self.url_base_status = "https://2.flashscore.ninja/2/x/feed/dc_1_"
 
         # List to store match information
         self.list_match: List[Match] = []
@@ -141,7 +144,7 @@ class FlashscoreMatchInTournamentParser:
 
         # Define regex pattern to capture the 'PLAYER NAME 1 & 2'
         # Define regex pattern ensuring no '¬' or '÷' inside the captured group
-        player_name_1_pattern: str = r"¬WU÷([^¬÷]+)¬AS÷" 
+        player_name_1_pattern: str = r"¬WU÷([^¬÷]+)¬(?:AS|GRA)÷" 
         player_name_2_pattern: str = r"¬WV÷([^¬÷]+)¬(?:AS|GRB)÷"
 
         player_name_1: str = extract_pattern_from_text(text=text, pattern=player_name_1_pattern)
@@ -167,7 +170,7 @@ class FlashscoreMatchInTournamentParser:
         # Define regex pattern to capture the 'PLAYER NATIONALITY 1 & 2'
         # Define regex pattern ensuring no '¬' or '÷' inside the captured group
         player_nationality_1_pattern: str = r"¬FU÷([^¬÷]+)¬CY÷"  
-        player_nationality_2_pattern: str = r"¬FV÷([^¬÷]+)¬AH÷"
+        player_nationality_2_pattern: str = r"¬FV÷([^¬÷]+)¬(?:AH|OB)÷"
 
         player_nationality_1: str = extract_pattern_from_text(text=text, pattern=player_nationality_1_pattern)
         player_nationality_2: str = extract_pattern_from_text(text=text, pattern=player_nationality_2_pattern)
@@ -217,16 +220,16 @@ class FlashscoreMatchInTournamentParser:
         # Define regex pattern to capture the 'MATCH ROUND'
         # Define regex pattern ensuring no '¬' or '÷' inside the captured group
         match_round_pattern: str = r"¬ER÷([^¬÷]+)¬RW÷"
-        extracted_round: str = extract_pattern_from_text(text, match_round_pattern)
+        extracted_round: str = extract_pattern_from_text(text, match_round_pattern, optional_value=True)
         
         if extracted_round in self.round_mapping:
             standardized_round = self.round_mapping[extracted_round]
             self.logger.info(f"Extracted 'MATCH ROUND': {standardized_round}")
             return standardized_round
-        
-        # Raise error
-        self.logger.error(f"Unknown match round: {extracted_round}")
-        raise ValueError(f"Unknown match round: {extracted_round}")
+        return "NOT Play Off"
+        # # Raise error
+        # self.logger.error(f"Unknown match round: {extracted_round}")
+        # raise ValueError(f"Unknown match round: {extracted_round}")
 
     def _match_date(self, text: str) -> Tuple[str, str]:
         """
@@ -294,8 +297,11 @@ class FlashscoreMatchInTournamentParser:
             player_link_1: str = validate_and_check_url(url=f"{self.url_base_player}{player_name_1}/{player_id_1}/")
             player_link_2: str = validate_and_check_url(url=f"{self.url_base_player}{player_name_2}/{player_id_2}/")
 
-            # Builds odd url for this match
-            match_link_odd: str = validate_and_check_url(url=f"{self.url_base_odd}{player_id_1}/")
+            # Builds odd, stat and score url for this match
+            match_link_odd   : str = validate_and_check_url(url=f"{self.url_base_odd}{match_id}/")
+            match_link_stat  : str = validate_and_check_url(url=f"{self.url_base_stat}{match_id}/")
+            match_link_score : str = validate_and_check_url(url=f"{self.url_base_score}{match_id}/")
+            match_link_status: str = validate_and_check_url(url=f"{self.url_base_status}{match_id}/")
 
             # Create Player objects
             player_1: Player = Player(
@@ -314,13 +320,16 @@ class FlashscoreMatchInTournamentParser:
             
             # Create Match object
             _match: Match = Match(
-                match_id             = match_id,
-                formatted_match_date = formatted_match_date,
-                match_timestamp      = match_timestamp,
-                round                = match_round,
-                player_1             = player_1,
-                player_2             = player_2,
-                link_odd             = match_link_odd,
+                match_id   = match_id,
+                match_date = formatted_match_date,
+                timestamp  = match_timestamp,
+                round      = match_round,
+                player1    = player_1,
+                player2    = player_2,
+                odds_link  = match_link_odd,
+                stats_link = match_link_stat,
+                score_link = match_link_score,
+                status_link= match_link_status,
                 )
             
             self.list_match.append(_match)
@@ -334,15 +343,21 @@ if __name__ == "__main__":
         level=logging.DEBUG,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     )
+    # # NORMAL
+    # tournament = "acapulco"
+    # year = "2025"
+    # PARTICULAR CASE
+    tournament = "adelaide"
+    year = "2007"
 
     data = Tournaments(
         slug          = "golem",
         id            = "golem",
-        name          = "acapulco-2001",
-        year          = "2001",
-        link          = "https://www.flashscore.com/tennis/atp-singles/acapulco-2001/",
-        link_archives = "https://www.flashscore.com/tennis/atp-singles/acapulco/achives/",
-        link_results  = "https://www.flashscore.com/tennis/atp-singles/acapulco-2001/results/",
+        name          = f"{tournament}-{year}",
+        year          = f"{year}",
+        link          = f"https://www.flashscore.com/tennis/atp-singles/{tournament}-{year}/",
+        link_archives = f"https://www.flashscore.com/tennis/atp-singles/{tournament}/achives/",
+        link_results  = f"https://www.flashscore.com/tennis/atp-singles/{tournament}-{year}/results/",
         winner_name   = "golem",
         )
 
@@ -353,4 +368,4 @@ if __name__ == "__main__":
     for _match in list_match:
         print(_match)
         print("\n")
-    
+    # ERROR :https://www.flashscore.com/tennis/atp-singles/adelaide/#/GScbsICl/draw
