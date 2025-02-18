@@ -1,37 +1,42 @@
 import logging
 import re
+from typing import Optional
 
 logger = logging.getLogger("[UTIL] [EXTRACT]")
 
 
-def extract_pattern_from_text(text: str, pattern: str) -> str:
+def extract_pattern_from_text(text: str, pattern: str, optional_value: bool = False) -> Optional[str]:
     """
     Extracts a single pattern match from the given text.
 
     Args:
         text (str): The input text to search within.
         pattern (str): The regex pattern to search for.
+        optional_value (bool, optional): If True, returns None when the match is not exactly one.
+            Defaults to False.
 
     Returns:
-        str: The matched string if exactly one match is found.
+        Optional[str]: The matched string if exactly one match is found, or None if
+        `optional_value` is True and the match is not exactly one.
 
     Raises:
-        ValueError: If the number of matches is not exactly one.
+        ValueError: If the number of matches is not exactly one and `optional_value` is False.
     """
-    result = re.findall(pattern, text)
+    matches = re.findall(pattern, text)
 
-    if len(result) == 1:
-        logger.debug("Valid result found: %s", result[0])
-        return result[0]
-    
-    else:
-        logger.error(
-            "Multiple results found: expected exactly 1 result, found %d using pattern '%s' in text: %s",
-            len(result), pattern, text
-        )
-        raise ValueError(
-            f"Expected exactly 1 result, but found {len(result)} using pattern '{pattern}' in text: {text}"
-        )
+    if len(matches) == 1:
+        logger.debug("Valid result found: %s", matches[0])
+        return matches[0]
+    elif optional_value:
+        return None
+
+    logger.error(
+        "Multiple results found: expected exactly 1 result, found %d using pattern '%s' in text: %s",
+        len(matches), pattern, text
+    )
+    raise ValueError(
+        f"Expected exactly 1 result, but found {len(matches)} using pattern '{pattern}' in text: {text}"
+    )
 
 def extract_odds(odd_str: str) -> tuple:
     """
