@@ -12,6 +12,9 @@ These utilities help reduce code duplication and improve overall project maintai
 - **flashscore_client.py**
   Handles communication with Flashscore, facilitating data retrieval and processing.
 
+- **log_setup.py**
+  Implements a rotated logging system to manage storage efficiently. This module creates log files and automatically removes old log files to prevent excessive storage use.
+
 ## Structure
 
 ```shell
@@ -19,5 +22,6 @@ utils/
 ├── __init__.py
 ├── REAMDE.md
 ├── text_extraction.py
-└── flashscore_client.py
+├── flashscore_client.py
+└── log_setup.py
 ```
