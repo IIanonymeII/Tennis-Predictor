@@ -2,10 +2,10 @@
 
 This project aims to extract and organize data from Flashscore (tournaments, matches, statistics, odds, etc.) using a modular architecture based on dataclasses.
 
-## Structure du Projet
+## Folder Structure
 
 ```
-flashscore/ 
+flashscore/raw/ 
 ├── README.md          # This file, explaining the overall project
 ├── models/            # Data models (dataclasses)
 │   ├── README.md      # Explanation of data models and their structure
