@@ -4,7 +4,7 @@ from dataclasses import asdict, dataclass, field
 import logging
 from typing import Dict, List
 
-from prediction_tennis.src.dataset.flashscore.models.matchs import Match
+from prediction_tennis.src.dataset.flashscore.raw.models.matchs import Match
 
 
 logger = logging.getLogger("[DATACLASS] [TOURNAMENT]")

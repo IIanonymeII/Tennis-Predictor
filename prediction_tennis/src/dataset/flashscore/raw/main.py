@@ -8,14 +8,38 @@ import pandas as pd
 import requests
 from tqdm import tqdm
 
-from prediction_tennis.src.dataset.flashscore.parsers.match_status_parser import FlashscoreMatchStatusProcessor
-from prediction_tennis.src.dataset.flashscore.parsers.matchs_in_tournament_parser import FlashscoreMatchInTournamentParser
-from prediction_tennis.src.dataset.flashscore.parsers.odds_parser import FlashscoreOddsParser
-from prediction_tennis.src.dataset.flashscore.parsers.match_score_parser import FlashscoreMatchScoreProcessor
-from prediction_tennis.src.dataset.flashscore.parsers.tournament_dates_parser import FlashscoreTournamentArchiveParser
-from prediction_tennis.src.dataset.flashscore.parsers.tournaments_parser import FlashscoreTournamentProcessor
-from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import retrieve_flashscore_data
-from prediction_tennis.src.dataset.flashscore.utils.log_setup import initialize_logging
+from prediction_tennis.src.dataset.flashscore.raw.parsers.match_status_parser import FlashscoreMatchStatusProcessor
+from prediction_tennis.src.dataset.flashscore.raw.parsers.matchs_in_tournament_parser import FlashscoreMatchInTournamentParser
+from prediction_tennis.src.dataset.flashscore.raw.parsers.odds_parser import FlashscoreOddsParser
+from prediction_tennis.src.dataset.flashscore.raw.parsers.match_score_parser import FlashscoreMatchScoreProcessor
+from prediction_tennis.src.dataset.flashscore.raw.parsers.tournament_dates_parser import FlashscoreTournamentArchiveParser
+from prediction_tennis.src.dataset.flashscore.raw.parsers.tournaments_parser import FlashscoreTournamentProcessor
+from prediction_tennis.src.dataset.flashscore.raw.utils.flashscore_client import retrieve_flashscore_data
+from prediction_tennis.src.dataset.flashscore.raw.utils.log_setup import initialize_logging
+
+ALREADY_DONE =  ['acapulco', 'adelaide', 'adelaide-2', 'almaty', 'amersfoort', 'amsterdam', 'antalya', 'antwerp', 'antwerp-2', 'asian-games',
+                 'astana', 'athens', 'atlanta', 'atp-cup', 'auckland', 'australian-open', 'bangkok', 'banja-luka', 'barcelona', 'basel',  'bastad',
+                 'beijing', 'belgrade', 'belgrade-2', 'berlin', 'bermuda', 'birmingham', 'bogota', 'bologna', 'bolzano', 'bordeaux', 'boston', 
+                 'brasilia', 'brighton', 'brisbane', 'brussels', 'bucharest', 'budapest', 'buenos-aires', 'buzios', 'cagliari', 'casablanca',  
+                 'chengdu', 'chennai', 'chicago', 'cincinnati', 'cologne', 'cologne-2', 'copenhagen', 'cordoba', 'costa-do-sauipe', 'dallas', 
+                 'davis-cup-group-i', ]
+#  'cologne', 'cologne-2', 'copenhagen', 'cordoba', 'costa-do-sauipe', 'dallas', 
+#  'davis-cup-group-i', 'davis-cup-group-ii', 'davis-cup-group-iii', 'davis-cup-group-iv', 'davis-cup-group-v', 'davis-cup-world-group', 
+#  'davis-cup-world-group-i', 'davis-cup-world-group-ii', 'delray-beach', 'doha', 'dubai', 'dusseldorf', 'eastbourne',  'essen', 
+#  'estoril', 'finals-turin', 'florence', 'french-open', 'geneva', 'genoa', 'gijon', 'grand-slam-cup', 'gstaad', 'guaruja', 'halle', 
+#  'hamburg', 'hangzhou', 'hertogenbosch', 'ho-chi-minh-city', 'hong-kong', 'hopman-cup', 'houston', 'indianapolis', 'indian-wells',  
+#  'istanbul', 'itaparica', 'jakarta', 'johannesburg', 'kitzbuhel', 'kuala-lumpur', 'kuala-lumpur-2', 'las-vegas', 'laver-cup', 'london', 
+#  'long-island', 'los-angeles', 'los-cabos', 'lyon', 'lyon-2', 'maceio', 'madrid', 'madrid-2', 'mallorca', 'manchester', 'marbella', 
+#  'marrakech', 'marseille',  'mediterranean-games', 'melbourne-great-ocean-road-open', 'melbourne-murray-river-open', 'melbourne-summer-set', 
+#  'memphis', 'merano', 'metz', 'miami', 'milan', 'monte-carlo', 'montevideo', 'montpellier', 'montreal', 'moscow', 'mumbai', 'munich', 
+#  'napoli', 'new-haven', 'new-haven-2', 'newport', 'new-york', 'next-gen-finals-jeddah', 'nice', 'nottingham', 'oahu', 'olympic-games',  
+#  'oporto', 'orlando', 'osaka', 'ostrava', 'palermo', 'paris', 'parma', 'philadelphia', 'pinehurst', 'poertschach', 'prague', 'pune', 
+#  'quito', 'rio-de-janeiro', 'rio-de-janeiro-2', 'rome', 'rotterdam', 'san-diego', 'san-jose', 'san-marino',  'sanremo', 'santiago', 
+#  'sao-paulo', 'sao-paulo-2', 'sardinia', 'schenectady', 'scottsdale', 'seoul', 'shanghai', 'shanghai-2', 'shenzhen', 'singapore', 
+#  'sofia', 'sopot', 'split', 'stockholm', 'st-petersburg', 'stuttgart', 'stuttgart-1', 'sydney', 'sydney-2', 'taipei', 'tashkent', 
+#  'tel-aviv', 'tokyo', 'tokyo-2', 'toronto', 'toronto-2', 'toulouse', 'umag',  'united-cup', 'us-open', 'valencia', 'verizon-tennis-challenge', 
+#  'vienna', 'vina-del-mar', 'warsaw', 'washington', 'wellington', 'wembley', 'wimbledon', 'winston-salem', 'zagreb', 'zaragoza', 'zhuhai'
+ 
 
 def save_to_csv(data: List[Dict[str, str]], file_path: str) -> None:
     """
@@ -59,7 +83,8 @@ def main():
     for tournament_minimaliste in minimal_tournament_bar:
         minimal_slug = getattr(tournament_minimaliste, "slug", "Unknown")
         minimal_tournament_bar.set_description(f"Processing Minimal Tournament: '{minimal_slug}'")
-
+        if minimal_slug in ALREADY_DONE:
+            continue
         # Initialize an empty list to accumulate tournament dictionaries
         tournament_dicts: List[Dict[str, str]] = []
 
@@ -91,7 +116,7 @@ def main():
             tournament_dicts.extend(tournament.to_dict())
 
         # Save tournament data to CSV
-        csv_filename = f"data/flashscore/tournament_{minimal_slug}.csv"
+        csv_filename = f"data/flashscore/raw/tournament_{minimal_slug}.csv"
         save_to_csv(tournament_dicts, csv_filename)
         logger.info(f"Tournament data saved to {csv_filename}")
 

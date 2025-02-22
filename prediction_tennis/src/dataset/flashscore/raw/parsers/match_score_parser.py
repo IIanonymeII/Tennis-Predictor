@@ -3,10 +3,10 @@ from dataclasses import replace
 import logging
 from typing import List, Optional, Tuple
 
-from prediction_tennis.src.dataset.flashscore.models.matchs import Match
-from prediction_tennis.src.dataset.flashscore.models.players import Player
-from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import retrieve_flashscore_data
-from prediction_tennis.src.dataset.flashscore.utils.text_extraction import extract_pattern_from_text
+from prediction_tennis.src.dataset.flashscore.raw.models.matchs import Match
+from prediction_tennis.src.dataset.flashscore.raw.models.players import Player
+from prediction_tennis.src.dataset.flashscore.raw.utils.flashscore_client import retrieve_flashscore_data
+from prediction_tennis.src.dataset.flashscore.raw.utils.text_extraction import extract_pattern_from_text
 
 class FlashscoreMatchScoreProcessor:
     """.... """
@@ -49,11 +49,11 @@ class FlashscoreMatchScoreProcessor:
 
         # Define regex patterns for Player 1 score sets (5 sets; sets 4 and 5 are optional)
         player1_patterns = [
-            {"pattern": r"¬BA÷([^¬÷]+)¬(?:BB|DA|~BD)÷" , "optional_value": False}, # Set 1 (optional)
-            {"pattern": r"¬~BC÷([^¬÷]+)¬(?:BD|DC|~BF)÷", "optional_value": True},  # Set 2 (optional)
-            {"pattern": r"¬~BE÷([^¬÷]+)¬(?:BF|DE|~BH)÷", "optional_value": True},  # Set 3 (optional)
-            {"pattern": r"¬~BG÷([^¬÷]+)¬(?:BH|DG|~BJ)÷", "optional_value": True},  # Set 4 (optional)
-            {"pattern": r"¬~BI÷([^¬÷]+)¬(?:BJ|DI|~A1)÷", "optional_value": True},  # Set 5 (optional)
+            {"pattern": r"¬BA÷([^¬÷]+)¬(?:BB|DA|~BD|RC)÷" , "optional_value": False}, # Set 1 (optional)
+            {"pattern": r"¬~BC÷([^¬÷]+)¬(?:BD|DC|~BF|RD)÷", "optional_value": True},  # Set 2 (optional)
+            {"pattern": r"¬~BE÷([^¬÷]+)¬(?:BF|DE|~BH|RE)÷", "optional_value": True},  # Set 3 (optional)
+            {"pattern": r"¬~BG÷([^¬÷]+)¬(?:BH|DG|~BJ|RF)÷", "optional_value": True},  # Set 4 (optional)
+            {"pattern": r"¬~BI÷([^¬÷]+)¬(?:BJ|DI|~A1|RG)÷", "optional_value": True},  # Set 5 (optional)
         ]
 
         # Define regex patterns for Player 2 score sets (5 sets; sets 4 and 5 are optional)

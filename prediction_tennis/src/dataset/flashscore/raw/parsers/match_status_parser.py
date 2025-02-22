@@ -2,10 +2,10 @@ from dataclasses import replace
 import logging
 from typing import Dict, Optional
 
-from prediction_tennis.src.dataset.flashscore.models.matchs import Match
-from prediction_tennis.src.dataset.flashscore.models.players import Player
-from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import retrieve_flashscore_data
-from prediction_tennis.src.dataset.flashscore.utils.text_extraction import extract_pattern_from_text
+from prediction_tennis.src.dataset.flashscore.raw.models.matchs import Match
+from prediction_tennis.src.dataset.flashscore.raw.models.players import Player
+from prediction_tennis.src.dataset.flashscore.raw.utils.flashscore_client import retrieve_flashscore_data
+from prediction_tennis.src.dataset.flashscore.raw.utils.text_extraction import extract_pattern_from_text
 
 class FlashscoreMatchStatusProcessor:
     """

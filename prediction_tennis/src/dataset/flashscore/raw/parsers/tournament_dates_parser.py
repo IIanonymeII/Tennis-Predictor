@@ -7,9 +7,9 @@ from typing import Any, Dict, List, Set
 from bs4 import BeautifulSoup, Tag
 import pandas as pd
 
-from prediction_tennis.src.dataset.flashscore.models.tournaments import Tournaments, TournamentsMinimaliste
-from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import validate_and_check_url, retrieve_flashscore_data
-from prediction_tennis.src.dataset.flashscore.utils.text_extraction import extract_year
+from prediction_tennis.src.dataset.flashscore.raw.models.tournaments import Tournaments, TournamentsMinimaliste
+from prediction_tennis.src.dataset.flashscore.raw.utils.flashscore_client import validate_and_check_url, retrieve_flashscore_data
+from prediction_tennis.src.dataset.flashscore.raw.utils.text_extraction import extract_year
 
 
 

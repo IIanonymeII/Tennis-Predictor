@@ -4,8 +4,8 @@ from dataclasses import asdict, dataclass, field
 import logging
 from typing import Dict, List, Optional, Tuple, Union
 
-from prediction_tennis.src.dataset.flashscore.models.odds import CorrectScoreOdds, HomeAwayOdds, OverUnderOdds
-from prediction_tennis.src.dataset.flashscore.models.players import Player
+from prediction_tennis.src.dataset.flashscore.raw.models.odds import CorrectScoreOdds, HomeAwayOdds, OverUnderOdds
+from prediction_tennis.src.dataset.flashscore.raw.models.players import Player
 
 
 logger = logging.getLogger("[DATACLASS] [MATCH]")
@@ -178,13 +178,9 @@ class Match:
             elif p2_games > p1_games:
                 self.p2_win_sets += 1
 
-            # particular case
-            elif p2_games == p1_games == 0:
-                continue
-
             else:
-                logger.error("Unexpected tie score in set %d: %d - %d", set_number, p1_games, p2_games)
-                raise ValueError(f"Unexpected tie score in set {set_number}: {p1_games} - {p2_games}")            
+                logger.warning("Unexpected tie score in set %d: %d - %d", set_number, p1_games, p2_games)     
+                continue   
         
         logger.info("Final set counts: Player1: %d, Player2: %d", self.p1_win_sets, self.p2_win_sets)
 

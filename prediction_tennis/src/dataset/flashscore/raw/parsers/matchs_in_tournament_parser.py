@@ -9,12 +9,13 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import requests
 
-from prediction_tennis.src.dataset.flashscore.models.players import Player
-from prediction_tennis.src.dataset.flashscore.models.tournaments import Tournaments
-from prediction_tennis.src.dataset.flashscore.models.matchs import Match
-from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import retrieve_flashscore_data, validate_and_check_url
-from prediction_tennis.src.dataset.flashscore.utils.text_extraction import extract_pattern_from_text
+from prediction_tennis.src.dataset.flashscore.raw.models.players import Player
+from prediction_tennis.src.dataset.flashscore.raw.models.tournaments import Tournaments
+from prediction_tennis.src.dataset.flashscore.raw.models.matchs import Match
+from prediction_tennis.src.dataset.flashscore.raw.utils.flashscore_client import retrieve_flashscore_data, validate_and_check_url
+from prediction_tennis.src.dataset.flashscore.raw.utils.text_extraction import extract_pattern_from_text
 
+PARTICULAR_CASE: List[str] = ["EV2zgEbq"]
 
 class FlashscoreMatchInTournamentParser:
     """
@@ -144,8 +145,8 @@ class FlashscoreMatchInTournamentParser:
 
         # Define regex pattern to capture the 'PLAYER NAME 1 & 2'
         # Define regex pattern ensuring no '¬' or '÷' inside the captured group
-        player_name_1_pattern: str = r"¬WU÷([^¬÷]+)¬(?:AS|GRA)÷" 
-        player_name_2_pattern: str = r"¬WV÷([^¬÷]+)¬(?:AS|GRB)÷"
+        player_name_1_pattern: str = r"¬WU÷([^¬÷]+)¬(?:AS|GRA|AZ)÷" 
+        player_name_2_pattern: str = r"¬WV÷([^¬÷]+)¬(?:AS|GRB|AZ)÷"
 
         player_name_1: str = extract_pattern_from_text(text=text, pattern=player_name_1_pattern)
         player_name_2: str = extract_pattern_from_text(text=text, pattern=player_name_2_pattern)
@@ -170,7 +171,7 @@ class FlashscoreMatchInTournamentParser:
         # Define regex pattern to capture the 'PLAYER NATIONALITY 1 & 2'
         # Define regex pattern ensuring no '¬' or '÷' inside the captured group
         player_nationality_1_pattern: str = r"¬FU÷([^¬÷]+)¬CY÷"  
-        player_nationality_2_pattern: str = r"¬FV÷([^¬÷]+)¬(?:AH|OB)÷"
+        player_nationality_2_pattern: str = r"¬FV÷([^¬÷]+)¬(?:AH|OB|WB|BB)÷"
 
         player_nationality_1: str = extract_pattern_from_text(text=text, pattern=player_nationality_1_pattern)
         player_nationality_2: str = extract_pattern_from_text(text=text, pattern=player_nationality_2_pattern)
@@ -302,6 +303,10 @@ class FlashscoreMatchInTournamentParser:
             match_link_stat  : str = validate_and_check_url(url=f"{self.url_base_stat}{match_id}/")
             match_link_score : str = validate_and_check_url(url=f"{self.url_base_score}{match_id}/")
             match_link_status: str = validate_and_check_url(url=f"{self.url_base_status}{match_id}/")
+
+            if match_id in PARTICULAR_CASE:
+                # Particular case do not implement
+                continue
 
             # Create Player objects
             player_1: Player = Player(
