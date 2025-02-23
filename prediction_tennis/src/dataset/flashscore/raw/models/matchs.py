@@ -42,6 +42,7 @@ class Match:
         stats_link (str): Link to match statistics.
         score_link (str): Link to detailed match scores.
         status_link (str): Link to match status details.
+        surface_type (str): Type of tennis court surface (e.g., "hard", "clay", "grass", "carpet").
         status (str): Match status (default 'X'; possible values: 'X', 'Retired', 'Walkover', 'finish').
         winner (int): Indicator of winner (-1 default, 1 for player1, 2 for player2).
         p1_win_sets (int): Final sets won by player 1.
@@ -66,6 +67,8 @@ class Match:
     stats_link : str
     score_link : str
     status_link: str
+
+    surface_type: str = ""  # Tennis court surface type (e.g., "hard", "clay", "grass", "carpet")
 
     status: str = "X" # 'X' default; possible values: 'Retired', 'Walkover', 'finish'
     winner: int = -1  # (-1) default, 1 for player1, 2 for player2
@@ -228,7 +231,7 @@ class Match:
         logger.debug("Appended correct odd: %s", correct)
 
     def __str__(self) -> str:
-        return (f"[{self.match_id} - {self.match_date}][{self.round}] [{self.status}]\n"
+        return (f"[{self.match_id} - {self.match_date}][{self.round}] [{self.status}] [{self.surface_type}]\n"
                 f"    player 1 -> {self.player1} [{self.p1_win_sets}] [{self.p1_set1.score} - {self.p1_set2.score} - {self.p1_set3.score} - {self.p1_set4.score} - {self.p1_set5.score}]\n"
                 f"    player 2 -> {self.player2} [{self.p2_win_sets}] [{self.p2_set1.score} - {self.p2_set2.score} - {self.p2_set3.score} - {self.p2_set4.score} - {self.p2_set5.score}]\n")
 
@@ -264,6 +267,7 @@ class Match:
         result["stats_link"]      = self.stats_link
         result["score_link"]      = self.score_link
         result["status_link"]     = self.status_link
+        result["surface"]         = self.surface_type
         result["status"]          = self.status
         result["winner"]          = self.winner
         result["p1_win_sets"]     = self.p1_win_sets

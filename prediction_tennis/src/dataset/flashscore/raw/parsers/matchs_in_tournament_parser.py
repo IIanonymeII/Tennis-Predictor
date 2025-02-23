@@ -15,7 +15,9 @@ from prediction_tennis.src.dataset.flashscore.raw.models.matchs import Match
 from prediction_tennis.src.dataset.flashscore.raw.utils.flashscore_client import retrieve_flashscore_data, validate_and_check_url
 from prediction_tennis.src.dataset.flashscore.raw.utils.text_extraction import extract_pattern_from_text
 
-PARTICULAR_CASE: List[str] = ["EV2zgEbq"]
+PARTICULAR_CASE: List[str] = ["EV2zgEbq",
+                              "6H7IaZrg",
+                              "0v7Mbgba"]
 
 class FlashscoreMatchInTournamentParser:
     """
@@ -28,6 +30,9 @@ class FlashscoreMatchInTournamentParser:
         
         # URL for the tournament page (to be set later)
         self.url_result: str = ""
+
+        # surface type for tournament (to be set later)
+        self.surface_type: str = ""
 
         # Base URL for player information
         self.url_base_player = "https://www.flashscore.com/player/"
@@ -53,11 +58,15 @@ class FlashscoreMatchInTournamentParser:
             "Qualifying Finals": "qualif",
         }
 
+        # valid surfaces 
+        self.valid_surfaces = ["hard", "clay", "grass", "carpet"]
+
     def initialize_variables(self, tournament : Tournaments) -> None:
         self.logger.info("___ INIT ___")
 
         # reset value
         self.list_match: List[Match] = []
+        self.surface_type: str = ""
         
         # Verify that match is an instance of the Match class
         if not isinstance(tournament, Tournaments):
@@ -107,6 +116,45 @@ class FlashscoreMatchInTournamentParser:
         
         self.logger.info("Encoded data string found")
         return data_str
+
+    def _surface_type(self, text: str) -> str:
+        """
+        Extract the surface type from a tennis tournament string and validate it.
+
+        This function searches for tournament details in the input text using a specific pattern.
+        It then identifies the surface type by extracting the substring following the last occurrence of ', '.
+        If the extracted surface (converted to lowercase) is one of the valid surfaces: ['hard', 'clay', 'grass', 'carpet'],
+        it is returned. Otherwise, an error is logged and a ValueError is raised.
+
+        Args:
+            text (str): The input string containing tournament information.
+
+        Returns:
+            str: The validated surface type in lowercase.
+
+        Raises:
+            ValueError: If the tournament format is invalid or the surface type is not recognized.
+        """
+        # Step 1: Extract tournament part
+        tournament_part_pattern: str = r"¬~ZA÷([^¬÷]+)¬ZEE÷"
+        tournament_part: str = extract_pattern_from_text(text=text, pattern=tournament_part_pattern)
+
+        # Step 2: Locate the last occurrence of ', ' to find the surface type.
+        last_comma_index: int = tournament_part.rfind(", ")
+        if last_comma_index == -1:
+            self.logger.error("Comma delimiter not found in tournament part: '%s'", tournament_part)
+            raise ValueError("Invalid tournament format: missing comma delimiter for surface extraction.")
+
+        # Extract the surface type by taking the substring after the last comma and stripping whitespace.
+        surface: str = tournament_part[last_comma_index + 2:].strip()
+
+        # Step 3: Convert the surface to lowercase and verify it against valid surfaces.
+        surface_lower: str = surface.lower()
+        if surface_lower in self.valid_surfaces:
+            return surface_lower
+
+        self.logger.error("Extracted surface '%s' is not valid. Expected one of: %s", surface_lower, self.valid_surfaces)
+        raise ValueError(f"Invalid surface type: {surface_lower}")
 
     def _match_id(self, text: str) -> str:
         """
@@ -281,13 +329,20 @@ class FlashscoreMatchInTournamentParser:
         response_text: str = self.extract_flashscore_results_data(response=response)
 
         # Split response text into individual match segments
-        match_segments = response_text.split("~AA÷")[1:]
+        match_segments = response_text.split("~AA÷")
+        surface_info, match_segments = match_segments[0], match_segments[1:]
         self.logger.debug("Found %d match segments", len(match_segments))
+
+        self.surface_type = self._surface_type(text=surface_info)
 
         for segment in match_segments:
             self.logger.debug("Processing match segment: %s", segment)
 
             match_id: str = self._match_id(text=segment)
+            if match_id in PARTICULAR_CASE:
+                # Particular case do not implement
+                continue
+
             player_name_1, player_name_2 = self._player_name(text=segment) # Tuple[str, str]
             player_nationality_1, player_nationality_2 = self._player_nationality(text=segment) # Tuple[str, str]
             player_id_1, player_id_2 = self._player_id(text=segment) # Tuple[str, str]
@@ -303,10 +358,6 @@ class FlashscoreMatchInTournamentParser:
             match_link_stat  : str = validate_and_check_url(url=f"{self.url_base_stat}{match_id}/")
             match_link_score : str = validate_and_check_url(url=f"{self.url_base_score}{match_id}/")
             match_link_status: str = validate_and_check_url(url=f"{self.url_base_status}{match_id}/")
-
-            if match_id in PARTICULAR_CASE:
-                # Particular case do not implement
-                continue
 
             # Create Player objects
             player_1: Player = Player(
@@ -325,16 +376,17 @@ class FlashscoreMatchInTournamentParser:
             
             # Create Match object
             _match: Match = Match(
-                match_id   = match_id,
-                match_date = formatted_match_date,
-                timestamp  = match_timestamp,
-                round      = match_round,
-                player1    = player_1,
-                player2    = player_2,
-                odds_link  = match_link_odd,
-                stats_link = match_link_stat,
-                score_link = match_link_score,
-                status_link= match_link_status,
+                match_id    = match_id,
+                match_date  = formatted_match_date,
+                timestamp   = match_timestamp,
+                round       = match_round,
+                player1     = player_1,
+                player2     = player_2,
+                odds_link   = match_link_odd,
+                stats_link  = match_link_stat,
+                score_link  = match_link_score,
+                status_link = match_link_status,
+                surface_type= self.surface_type,
                 )
             
             self.list_match.append(_match)
@@ -355,6 +407,10 @@ if __name__ == "__main__":
     tournament = "adelaide"
     year = "2007"
 
+    # Grass
+    tournament= "wimbledon"
+    year = "2016"
+
     data = Tournaments(
         slug          = "golem",
         id            = "golem",
@@ -374,3 +430,4 @@ if __name__ == "__main__":
         print(_match)
         print("\n")
     # ERROR :https://www.flashscore.com/tennis/atp-singles/adelaide/#/GScbsICl/draw
+    ["Hard", "Clay", "Grass", "Carpet"]
