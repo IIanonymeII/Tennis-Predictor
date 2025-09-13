@@ -4,9 +4,9 @@ from typing import Dict, List
 import pandas as pd
 import requests
 
-from prediction_tennis.src.dataset.flashscore.raw.models.tournaments import TournamentsMinimaliste
-from prediction_tennis.src.dataset.flashscore.raw.utils.flashscore_client import validate_and_check_url
-from prediction_tennis.src.dataset.flashscore.raw.utils.text_extraction import extract_pattern_from_text
+from prediction_tennis.src.dataset.flashscore.models.tournaments import TournamentsMinimaliste
+from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import validate_and_check_url
+from prediction_tennis.src.dataset.flashscore.utils.text_extraction import extract_pattern_from_text
 
 class FlashscoreTournamentProcessor:
     """

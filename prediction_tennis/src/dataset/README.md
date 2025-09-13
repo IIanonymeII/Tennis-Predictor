@@ -1,29 +1,49 @@
-# Dataset Folder Structure Explanation
+# Tennis-Predictor – Dataset
 
-This project uses a structured approach to organize the dataset, separating raw and preprocessed data into distinct folders: `dataset/raw/` and `dataset/preprocessed/`. This README explains the rationale behind this choice and provides guidance on how to work with the data in each folder.
+This module provides the tools to parse, model, and standardize raw tennis data from multiple sources into structured datasets ready for analysis and machine learning prediction. It ensures that heterogeneous data (ATP Tour, Flashscore, Wikipedia) can be transformed into a consistent format suitable for downstream pipelines.
 
+---
+## 📂 Structure
+```dataset/
+│── Readme.md        # You are here
+│── atptour/         # ATP Tour-specific parsing and models
+│   ├── models/      # Dataclasses for tournaments, matches, players...
+│   ├── parser/      # Extract tournament, match, player info from raw data
+│   ├── test/        # Unit tests (pytest)
+│   ├── utils/       # Helper functions for parsing & formatting
+│   ├── main.py      # Entry point for running parsers
+│   └── README.md    # Module-specific documentation
+│
+│── flashscore/      # Flashscore odds & match data parsing
+│── wikipedia/       # Wikipedia player & historical data parsing
+```
 
-## raw Data
-Contains the original data files exactly as received from the source. No modifications are made to these files so that you always have a pristine reference for reproducibility and auditing purposes.
-- **Location:** `dataset/raw/`
+---
+## ⚙️ Responsibilities
+- **`models/`**  
+  Defines dataclasses for tennis entities (`Tournament`, `Match`, `Player`).  
+  Provides conversion methods (e.g., dict or JSON) for further processing.
 
+- **`parser/`**  
+  Implements parsing logic per source.  
+  - Extracts tournament info, player metadata (e.g., age, nationality), and match results.  
+  - Handles raw file reading, requests, and transformations.  
 
+- **`utils/`**  
+  Reusable helpers for data normalization, date handling, and formatting.
 
-## Preprocessed Data
+- **`test/`**  
+  Unit tests written with **pytest** to ensure correctness and reproducibility of parsing and modeling.
 
-Houses data that has undergone cleaning, transformation, and feature engineering. These steps prepare the data for direct use in analysis or modeling tasks, saving time on repetitive processing.
+- **`main.py`**  
+  Script to orchestrate the parsing workflow for ATP Tour data.
 
-- **Location:** `dataset/preprocessed/`
+---
 
-##  Why This Structure?
-The choice of using `dataset/raw/` and `dataset/preprocessed/` offers several benefits:
+## 💻 Usage
 
-- **Clarity:** Separating raw and preprocessed data makes it clear which version of the data is being used at each stage of the project.
-
-- **Reproducibility:** Keeping the raw data intact allows for easy re-running of preprocessing steps if needed.
-
-- **Efficiency:** Preprocessed data can be directly loaded for analysis or modeling, avoiding redundant computations.
-
-- **Organization:** Aligns with standard data science project structures, making the project easier to navigate for collaborators or future users.
-
-This structure ensures that the dataset is managed in a way that is both intuitive and scalable, supporting the project's goals effectively.
+### Run ATP Tour Parser
+From the repository root:
+```bash
+python dataset.atptour.main.py
+```

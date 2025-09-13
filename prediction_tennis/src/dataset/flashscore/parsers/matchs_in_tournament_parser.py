@@ -9,15 +9,53 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import requests
 
-from prediction_tennis.src.dataset.flashscore.raw.models.players import Player
-from prediction_tennis.src.dataset.flashscore.raw.models.tournaments import Tournaments
-from prediction_tennis.src.dataset.flashscore.raw.models.matchs import Match
-from prediction_tennis.src.dataset.flashscore.raw.utils.flashscore_client import retrieve_flashscore_data, validate_and_check_url
-from prediction_tennis.src.dataset.flashscore.raw.utils.text_extraction import extract_pattern_from_text
+from prediction_tennis.src.dataset.flashscore.models.players import Player
+from prediction_tennis.src.dataset.flashscore.models.tournaments import Tournaments
+from prediction_tennis.src.dataset.flashscore.models.matchs import Match
+from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import retrieve_flashscore_data, validate_and_check_url
+from prediction_tennis.src.dataset.flashscore.utils.text_extraction import extract_pattern_from_text
 
 PARTICULAR_CASE: List[str] = ["EV2zgEbq",
                               "6H7IaZrg",
-                              "0v7Mbgba"]
+                              "0v7Mbgba",
+                              "hK4XfJjl",
+                              "tIA0EkVm",
+                              "neBdFVFs",
+                              "tIlVbAV0",
+                              "OtvzbUp7",
+                              "jmWLLXxE",
+                              "UwVPKihK",
+                              "SEpRajGf",
+                              "jFhgKK19",
+                              "dhgkL0n3",
+                              "tpB2ccfd",
+                              "t4sMB9Te",
+                              "YZNCYWz9",
+                              "8IZN4k0B",
+                              "IgnVBOqR",
+                              "CYfPaal1",
+                              "QFizX0oi",
+                              "tjb54dHu",
+                              "QqRExdpp",
+                              "80evMwvn",
+                              "8SaOuja7",
+                              "tUa94x9B",
+                              "Gdmh6bva",
+                              "0fUDbXZT",
+                              "Q3AJtWq1",
+                              "nDBFsCUf",
+                              "MyiHc0qJ",
+                              "YcLu4y6h",
+                              "UPEl2Fz5",
+                              "zVqaqYar",
+                              "vyMy5Hjn",
+                              "23Gufiro",
+                              "Um7WmEiR",
+                              "ID3SlfxL",
+                              "IVv9aDKN",
+                              "QXHX5cyt",
+                              "CYy11ZkB"
+                              ]
 
 class FlashscoreMatchInTournamentParser:
     """
@@ -37,7 +75,7 @@ class FlashscoreMatchInTournamentParser:
         # Base URL for player information
         self.url_base_player = "https://www.flashscore.com/player/"
 
-        self.url_base_odd    = "https://2.flashscore.ninja/2/x/feed/df_od_1_"
+        self.url_base_odd    = "https://global.ds.lsapp.eu/odds/pq_graphql?_hash=oce&eventId="
         self.url_base_stat   = "https://2.flashscore.ninja/2/x/feed/df_st_1_"
         self.url_base_score  = "https://2.flashscore.ninja/2/x/feed/df_sur_1_"
         self.url_base_status = "https://2.flashscore.ninja/2/x/feed/dc_1_"
@@ -148,8 +186,11 @@ class FlashscoreMatchInTournamentParser:
         # Extract the surface type by taking the substring after the last comma and stripping whitespace.
         surface: str = tournament_part[last_comma_index + 2:].strip()
 
-        # Step 3: Convert the surface to lowercase and verify it against valid surfaces.
-        surface_lower: str = surface.lower()
+        # Step 3: Remove '(indoor)' or any text inside parentheses
+        surface_cleaned: str = re.sub(r"\s*\(.*?\)", "", surface).strip()
+
+        # Step 4: Convert the surface to lowercase and verify it against valid surfaces.
+        surface_lower: str = surface_cleaned.lower()
         if surface_lower in self.valid_surfaces:
             return surface_lower
 
@@ -242,8 +283,8 @@ class FlashscoreMatchInTournamentParser:
 
         # Define regex pattern to capture the 'PLAYER ID 1 & 2'        
         # Define regex pattern ensuring no '¬' or '÷' inside the captured group
-        player_id_1_pattern: str = r"¬PX÷([^¬÷]+)¬WU÷"  
-        player_id_2_pattern: str = r"¬PY÷([^¬÷]+)¬WV÷"
+        player_id_1_pattern: str = r"¬PX÷([^¬÷]+)¬(?:WU|WM)÷"   
+        player_id_2_pattern: str = r"¬PY÷([^¬÷]+)¬(?:WV|WN)÷"
 
         player_id_1: str = extract_pattern_from_text(text=text, pattern=player_id_1_pattern)
         player_id_2: str = extract_pattern_from_text(text=text, pattern=player_id_2_pattern)
@@ -354,7 +395,7 @@ class FlashscoreMatchInTournamentParser:
             player_link_2: str = validate_and_check_url(url=f"{self.url_base_player}{player_name_2}/{player_id_2}/")
 
             # Builds odd, stat and score url for this match
-            match_link_odd   : str = validate_and_check_url(url=f"{self.url_base_odd}{match_id}/")
+            match_link_odd   : str = validate_and_check_url(url=f"{self.url_base_odd}{match_id}&projectId=2&geoIpCode=FR&geoIpSubdivisionCode=FRBRE")
             match_link_stat  : str = validate_and_check_url(url=f"{self.url_base_stat}{match_id}/")
             match_link_score : str = validate_and_check_url(url=f"{self.url_base_score}{match_id}/")
             match_link_status: str = validate_and_check_url(url=f"{self.url_base_status}{match_id}/")

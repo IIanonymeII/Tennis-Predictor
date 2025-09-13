@@ -41,6 +41,18 @@ poetry install
 └── tests       # Unit tests for the project
 ```
 
+## 📂 Raw Data
+The `data/` directory stores unmodified raw data exactly as collected from external sources (web scraping, APIs, downloads, etc.). These files remain untouched to ensure reproducibility and traceability.
+
+* Location: `data/`
+* Subfolders:
+    * `atptour_raw/`    → ATP Tour data for each player (birthday, height, turn pro, hand, backhand)
+    * `flashscore_raw/` → Flashscore match and odds data (tournaments, matches, players, rankings, etc.)
+    * `wikipedia_raw/`  → tournament historical info, etc.
+
+These act as the ground truth reference for the project.
+
+
 ## License
 
 This repository is licensed under the terms of the **MIT License**.

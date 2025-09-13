@@ -4,8 +4,8 @@ from dataclasses import asdict, dataclass, field
 import logging
 from typing import Dict, List, Optional, Tuple, Union
 
-from prediction_tennis.src.dataset.flashscore.raw.models.odds import CorrectScoreOdds, HomeAwayOdds, OverUnderOdds
-from prediction_tennis.src.dataset.flashscore.raw.models.players import Player
+from prediction_tennis.src.dataset.flashscore.models.odds import CorrectScoreOdds, HomeAwayOdds, OverUnderOdds
+from prediction_tennis.src.dataset.flashscore.models.players import Player
 
 
 logger = logging.getLogger("[DATACLASS] [MATCH]")
@@ -200,24 +200,31 @@ class Match:
         self.p1_odd_home_away.append(player_1)
         logger.debug("Appended home-away odds for player1: %s", player_1)
 
-        self.p2_odd_home_away.append(player_1)
+        self.p2_odd_home_away.append(player_2)
         logger.debug("Appended home-away odds for player2: %s", player_2)
 
     def append_over_under(self, 
-                          over: OverUnderOdds,
-                          under: OverUnderOdds) -> None:
+                      over: Optional[OverUnderOdds] = None, 
+                      under: Optional[OverUnderOdds] = None) -> None:
         """
-        Append a OverUnderOdds instance for over under to the odds list.
+        Append a single OverUnderOdds instance for over or under to the odds list.
 
         Args:
-            over  (OverUnderOdds): A OverUnderOdds instance representing odds for over
-            under (OverUnderOdds): A OverUnderOdds instance representing odds for under
+            over  (Optional[OverUnderOdds]): OverUnderOdds instance for 'over' odds. Mutually exclusive with 'under'.
+            under (Optional[OverUnderOdds]): OverUnderOdds instance for 'under' odds. Mutually exclusive with 'over'.
+        
+        Raises:
+            ValueError: If both or neither of 'over' and 'under' are provided.
         """
-        self.over_odd.append(over)
-        logger.debug("Appended over-under odds for over: %s", over)
+        if (over is None and under is None) or (over is not None and under is not None):
+            raise ValueError("Exactly one of 'over' or 'under' must be provided.")
 
-        self.under_odd.append(under)
-        logger.debug("Appended over-under odds for under: %s", under)
+        if over is not None:
+            self.over_odd.append(over)
+            logger.debug("Appended over-under odds for over: %s", over)
+        else:
+            self.under_odd.append(under)
+            logger.debug("Appended over-under odds for under: %s", under)
 
     def append_correct_score(self, 
                                 correct: CorrectScoreOdds) -> None:
