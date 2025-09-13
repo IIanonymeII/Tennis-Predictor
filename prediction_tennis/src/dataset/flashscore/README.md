@@ -1,4 +1,4 @@
-# Tennis-Predictor – Flashscore Parser
+# Tennis-Predictor – Flashscore Dataset
 
 This module is dedicated to **extracting and organizing raw tennis data from Flashscore**.  
 It provides a modular parsing pipeline to transform unstructured HTML/text into clean, structured objects (dataclasses) for downstream use in the **Tennis-Predictor** project.
