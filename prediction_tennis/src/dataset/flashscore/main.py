@@ -8,6 +8,8 @@ import pandas as pd
 import requests
 from tqdm import tqdm
 
+from prediction_tennis.src.dataset.flashscore.models.tournaments import Tournaments, TournamentsMinimaliste
+from prediction_tennis.src.dataset.flashscore.models.matchs import Match
 from prediction_tennis.src.dataset.flashscore.parsers.match_status_parser import FlashscoreMatchStatusProcessor
 from prediction_tennis.src.dataset.flashscore.parsers.matchs_in_tournament_parser import FlashscoreMatchInTournamentParser
 from prediction_tennis.src.dataset.flashscore.parsers.odds_parser import FlashscoreOddsParser
@@ -88,7 +90,7 @@ def main():
     parser_match_odd           = FlashscoreOddsParser()
 
     # Process global tournament data
-    tourn_global_list: List["TournamentsMinimaliste"] = parser_global_tournament.process_data(data_str=response_txt)
+    tourn_global_list: List[TournamentsMinimaliste] = parser_global_tournament.process_data(data_str=response_txt)
 
     # Iterate over each minimal tournament to process detailed tournaments
     minimal_tournament_bar = tqdm(tourn_global_list, desc="Processing Minimal Tournament: Unknown")
@@ -100,7 +102,7 @@ def main():
         # Initialize an empty list to accumulate tournament dictionaries
         tournament_dicts: List[Dict[str, str]] = []
 
-        tournaments_list: List["Tournaments"] = parser_tournament.found_all_date_in_archive(tournament = tournament_minimaliste)
+        tournaments_list: List[Tournaments] = parser_tournament.found_all_date_in_archive(tournament = tournament_minimaliste)
 
         # Process each detailed tournament
         tournament_bar = tqdm(tournaments_list, desc="Processing Tournament: Unknown", leave=False)
@@ -108,7 +110,7 @@ def main():
             tournament_name = getattr(tournament, "name", "Unknown")
             tournament_bar.set_description(f"Processing Tournament: '{tournament_name}'")
         
-            match_list: list["Matchs"] = parser_match_in_tournament.find_all_matches_in_tournament(tournament=tournament)
+            match_list: list[Match] = parser_match_in_tournament.find_all_matches_in_tournament(tournament=tournament)
             
             # Process each match in the tournament
             match_bar = tqdm(match_list, desc=f"Processing {tournament_name} match: Unknown", leave=False)
