@@ -1,4 +1,4 @@
-# Tennis-Predictor – Utils
+# Tennis-Predictor – Flashscore Utils
 
 This folder contains **utility functions** that are shared across multiple modules of the Tennis-Predictor project.  
 

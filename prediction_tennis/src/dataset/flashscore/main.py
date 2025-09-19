@@ -19,29 +19,29 @@ from prediction_tennis.src.dataset.flashscore.parsers.tournaments_parser import 
 from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import retrieve_flashscore_data
 from prediction_tennis.src.dataset.flashscore.utils.log_setup import initialize_logging
 
-ALREADY_DONE =  []
-    
-# 'acapulco', 'adelaide', 'adelaide-2', 'almaty', 'amersfoort', 'amsterdam', 'antalya', 'antwerp', 'antwerp-2', 'asian-games',
-# 'astana', 'athens', 'atlanta', 'atp-cup', 'auckland', 'australian-open', 'bangkok', 'banja-luka', 'barcelona', 'basel', 'bastad
-# 'beijing', 'belgrade', 'belgrade-2', 'berlin', 'bermuda', 'birmingham', 'bogota', 'bologna', 'bolzano', 'bordeaux', 'boston',
-# 'brasilia', 'brighton', 'brisbane','brussels-dic', 'brussels', 'bucharest', 'budapest', 'buenos-aires', 'buzios', 'cagliari',
-# 'casablanca', 'chengdu', 'chennai', 'chicago', 'cincinnati','cologne', 'cologne-2', 'copenhagen', 'cordoba', 'costa-do-sauipe',
-# 'dallas', 'davis-cup-group-i', 'cologne', 'cologne-2', 'copenhagen', 'cordoba', 'costa-do-sauipe', 'dallas', 'davis-cup-group-i
-# 'davis-cup-group-ii', 'davis-cup-group-iii', 'davis-cup-group-iv', 'davis-cup-group-v', 'davis-cup-world-group', 
-# 'davis-cup-world-group-i', 'davis-cup-world-group-ii', 'delray-beach', 'doha', 'dubai', 'dusseldorf', 'eastbourne',  'essen',
-# 'estoril', 'finals-turin', 'florence', 'french-open', 'geneva', 'genoa', 'gijon', 'grand-slam-cup', 'gstaad', 'guaruja', 'halle
-# 'hamburg', 'hangzhou', 'hertogenbosch', 'ho-chi-minh-city', 'hong-kong', 'hopman-cup', 'houston', 'indianapolis', 'indian-wells
-# 'istanbul', 'itaparica', 'jakarta', 'johannesburg', 'kitzbuhel', 'kuala-lumpur', 'kuala-lumpur-2', 'las-vegas', 'laver-cup', 'l
-# 'long-island', 'los-angeles', 'los-cabos', 'lyon', 'lyon-2', 'maceio', 'madrid', 'madrid-2', 'mallorca', 'manchester', 'marbell
-# 'marrakech', 'marseille',  'mediterranean-games', 'melbourne-great-ocean-road-open', 'melbourne-murray-river-open', 'melbourne-
-# 'memphis', 'merano', 'metz', 'miami', 'milan', 'monte-carlo', 'montevideo', 'montpellier', 'montreal', 'moscow', 'mumbai', 'mun
-# 'napoli', 'new-haven', 'new-haven-2', 'newport', 'new-york', 'next-gen-finals-jeddah', 'nice', 'nottingham', 'oahu', 'olympic-g
-# 'oporto', 'orlando', 'osaka', 'ostrava', 'palermo', 'paris', 'parma', 'philadelphia', 'pinehurst', 'poertschach', 'prague', 'pu
-# 'quito', 'rio-de-janeiro', 'rio-de-janeiro-2', 'rome', 'rotterdam', 'san-diego', 'san-jose', 'san-marino',  'sanremo', 'santiag
-# 'sao-paulo', 'sao-paulo-2', 'sardinia', 'schenectady', 'scottsdale', 'seoul', 'shanghai', 'shanghai-2', 'shenzhen', 'singapore'
-# 'sofia', 'sopot', 'split', 'stockholm', 'st-petersburg', 'stuttgart', 'stuttgart-1', 'sydney', 'sydney-2', 'taipei', 'tashkent'
-# 'tel-aviv', 'tokyo', 'tokyo-2', 'toronto', 'toronto-2', 'toulouse', 'umag','united-cup',  'us-open', 'valencia', 'verizon-tenni
-# 'vienna', 'vina-del-mar', 'warsaw', 'washington', 'wellington', 'wembley', 'wimbledon', 'winston-salem', 'zagreb', 'zaragoza', 'zhuhai'
+ALREADY_DONE =  ["acapulco", "adelaide", "adelaide-2", "almaty", "amersfoort", "amsterdam", "antalya", "antwerp", "antwerp-2", "asian-games", 
+                 "astana", "athens", "atlanta", "atp-cup", "auckland", "australian-open", "bangkok", "banja-luka", "barcelona", "basel", "bastad", 
+                 "beijing", "belgrade", "belgrade-2", "berlin", "bermuda", "birmingham", "bogota", "bologna", "bolzano", "bordeaux", "boston", 
+                 "brasilia", "brighton", "brisbane", "brussels-dic", "brussels", "bucharest", "budapest", "buenos-aires", "buzios", "cagliari", 
+                 "casablanca", "chengdu", "chennai", "chicago", "cincinnati", "cologne", "cologne-2", "copenhagen", "cordoba", "costa-do-sauipe", 
+                 "dallas", "davis-cup-group-i", "davis-cup-group-ii", "davis-cup-group-iii", "davis-cup-group-iv", "davis-cup-group-v", 
+                 "davis-cup-world-group", "davis-cup-world-group-i", "davis-cup-world-group-ii", "delray-beach", "doha", "dubai", "dusseldorf", 
+                 "eastbourne", "essen", "estoril", "finals-turin", "florence", "french-open", "geneva", "genoa", "gijon", "grand-slam-cup", "gstaad", 
+                 "guaruja", "halle", "hamburg", "hangzhou", "hertogenbosch", "ho-chi-minh-city", "hong-kong", "hopman-cup", "houston", "indianapolis", 
+                 "indian-wells", "istanbul", "itaparica", "jakarta", "johannesburg", "kitzbuhel", "kuala-lumpur", "kuala-lumpur-2", "las-vegas", 
+                 "laver-cup", "london", "long-island", "los-angeles", "los-cabos", "lyon", "lyon-2", "maceio", "madrid", "madrid-2", "mallorca", 
+                 "manchester", "marbella", "marrakech", "marseille", "mediterranean-games", "melbourne-great-ocean-road-open",
+                 "melbourne-murray-river-open", "melbourne-summer-set", "memphis", "merano", "metz", "miami", "milan", "monte-carlo", "montevideo",
+                 "montpellier", "montreal", "moscow", "mumbai", "munich", "napoli", "new-haven", "new-haven-2", "newport", "new-york",
+                 "next-gen-finals-jeddah", "nice", "nottingham", "oahu", "olympic-games", "oporto", "orlando", "osaka", "ostrava", "palermo", "paris",
+                 "parma", "philadelphia", "pinehurst", "poertschach", "prague", "pune", "quito", "rio-de-janeiro", "rio-de-janeiro-2", "rome", "rotterdam",
+                 "san-diego", "san-jose", "san-marino", "sanremo", "santiago", "sao-paulo", "sao-paulo-2", "sardinia", "schenectady", "scottsdale", 
+                 "seoul", "shanghai", "shanghai-2", "shenzhen", "singapore", "sofia", "sopot", "split", "stockholm", "st-petersburg", "stuttgart", 
+                 "stuttgart-1", "sydney", "sydney-2", "taipei", "tashkent", "tel-aviv", "tokyo", "tokyo-2", "toronto", "toronto-2", "toulouse",  "umag",
+                 "united-cup", "us-open", "valencia", "verizon-tennis-challenge", "vienna", "vina-del-mar",  "warsaw", "washington", "wellington", "wembley", 
+                 "wimbledon", "winston-salem", "zagreb", "zaragoza", "zhuhai"]
+                 
+
 
 # Particular case
 EXCLUDED_GROUPS = [
@@ -53,6 +53,7 @@ EXCLUDED_GROUPS = [
                    "davis-cup-group-iii",
                    "davis-cup-group-iv",
                    "davis-cup-group-v",
+                   'hangzhou',
                   ]
 
 def save_to_csv(data: List[Dict[str, str]], file_path: str) -> None:
@@ -91,7 +92,7 @@ def main():
 
     # Process global tournament data
     tourn_global_list: List[TournamentsMinimaliste] = parser_global_tournament.process_data(data_str=response_txt)
-
+    
     # Iterate over each minimal tournament to process detailed tournaments
     minimal_tournament_bar = tqdm(tourn_global_list, desc="Processing Minimal Tournament: Unknown")
     for tournament_minimaliste in minimal_tournament_bar:
@@ -130,7 +131,7 @@ def main():
             tournament_dicts.extend(tournament.to_dict())
 
         # Save tournament data to CSV
-        csv_filename = f"data/flashscore_raw/tournament_{minimal_slug}.csv"
+        csv_filename = f"data/01_raw/flashscore/tournament_{minimal_slug}.csv"
         save_to_csv(tournament_dicts, csv_filename)
         logger.info(f"Tournament data saved to {csv_filename}")
 
