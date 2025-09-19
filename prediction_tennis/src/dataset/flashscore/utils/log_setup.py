@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 from typing import Optional
 
 
@@ -153,14 +154,20 @@ def initialize_logging(log_file: str) -> None:
         )
         rotating_handler.setLevel(logging.INFO)
 
-        # Configure the root logger explicitly
+        # Console handler (only errors go to terminal)
+        console_handler = logging.StreamHandler(sys.stderr)
+        console_handler.setLevel(logging.ERROR)
+        console_handler.setFormatter(logging.Formatter(log_format))
+
         logging.basicConfig(
             level=logging.INFO,
             format=log_format,
-            handlers=[rotating_handler]
+            handlers=[rotating_handler, console_handler]
         )
-        print(f"[LOGGING DONE] ...")
+
         init_logger.info("Logging system successfully configured.")
+        print("[LOGGING DONE] ...")
+        
     except PermissionError as perr:
         init_logger.error(f"Security violation prevented: {str(perr)}")
         raise

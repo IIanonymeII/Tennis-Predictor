@@ -44,7 +44,7 @@ def main() -> None:
             tournament_data.append(tournament.to_dict())
 
     # Save the accumulated tournament data to CSV.
-    csv_filename = "data/wikipedia_raw/tournament.csv"
+    csv_filename = "data/01_raw/wikipedia/tournament.csv"
     save_to_csv(tournament_data, csv_filename)
     logger.info(f"Tournament data saved to {csv_filename}")
 
