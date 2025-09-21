@@ -1,19 +1,22 @@
 
 import logging
+from pathlib import Path
 from typing import Dict, List, Union
 from tqdm import tqdm
 
 from prediction_tennis.src.dataset.flashscore.main import save_to_csv
-from prediction_tennis.src.dataset.flashscore.utils.log_setup import initialize_logging
 from prediction_tennis.src.dataset.wikipedia.models.tournaments import Tournaments
 from prediction_tennis.src.dataset.wikipedia.parsers.season_links import ATPSeasonLinkExtractor
 from prediction_tennis.src.dataset.wikipedia.parsers.season_tournament import ATPSeasonParser
+from prediction_tennis.src.utils.log_setup import initialize_logging
+
+
+WIKIPEDIA_LOG_FILE = Path("log/wikipedia_processing.log")
 
 def main() -> None:
     """Main function to process ATP tournament data from Wikipedia and save it to CSV."""
     # Initialize logging.
-    log_file = "log/flashscore.log"
-    initialize_logging(log_file)
+    initialize_logging(WIKIPEDIA_LOG_FILE)
     logger = logging.getLogger("[DATASET] [MAIN]")
 
     # Wikipedia URL for ATP Tour data.

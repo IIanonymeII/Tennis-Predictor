@@ -20,12 +20,6 @@ These utilities are designed to **reduce code duplication**, simplify common tas
 >   - Data retrieval  
 >   - Preliminary data formatting before parsing  
 
->- **`log_setup.py`**  
-  Implements a **rotating logging system** to efficiently manage log storage:  
->   - Creates log files  
->   - Rotates and removes old logs automatically  
->   - Ensures long-running processes do not consume excessive disk space
-
 ---
 
 ## 📂 Directory Structure
@@ -35,6 +29,5 @@ utils/
 ├── __init__.py
 ├── README.md
 ├── text_extraction.py
-├── flashscore_client.py
-└── log_setup.py
+└── flashscore_client.py
 ```

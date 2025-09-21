@@ -1,11 +1,8 @@
 
-import datetime
 import logging
-import os
-import time
+from pathlib import Path
 from typing import Dict, List
 import pandas as pd
-import requests
 from tqdm import tqdm
 
 from prediction_tennis.src.dataset.flashscore.models.tournaments import Tournaments, TournamentsMinimaliste
@@ -17,7 +14,7 @@ from prediction_tennis.src.dataset.flashscore.parsers.match_score_parser import 
 from prediction_tennis.src.dataset.flashscore.parsers.tournament_dates_parser import FlashscoreTournamentArchiveParser
 from prediction_tennis.src.dataset.flashscore.parsers.tournaments_parser import FlashscoreTournamentProcessor
 from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import retrieve_flashscore_data
-from prediction_tennis.src.dataset.flashscore.utils.log_setup import initialize_logging
+from prediction_tennis.src.utils.log_setup import initialize_logging
 
 ALREADY_DONE =  ["acapulco", "adelaide", "adelaide-2", "almaty", "amersfoort", "amsterdam", "antalya", "antwerp", "antwerp-2", "asian-games", 
                  "astana", "athens", "atlanta", "atp-cup", "auckland", "australian-open", "bangkok", "banja-luka", "barcelona", "basel", "bastad", 
@@ -41,8 +38,6 @@ ALREADY_DONE =  ["acapulco", "adelaide", "adelaide-2", "almaty", "amersfoort", "
                  "united-cup", "us-open", "valencia", "verizon-tennis-challenge", "vienna", "vina-del-mar",  "warsaw", "washington", "wellington", "wembley", 
                  "wimbledon", "winston-salem", "zagreb", "zaragoza", "zhuhai"]
                  
-
-
 # Particular case
 EXCLUDED_GROUPS = [
                    "davis-cup-world-group", # This entry refers to a group, not an individual
@@ -55,6 +50,9 @@ EXCLUDED_GROUPS = [
                    "davis-cup-group-v",
                    'hangzhou',
                   ]
+
+
+FLASHSCORE_LOG_FILE = Path("log/flashscore_processing.log")
 
 def save_to_csv(data: List[Dict[str, str]], file_path: str) -> None:
     """
@@ -76,7 +74,7 @@ def main():
     and save it as CSV files.
     """
     # Initialize logging.
-    initialize_logging("log/flashscore.log")
+    initialize_logging(FLASHSCORE_LOG_FILE)
     logger = logging.getLogger("[DATASET] [MAIN]")
 
     url = "https://www.flashscore.com/x/req/m_2_5724"
