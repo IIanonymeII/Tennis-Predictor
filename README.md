@@ -34,12 +34,33 @@ poetry install
 ### Project Structure
 ```
 ├── data        # Data directory for input files 
+│   ├── 01_raw/
+│   ├── 02_processed/
+│   └── 03_final/
 ├── src 
-│   ├── dataset # Data collection, cleaning, and feature engineering
-│   ├── model   # BaseModel and custom models
-│   └── metric  # Metrics for evaluation 
-└── tests       # Unit tests for the project
+│   ├── dataset/ # Data collection, cleaning, and feature engineering
+│   ├── model/   # BaseModel and custom models
+│   ├── metric/  # Metrics for evaluation 
+│   └── utils/   # Helper functions, common utilities, and shared tools
+└── tests        # Unit tests for the project
 ```
+
+## 📂 Data Structure
+
+* `data/01_raw/`  
+Unmodified raw data collected directly from external sources (web scraping, APIs, downloads, etc.). These files remain untouched to preserve traceability.
+
+  - `atptour/`    → ATP Tour player data (bio, stats)  
+  - `flashscore/` → Matches, odds, rankings  
+  - `wikipedia/`  → Tournament info  
+
+* `data/02_processed/`  
+Cleaned and pre-processed datasets derived from `01_raw/`.  
+
+* `data/03_final/`  
+Ready-to-use datasets for modeling and analysis.  
+These files are optimized for training ML models and evaluation.
+
 
 ## License
 
