@@ -14,6 +14,7 @@ from prediction_tennis.src.dataset.flashscore.parsers.match_score_parser import 
 from prediction_tennis.src.dataset.flashscore.parsers.tournament_dates_parser import FlashscoreTournamentArchiveParser
 from prediction_tennis.src.dataset.flashscore.parsers.tournaments_parser import FlashscoreTournamentProcessor
 from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import retrieve_flashscore_data
+from prediction_tennis.src.dataset.flashscore.utils.tournament_saver import save_tournament_data_to_csv
 from prediction_tennis.src.utils.log_setup import initialize_logging
 
 ALREADY_DONE =  ["acapulco", "adelaide", "adelaide-2", "almaty", "amersfoort", "amsterdam", "antalya", "antwerp", "antwerp-2", "asian-games", 
@@ -53,20 +54,8 @@ EXCLUDED_GROUPS = [
 
 
 FLASHSCORE_LOG_FILE = Path("log/flashscore_processing.log")
-
-def save_to_csv(data: List[Dict[str, str]], file_path: str) -> None:
-    """
-    Saves a list of dictionaries to a CSV file.
-    
-    :param data: List of dictionaries containing tournament data.
-    :param file_path: Path to save the CSV file.
-    """
-    try:
-        df = pd.DataFrame(data)
-        df.to_csv(file_path, index=False)
-        logging.info(f"Data successfully saved to {file_path}")
-    except Exception as e:
-        logging.error(f"Failed to save data to {file_path}: {e}")
+DATA_DIR = Path("data/01_raw")
+FLASHSCORE_RAW_PATH = DATA_DIR / "flashscore"
 
 def main():
     """
@@ -129,9 +118,11 @@ def main():
             tournament_dicts.extend(tournament.to_dict())
 
         # Save tournament data to CSV
-        csv_filename = f"data/01_raw/flashscore/tournament_{minimal_slug}.csv"
-        save_to_csv(tournament_dicts, csv_filename)
-        logger.info(f"Tournament data saved to {csv_filename}")
+        save_tournament_data_to_csv(tournament_data=tournament_dicts,
+                                    output_directory_path=FLASHSCORE_RAW_PATH,
+                                    filename=f"tournament_{minimal_slug}.csv")
+        
+    logger.info("=== FLASHSCORE Data Processing Successfully Completed ===")
 
 if __name__ == "__main__":
     main()

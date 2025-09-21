@@ -14,6 +14,13 @@ These utilities are designed to **reduce code duplication**, simplify common tas
 >   - Rotates and removes old logs automatically  
 >   - Ensures long-running processes do not consume excessive disk space
 
+>- **`file_utils.py`**  
+  Provides **file and DataFrame utility functions** to simplify common I/O tasks:  
+>   - `ensure_output_directory_exists` → Safely creates output directories if missing  
+>   - `save_dataframe_to_csv` → Saves DataFrames to CSV with error handling  
+>   - `get_file_size_mb` → Retrieves file size in megabytes  
+>   - `log_dataframe_information` → Logs DataFrame shape and memory usage  
+
 ---
 
 ## 📂 Directory Structure
@@ -22,5 +29,6 @@ These utilities are designed to **reduce code duplication**, simplify common tas
 utils/
 ├── __init__.py
 ├── README.md
+├── file_utils.py
 └── log_setup.py
 ```

@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Dict, List, Union
 from tqdm import tqdm
 
-from prediction_tennis.src.dataset.flashscore.main import save_to_csv
+from prediction_tennis.src.dataset.flashscore.utils.tournament_saver import save_tournament_data_to_csv
 from prediction_tennis.src.dataset.wikipedia.models.tournaments import Tournaments
 from prediction_tennis.src.dataset.wikipedia.parsers.season_links import ATPSeasonLinkExtractor
 from prediction_tennis.src.dataset.wikipedia.parsers.season_tournament import ATPSeasonParser
@@ -12,6 +12,8 @@ from prediction_tennis.src.utils.log_setup import initialize_logging
 
 
 WIKIPEDIA_LOG_FILE = Path("log/wikipedia_processing.log")
+DATA_DIR = Path("data/01_raw")
+WIKIPEDIA_RAW_PATH = DATA_DIR / "wikipedia"
 
 def main() -> None:
     """Main function to process ATP tournament data from Wikipedia and save it to CSV."""
@@ -46,10 +48,12 @@ def main() -> None:
         for tournament in tournament_list:
             tournament_data.append(tournament.to_dict())
 
-    # Save the accumulated tournament data to CSV.
-    csv_filename = "data/01_raw/wikipedia/tournament.csv"
-    save_to_csv(tournament_data, csv_filename)
-    logger.info(f"Tournament data saved to {csv_filename}")
+    # Save tournament data to CSV
+    save_tournament_data_to_csv(tournament_data=tournament_data,
+                                output_directory_path=WIKIPEDIA_RAW_PATH,
+                                filename=f"tournament.csv")
+    logger.info("=== WIKIPEDIA Data Processing Successfully Completed ===")
+
 
 if __name__ == "__main__":
     main()
