@@ -38,11 +38,12 @@ poetry install
 │   ├── 02_processed/
 │   └── 03_final/
 ├── src 
-│   ├── dataset/ # Data collection, cleaning, and feature engineering
-│   ├── model/   # BaseModel and custom models
-│   ├── metric/  # Metrics for evaluation 
-│   └── utils/   # Helper functions, common utilities, and shared tools
-└── tests        # Unit tests for the project
+│   ├── dataset/        # Data collection, cleaning, and feature engineering
+│   ├── preprocessing/  # Data preprocessing and feature generation
+│   ├── model/          # BaseModel and custom models
+│   ├── metric/         # Metrics for evaluation 
+│   └── utils/          # Helper functions
+└── tests               # Unit tests for the project
 ```
 
 ## 📂 Data Structure
