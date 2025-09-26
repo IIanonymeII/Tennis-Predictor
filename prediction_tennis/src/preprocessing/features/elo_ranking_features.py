@@ -5,8 +5,9 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+from prediction_tennis.src.preprocessing.utils.ranking_systems import calculate_rating_movement_from_history
+
 # Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("[ELO RANTING]")
 
 # Constants
@@ -514,30 +515,6 @@ def compute_momentum_elo_rankings(matches_df: pd.DataFrame,
     logger.info("Completed momentum ELO computation")
     return match_ratings, match_momentum
 
-def get_last_n_elo_movement(rating_history: List[Tuple[pd.Timestamp, float]],
-                            current_pre_match_rating: float,
-                            lookback_matches: int
-                            ) -> float:
-    """
-    Calculate ELO movement over the last N matches.
-
-    Args:
-        rating_history: List of (match_date, rating) tuples
-        current_pre_match_rating: Current pre-match ELO rating
-        lookback_matches: Number of matches to look back
-
-    Returns:
-        ELO movement (current_rating - past_rating)
-        Returns 0.0 if insufficient history exists
-    """
-    if not rating_history or len(rating_history) < lookback_matches: return 0.0
-        
-    # Get rating from lookback_matches ago
-    reference_index = len(rating_history) - lookback_matches
-    past_rating = rating_history[reference_index][1]
-
-    return current_pre_match_rating - past_rating
-
 def compute_elo_movement(matches_df: pd.DataFrame, lookback_matches: int = 5) -> np.ndarray:
     """
     Calculate ELO movement for each match based on recent performance.
@@ -584,14 +561,16 @@ def compute_elo_movement(matches_df: pd.DataFrame, lookback_matches: int = 5) ->
         current_rating_player2 = row.elo_p2  # Current pre-match rating for player 2
         
         # Compute Elo movement using the last 'last_match' recorded ratings
-        movement_player1 = get_last_n_elo_movement(rating_history          = player_rating_histories[player1_id],
-                                                   current_pre_match_rating= current_rating_player1,
-                                                   lookback_matches        = lookback_matches
-                                                   )
-        movement_player2 = get_last_n_elo_movement(rating_history          = player_rating_histories[player2_id],
-                                                   current_pre_match_rating= current_rating_player2,
-                                                   lookback_matches        = lookback_matches
-                                                   )
+        movement_player1 = calculate_rating_movement_from_history(
+            rating_history          = player_rating_histories[player1_id],
+            current_pre_match_rating= current_rating_player1,
+            matches_lookback        = lookback_matches
+            )
+        movement_player2 = calculate_rating_movement_from_history(
+            rating_history          = player_rating_histories[player2_id],
+            current_pre_match_rating= current_rating_player2,
+            matches_lookback        = lookback_matches
+            )
         
         match_movements[match_index, 0] = movement_player1
         match_movements[match_index, 1] = movement_player2

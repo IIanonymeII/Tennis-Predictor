@@ -1,0 +1,118 @@
+import logging
+from typing import List, Tuple
+
+import numpy as np
+import pandas as pd
+
+# Constants
+GLICKO_CONSTANT_3_SQUARED = 9  # 3^2 for optimization
+PI_SQUARED = np.pi ** 2
+
+def calculate_rating_movement_from_history(rating_history: List[Tuple[pd.Timestamp, float]],
+                                           current_pre_match_rating: float,
+                                           matches_lookback: int) -> float:
+    """
+    Calculate the change in rating over a specified number of past matches.
+
+    This function computes the difference between the current pre-match rating
+    and the rating from 'matches_lookback' matches ago. If insufficient history
+    exists, it returns 0.0.
+
+    Args:
+        rating_history: List of (timestamp, rating) tuples in chronological order
+        current_pre_match_rating: Current pre-match rating
+        matches_lookback: Number of matches to look back for comparison
+
+    Returns:
+        Rating movement as difference between current and historical rating.
+        Returns 0.0 if insufficient history exists.
+    """
+    if not rating_history:
+        logging.debug("Empty rating history, returning 0.0 movement")
+        return 0.0
+
+    # Check if we have enough history for the requested lookback
+    if len(rating_history) < matches_lookback:
+        logging.debug(f"Insufficient history: {len(rating_history)} < {matches_lookback}, returning 0.0 movement")
+        return 0.0
+
+    # Get rating from 'matches_lookback' matches ago
+    historical_index = len(rating_history) - matches_lookback
+    _, historical_rating = rating_history[historical_index]
+
+    movement = current_pre_match_rating - historical_rating
+    logging.debug(f"Rating movement: {movement:.3f}")
+
+    return movement
+
+def _update_player_glicko_rating(player_rating: float,
+                                 player_rd: float,
+                                 opponent_rating: float,
+                                 opponent_rd: float,
+                                 player_score: float,
+                                 q_factor: float) -> Tuple[float, float]:
+    """
+    Update a single player's Glicko rating and rating deviation.
+    
+    This is a helper function that implements the core Glicko update equations
+    for a single player based on the outcome of one match.
+    
+    Args:
+        player_rating: Current rating of the player
+        player_rd: Current rating deviation of the player
+        opponent_rating: Current rating of the opponent
+        opponent_rd: Current rating deviation of the opponent
+        player_score: Score achieved by player (1 for win, 0 for loss)
+        q_factor: Glicko system constant
+        
+    Returns:
+        Tuple containing updated (rating, rating_deviation)
+    """
+    # Calculate g(RD) for opponent
+    g_opponent_rd = _calculate_g_function(rating_deviation = opponent_rd, 
+                                          q_factor         = q_factor)
+    
+    # Calculate expected score
+    expected_score = _calculate_expected_score(player_rating   = player_rating, 
+                                               opponent_rating = opponent_rating)
+    
+    # Calculate d²
+    d_squared_inverse = (q_factor ** 2 * g_opponent_rd ** 2 * expected_score * (1 - expected_score))
+    d_squared = 1 / d_squared_inverse if d_squared_inverse != 0 else float('inf')
+    
+    # Update rating
+    rating_update_factor = q_factor / (1 / (player_rd ** 2) + 1 / d_squared)
+    updated_rating = (player_rating + rating_update_factor * g_opponent_rd * (player_score - expected_score))
+    
+    # Update rating deviation
+    updated_rd = np.sqrt(1 / (1 / (player_rd ** 2) + 1 / d_squared))
+    
+    return updated_rating, updated_rd
+
+def _calculate_g_function(rating_deviation: float, q_factor: float) -> float:
+    """
+    Calculate the g(RD) function used in Glicko rating updates.
+    
+    Args:
+        rating_deviation: Rating deviation value
+        q_factor: Glicko system constant
+        
+    Returns:
+        g(RD) value
+    """
+    return 1 / np.sqrt(
+        1 + (GLICKO_CONSTANT_3_SQUARED * (q_factor ** 2) * (rating_deviation ** 2)) / PI_SQUARED
+    )
+
+def _calculate_expected_score(player_rating: float, opponent_rating: float) -> float:
+    """
+    Calculate expected score for a player against an opponent.
+    
+    Args:
+        player_rating: Player's current rating
+        opponent_rating: Opponent's current rating
+        
+    Returns:
+        Expected score (probability of winning)
+    """
+    return 1 / (1 + 10 ** ((opponent_rating - player_rating) / 400))

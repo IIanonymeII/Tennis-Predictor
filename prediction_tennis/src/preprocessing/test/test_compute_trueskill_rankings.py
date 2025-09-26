@@ -126,18 +126,3 @@ def test_movement_raises_error_on_missing_columns(sample_matches_df: pd.DataFram
     
     with pytest.raises(ValueError, match=f"Missing required columns: \\['{missing_column}'\\]"):
         compute_trueskill_movement(invalid_df, matches_lookback=2)
-
-if __name__ == "__main__":
-    test_data = {
-        'player1_id_factor': [1  , 1  , 2  , 2  , 3  , 3   ],
-        'player2_id_factor': [2  , 3  , 1  , 3  , 1  , 2   ],
-        'winner'           : [1  , 2  , 1  , 2  , 2  , 2   ],
-        'type'             : [250, 250, 250, 250, 500, 1000],
-        'round'            : [32 , 16 , 8  , 4  , 2  , 1   ],
-        'match_date'       : ['2023-01-01', '2023-01-02', '2023-01-03',
-                             '2023-01-04', '2023-01-05', '2023-01-06'],
-        'trueskill_p1'     : [25, 29.4, 20.6 , 25.69, 33.39, 26.91],
-        'trueskill_p2'     : [25, 25  , 24.95, 31   , 21.07, 23.86]
-    }
-    df_test =  pd.DataFrame(test_data)
-    test_compute_trueskill_movement_valid_inputs(df_test)

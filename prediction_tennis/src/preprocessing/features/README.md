@@ -11,6 +11,7 @@ features/
 ├── __init__.py
 ├── elo_ranking_features.py       # Functions for Elo rating 
 ├── trueskill_ranking_features.py # Functions for Trueskill rating 
+├── glicko_ranking_features.py    # Functions for Trueskill rating 
 └── README.md               
 ```
 
@@ -36,6 +37,13 @@ features/
 >   - **Standard Trueskill**: Classic rating update system  
 >   - **Movement during last *n* matches**: Tracks Trueskill variations over a rolling match window  
 
+>**`glicko_ranking_features.py`**
+ Implements Glicko ratings for tennis match data.
+  Supported variants include:
+>
+>   - **Standard Glicko**: Classic rating update system  
+>   - **Movement during last *n* matches**: Tracks Glicko variations over a rolling match window  
+
 
 ---
 
@@ -47,6 +55,9 @@ features/
 ### 2- TrueSkill  
 - [📄 Original Paper – NIPS 2006](https://proceedings.neurips.cc/paper_files/paper/2006/file/f44ee263952e65b3610b8ba51229d1f9-Paper.pdf)  
 - [🔗 TrueSkill (Wikipedia)](https://en.wikipedia.org/wiki/TrueSkill) 
+
+### 3- Glicko   
+- [🔗 Glicko (Wikipedia)](https://en.wikipedia.org/wiki/Glicko_rating_system) 
 
 ---
 

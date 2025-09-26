@@ -6,8 +6,9 @@ import pandas as pd
 from tqdm import tqdm
 import trueskill
 
+from prediction_tennis.src.preprocessing.utils.ranking_systems import calculate_rating_movement_from_history
+
 # Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("[TRUESKILL RANTING]")
 
 
@@ -113,45 +114,6 @@ def compute_trueskill_ratings(matches_df: pd.DataFrame,
 
     logger.info("TrueSkill rating computation completed successfully")
     return pre_match_ratings
-
-def calculate_rating_movement_from_history(rating_history: List[Tuple[pd.Timestamp, float]],
-                                           current_pre_match_rating: float,
-                                           matches_lookback: int) -> float:
-    """
-    Calculate the change in TrueSkill rating over a specified number of past matches.
-
-    This function computes the difference between the current pre-match rating
-    and the rating from 'matches_lookback' matches ago. If insufficient history
-    exists, it returns 0.0.
-
-    Args:
-        rating_history: List of (timestamp, rating) tuples in chronological order
-        current_pre_match_rating: Current pre-match TrueSkill rating
-        matches_lookback: Number of matches to look back for comparison
-
-    Returns:
-        Rating movement as difference between current and historical rating.
-        Returns 0.0 if insufficient history exists.
-    """
-    if not rating_history:
-        logger.debug("Empty rating history, returning 0.0 movement")
-        return 0.0
-
-    # Check if we have enough history for the requested lookback
-    if len(rating_history) < matches_lookback:
-        logger.debug(
-            f"Insufficient history: {len(rating_history)} < {matches_lookback}, "
-            "returning 0.0 movement"
-        )
-        return 0.0
-    # Get rating from 'matches_lookback' matches ago
-    historical_index = len(rating_history) - matches_lookback
-    _, historical_rating = rating_history[historical_index]
-
-    movement = current_pre_match_rating - historical_rating
-    logger.debug(f"Rating movement: {movement:.3f}")
-    
-    return movement
 
 def compute_trueskill_movement(matches_df: pd.DataFrame,
                                matches_lookback: int = 5) -> np.ndarray:
