@@ -32,7 +32,7 @@ def test_compute_elo_rankings_valid_inputs(sample_matches_df: pd.DataFrame) -> N
     Test simple ELO rankings computation with valid inputs and known outcomes.
     
     Args:
-        sample_matches_dataframe: Sample tennis match data for testing.
+        sample_matches_df: Sample tennis match data for testing.
     """
     k_factor = 32
     divisor = 400
@@ -59,7 +59,7 @@ def test_compute_tournament_round_based_elo_valid_inputs(sample_matches_df: pd.D
     Test tournament and round-based ELO computation with valid inputs.
     
     Args:
-        sample_matches_dataframe: Sample tennis match data for testing.
+        sample_matches_df: Sample tennis match data for testing.
     """
     k_factor = 32
     divisor = 400
@@ -86,7 +86,7 @@ def test_compute_tournament_based_elo_valid_inputs(sample_matches_df: pd.DataFra
     Test tournament-based ELO computation with valid inputs.
     
     Args:
-        sample_matches_dataframe: Sample tennis match data for testing.
+        sample_matches_df: Sample tennis match data for testing.
     """
     k_factor = 32
     divisor = 400
@@ -113,7 +113,7 @@ def test_compute_round_based_elo_valid_inputs(sample_matches_df: pd.DataFrame) -
     Test round-based ELO computation with valid inputs.
     
     Args:
-        sample_matches_dataframe: Sample tennis match data for testing.
+        sample_matches_df: Sample tennis match data for testing.
     """
     """Test with valid inputs and known outcomes."""
     k_factor = 32
@@ -140,7 +140,7 @@ def test_compute_momentum_elo_rankings_valid_inputs(sample_matches_df: pd.DataFr
     Test momentum ELO rankings computation with valid inputs.
     
     Args:
-        sample_matches_dataframe: Sample tennis match data for testing.
+        sample_matches_df: Sample tennis match data for testing.
     """
     k_factor = 32
     divisor = 400
@@ -176,7 +176,7 @@ def test_compute_elo_movement_valid_inputs(sample_matches_df: pd.DataFrame) -> N
     Test ELO movement computation with valid inputs.
     
     Args:
-        sample_matches_dataframe: Sample tennis match data for testing.
+        sample_matches_df: Sample tennis match data for testing.
     """
     lookback_matches = 2
 
@@ -302,94 +302,6 @@ def test_lookback_matches_validation(sample_matches_df: pd.DataFrame,
         assert computed_result is not None
 
 # === TEST MISSING COLUMNS ===
-# @pytest.mark.parametrize("elo_function, parameter_name",  [
-#     (compute_elo_rankings              , "k_factor"),
-#     # (compute_tournament_round_based_elo, "k_factor"),
-#     # (compute_tournament_based_elo      , "k_base"),
-#     # (compute_round_based_elo           , "k_base"),
-#     (compute_momentum_elo_rankings     , "k_base"),
-#     # (compute_elo_movement              , "lookback_matches"),
-# ])
-# @pytest.mark.parametrize("missing_column", ['player1_id_factor', 'player2_id_factor', 'winner', 'match_date'])
-# def test_compute_elo_rankings_missing_columns_v1(elo_function: Callable,
-#                                               parameter_name: str,
-#                                               sample_matches_dataframe: pd.DataFrame,
-#                                               missing_column: str) -> None:
-#     """
-#     Test error handling when required columns are missing from DataFrame.
-    
-#     Args:
-#         elo_function: The ELO computation function to test.
-#         parameter_name: Name of the K-factor parameter for this function.
-#         sample_matches_dataframe: Sample tennis match data for testing.
-#         missing_column: Name of the column to remove from the DataFrame.
-#     """    
-#     # Create DataFrame copy with the specified column removed
-#     invalid_dataframe = sample_matches_dataframe.drop(columns=[missing_column])
-#     function_kwargs = {parameter_name: 32}
-        
-#     with pytest.raises((KeyError, AttributeError)): elo_function(invalid_dataframe, **function_kwargs)
-
-# @pytest.mark.parametrize("elo_function, parameter_name",  [
-#     (compute_tournament_round_based_elo, "k_factor"),
-# ])
-# @pytest.mark.parametrize("missing_column", ['player1_id_factor', 'player2_id_factor', 'match_date', 'round', 'type'])
-# def test_compute_elo_rankings_missing_columns_V2(elo_function: Callable,
-#                                               parameter_name: str,
-#                                               sample_matches_dataframe: pd.DataFrame,
-#                                               missing_column: str) -> None:
-  
-#     # Create DataFrame copy with the specified column removed
-#     invalid_dataframe = sample_matches_dataframe.drop(columns=[missing_column])
-#     function_kwargs = {parameter_name: 32}
-        
-#     with pytest.raises((KeyError, AttributeError)): elo_function(invalid_dataframe, **function_kwargs)
-
-# @pytest.mark.parametrize("elo_function, parameter_name",  [
-#     (compute_tournament_based_elo, "k_factor"),
-# ])
-# @pytest.mark.parametrize("missing_column", ['player1_id_factor', 'player2_id_factor', 'match_date', 'type'])
-# def test_compute_elo_rankings_missing_columns_V3(elo_function: Callable,
-#                                               parameter_name: str,
-#                                               sample_matches_dataframe: pd.DataFrame,
-#                                               missing_column: str) -> None:
-  
-#     # Create DataFrame copy with the specified column removed
-#     invalid_dataframe = sample_matches_dataframe.drop(columns=[missing_column])
-#     function_kwargs = {parameter_name: 32}
-        
-#     with pytest.raises((KeyError, AttributeError)): elo_function(invalid_dataframe, **function_kwargs)
-
-# @pytest.mark.parametrize("elo_function, parameter_name",  [
-#     (compute_round_based_elo, "k_factor"),
-# ])
-# @pytest.mark.parametrize("missing_column", ['player1_id_factor', 'player2_id_factor', 'match_date', 'round'])
-# def test_compute_elo_rankings_missing_columns_V4(elo_function: Callable,
-#                                               parameter_name: str,
-#                                               sample_matches_dataframe: pd.DataFrame,
-#                                               missing_column: str) -> None:
-  
-#     # Create DataFrame copy with the specified column removed
-#     invalid_dataframe = sample_matches_dataframe.drop(columns=[missing_column])
-#     function_kwargs = {parameter_name: 32}
-        
-#     with pytest.raises((KeyError, AttributeError)): elo_function(invalid_dataframe, **function_kwargs)
-
-# @pytest.mark.parametrize("elo_function, parameter_name",  [
-#     (compute_elo_movement              , "lookback_matches"),
-# ])
-# @pytest.mark.parametrize("missing_column", ['player1_id_factor', 'player2_id_factor', 'match_date', 'elo_p1', 'elo_p2'])
-# def test_compute_elo_rankings_missing_columns_V5(elo_function: Callable,
-#                                               parameter_name: str,
-#                                               sample_matches_dataframe: pd.DataFrame,
-#                                               missing_column: str) -> None:
-  
-#     # Create DataFrame copy with the specified column removed
-#     invalid_dataframe = sample_matches_dataframe.drop(columns=[missing_column])
-#     function_kwargs = {parameter_name: 2}
-        
-#     with pytest.raises((KeyError, AttributeError)): elo_function(invalid_dataframe, **function_kwargs)
-    
 # Generate test cases
 test_cases = []
 
@@ -428,21 +340,3 @@ def test_compute_elo_rankings_missing_columns(elo_function: Callable,
 
     with pytest.raises((KeyError, AttributeError)):
         elo_function(invalid_dataframe, **function_kwargs)
-
-if __name__ == "__main__":
-    # Create the DataFrame directly
-    data = {
-        'player1_id_factor': [1  , 1  , 2  , 2  , 3  , 3   ],
-        'player2_id_factor': [2  , 3  , 1  , 3  , 1  , 2   ],
-        'winner'           : [1  , 2  , 1  , 2  , 2  , 2   ],
-        'type'             : [250, 250, 250, 250, 500, 1000],
-        'round'            : [32 , 16 , 8  , 4  , 2  , 1   ],
-        'match_date'       : ['2023-01-01', '2023-01-02', '2023-01-03',
-                             '2023-01-04', '2023-01-05', '2023-01-06'],
-        'elo_p1':           [1500, 1516, 1484, 1500.70246717, 1531.99844494, 1513.73701863],
-        'elo_p2':           [1500, 1500, 1499.26369321, 1516.73630679, 1482.56122603, 1485.44032903]
-    }
-    test_df = pd.DataFrame(data)
-    # Iterate over each test case and call the test function
-    for elo_function, parameter_name, missing_column in test_cases:
-        test_compute_elo_rankings_missing_columns(elo_function, parameter_name, test_df, missing_column)

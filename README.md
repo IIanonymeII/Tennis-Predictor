@@ -23,7 +23,7 @@ This project focuses on predicting betting outcomes for ATP and WTA tennis match
 - **Documentation**:  
   Provides clear and concise guidelines for setup, usage, and contribution. 
 
-## requirement
+## 📘 Requirement
 install all requirements
 ```bash
 poetry install 
@@ -31,7 +31,31 @@ poetry install
 
 ---
 
-### Project Structure
+## ✅ Testing
+
+### Run Tests Locally (with Poetry)  
+```bash
+poetry run pytest
+```
+This ensures tests run inside the Poetry-managed virtual environment, with the correct dependencies.
+
+
+### Continuous Integration (GitHub Actions)
+This project uses GitHub Actions to automatically run tests on each push or pull request.
+The workflow configuration lives in: 
+```bash
+.github/workflows/tests.yml
+```
+
+Whenever you push to GitHub, the CI will:
+
+1. Install dependencies via Poetry.
+2. Run the full pytest suite.
+3. Report results directly in your PR or commit checks.
+
+---
+
+## 📂 Project Structure
 ```
 ├── data        # Data directory for input files 
 │   ├── 01_raw/
@@ -46,7 +70,7 @@ poetry install
 └── tests               # Unit tests for the project
 ```
 
-## 📂 Data Structure
+## ⚙️ Data Structure
 
 * `data/01_raw/`  
 Unmodified raw data collected directly from external sources (web scraping, APIs, downloads, etc.). These files remain untouched to preserve traceability.
@@ -63,7 +87,7 @@ Ready-to-use datasets for modeling and analysis.
 These files are optimized for training ML models and evaluation.
 
 
-## License
+## ⭐ License
 
 This repository is licensed under the terms of the **MIT License**.
 

@@ -1064,6 +1064,19 @@ tests = ["autopep8", "flake8", "isort", "llnl-hatchet", "numpy", "pytest", "scip
 tutorials = ["matplotlib", "pandas", "tabulate"]
 
 [[package]]
+name = "trueskill"
+version = "0.4.5"
+description = "The video game rating system"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+files = [
+    {file = "trueskill-0.4.5.tar.gz", hash = "sha256:9d62b48d2428369d712bd9becff9f9a2caa325e1a2ab5f9392d34bff757867bb"},
+]
+
+[package.dependencies]
+six = "*"
+
+[[package]]
 name = "typing-extensions"
 version = "4.12.2"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -1105,4 +1118,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "5caa90a303e3c976b03fe7ea11f7e4dd6e8cc665acc6aeed1f0354ba2b93947e"
+content-hash = "cf1685472a8d90aa97687cfd9f5e94f6e9c0cdc2b52835aae5e18ae812b495c5"
