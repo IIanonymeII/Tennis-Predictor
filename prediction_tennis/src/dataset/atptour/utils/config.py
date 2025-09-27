@@ -1,3 +1,7 @@
+"""
+Config file
+"""
+
 NAME_TO_CHANGE = {
     "naif-rashad": "rashed-nawaf",
     "roumenov-payakov-gueorgui": "georgi-rumenov-payakov",

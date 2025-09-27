@@ -1,3 +1,11 @@
+"""
+ATP Tour player data fetcher module.
+
+This module provides functionality to fetch player data from the ATP Tour website
+using HTTP connections. It includes functions for fetching player data by URL
+and by name, with proper error handling and data parsing.
+"""
+
 import http.client
 import json
 import logging
@@ -17,11 +25,18 @@ def fetch_player_data(atp_url: str) -> Optional[dict]:
     """
     Fetch JSON data from the ATP Tour site using http.client.
 
-    Args:
-        atp_url (str): The player-specific URL slug.
+    This function makes an HTTPS request to the ATP Tour website to fetch
+    player data from the specified URL and returns the parsed JSON response.
 
-    Returns:
-        dict or None: Parsed JSON data, or None on error.
+    Parameters
+    ----------
+    atp_url : str
+        The player-specific URL slug to fetch data from
+
+    Returns
+    -------
+    Optional[dict]
+        Parsed JSON data as dictionary, or None on error
     """
     conn = http.client.HTTPSConnection("www.atptour.com")
     headers = {"Accept": "*/*", "User-Agent": "Thunder Client (https://www.thunderclient.com)"}
@@ -48,19 +63,29 @@ def fetch_player_by_name(name: str, host: str = "www.atptour.com") -> Optional[U
     This function makes an HTTPS request to fetch player data based on the player name slug.
     It handles JSON parsing and error cases.
 
-    Args:
-        name (str): Player name slug (e.g., 'machac-tomas').
-        host (str, optional): Hostname of the server. Defaults to "www.atptour.com".
+    Parameters
+    ----------
+    name : str
+        Player name slug (e.g., 'machac-tomas')
+    host : str, optional
+        Hostname of the server, by default "www.atptour.com"
 
-    Returns:
-        Optional[Union[Dict, str]]:
-            - Parsed dictionary with player info if successful
-            - Raw response text if not JSON
-            - None if request fails or returns no data
+    Returns
+    -------
+    Optional[Union[Dict, str]]
+        - Parsed dictionary with player info if successful
+        - Raw response text if not JSON
+        - None if request fails or returns no data
 
-    Examples:
-        >>> fetch_player_by_name("machac-tomas")
-        {'LastName': 'Machac', 'FirstName': 'Tomas', 'player_id': '12345'}
+    Examples
+    --------
+    >>> fetch_player_by_name("machac-tomas")
+    {'LastName': 'Machac', 'FirstName': 'Tomas', 'player_id': '12345'}
+
+    Raises
+    ------
+    Exception
+        If there's an error during the HTTP request
     """
     conn = http.client.HTTPSConnection(host, timeout=TIMEOUT)
     path = f"/en/-/www/players/find/byname/{name}/en"

@@ -1,3 +1,9 @@
+"""
+Module for computing rating movements in tennis matches.
+
+This module provides functionality to calculate the rating movement for each player
+by comparing their current rating with their rating from a specified number of matches ago.
+"""
 import logging
 from typing import List, Tuple
 
@@ -28,16 +34,24 @@ def compute_rating_movement(
     by comparing their current rating with the rating from a specified number of matches ago.
     It maintains a history of ratings for each player to enable this calculation.
 
-    Args:
-        matches_df: DataFrame with match info, including player IDs, dates, and pre-match ratings.
-        lookback_matches: How many matches back to consider for the previous rating (default: 5).
-        rating_prefix: Prefix for the rating type (e.g., 'elo', 'glicko', 'trueskill').
+    Parameters
+    ----------
+    matches_df : pd.DataFrame
+        DataFrame with match info, including player IDs, dates, and pre-match ratings.
+    lookback_matches : int, optional
+        How many matches back to consider for the previous rating (default: 5).
+    rating_prefix : str, optional
+        Prefix for the rating type (e.g., 'elo', 'glicko', 'trueskill') (default: 'rating').
 
-    Returns:
+    Returns
+    -------
+    np.ndarray
         A 2D numpy array of shape (n_matches, 2), each row is the movement for player 1 and player 2.
 
-    Raises:
-        ValueError: If lookback_matches is not positive.
+    Raises
+    ------
+    ValueError
+        If lookback_matches is not positive.
     """
     if lookback_matches <= 0:
         raise ValueError("lookback_matches must be positive")

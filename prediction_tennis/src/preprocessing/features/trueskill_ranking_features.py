@@ -1,4 +1,11 @@
-# SIMPLE RATING
+"""
+TrueSkill rating computation module.
+
+This module provides functionality to compute pre-match TrueSkill ratings for tennis players
+across matches. It processes matches chronologically, recording each player's TrueSkill rating
+before each match and updating ratings based on match outcomes.
+"""
+
 import logging
 import numpy as np
 import pandas as pd
@@ -21,22 +28,31 @@ def compute_trueskill_ratings(
     TrueSkill rating (mu value) before each match, then updates their ratings
     based on the match outcome using TrueSkill's head-to-head algorithm.
 
-    Args:
-        matches_df: DataFrame containing match data with required columns:
-            - 'player1_id_factor': Factorized ID for player 1
-            - 'player2_id_factor': Factorized ID for player 2
-            - 'winner': Match winner (1 for player 1, 2 for player 2)
-            - 'match_date': Date or timestamp of the match
-        surface: Surface type identifier for logging purposes
-        verbose: Whether to show detailed progress information
+    Parameters
+    ----------
+    matches_df : pd.DataFrame
+        DataFrame containing match data with required columns:
+        - 'player1_id_factor': Factorized ID for player 1
+        - 'player2_id_factor': Factorized ID for player 2
+        - 'winner': Match winner (1 for player 1, 2 for player 2)
+        - 'match_date': Date or timestamp of the match
+    surface : str, optional
+        Surface type identifier for logging purposes, by default "all"
+    verbose : bool, optional
+        Whether to show detailed progress information, by default False
 
-    Returns:
+    Returns
+    -------
+    np.ndarray
         2D numpy array of shape (num_matches, 2) containing pre-match
         TrueSkill mu values for [player1, player2] in each match
 
-    Raises:
-        ValueError: If required columns are missing from matches_df
-        TypeError: If matches_df is not a pandas DataFrame
+    Raises
+    ------
+    ValueError
+        If required columns are missing from matches_df
+    TypeError
+        If matches_df is not a pandas DataFrame
     """
     logger.info(f"Starting TrueSkill rating computation for {len(matches_df)} matches")
 

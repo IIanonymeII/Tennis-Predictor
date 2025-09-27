@@ -1,3 +1,12 @@
+"""
+ATP Player Data Processing Module.
+
+This module orchestrates the complete workflow for processing ATP tennis player data,
+including fetching, matching, and saving player information from various sources.
+The main function handles the entire pipeline from loading flashscore data to
+saving processed player information to CSV files.
+"""
+
 from pathlib import Path
 
 import pandas as pd
@@ -23,6 +32,26 @@ ATPTOUR_LOG_FILE = Path("log/atp_tour_processing.log")
 
 
 def main():
+    """
+    Execute the complete ATP player data processing pipeline.
+
+    This function orchestrates the entire workflow including:
+    1. Loading flashscore data
+    2. Extracting unique players
+    3. Fetching comprehensive player data from ATP
+    4. Processing data with fuzzy matching
+    5. Collecting detailed player objects
+    6. Saving processed data to CSV
+
+    Raises
+    ------
+    FileNotFoundError
+        If required input files are not found
+    pandas.errors.EmptyDataError
+        If source data file is empty or corrupted
+    Exception
+        For any other unexpected errors during processing
+    """
     # Initialize logging
     initialize_logging(log_file=ATPTOUR_LOG_FILE)
     main_logger = logging.getLogger("[DATASET] [MAIN]")

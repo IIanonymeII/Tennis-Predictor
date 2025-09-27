@@ -1,3 +1,10 @@
+"""
+FlashScore data retrieval and URL validation utilities module.
+
+This module provides utility functions for retrieving data from FlashScore
+using custom headers and validating URLs with HTTP status checks.
+"""
+
 import logging
 from typing import Union
 
@@ -17,15 +24,22 @@ def retrieve_flashscore_data(
     specific header. It returns the response text if `return_as_text` is True,
     otherwise it returns the complete response object.
 
-    Args:
-        url (str): The URL from which to fetch data.
-        return_as_text (bool): If True, returns the response text; else, the response object.
+    Parameters
+    ----------
+    url : str
+        The URL from which to fetch data
+    return_as_text : bool, optional
+        If True, returns the response text; else, the response object, by default True
 
-    Returns:
-        Union[str, requests.Response]: The response text or the full response object.
+    Returns
+    -------
+    Union[str, requests.Response]
+        The response text or the full response object
 
-    Raises:
-        ConnectionError: If the HTTP response status code is not 200.
+    Raises
+    ------
+    ConnectionError
+        If the HTTP response status code is not 200
     """
     headers = {"x-fsign": "SW9D1eZo"}  # FlashScore specific header
 
@@ -47,24 +61,31 @@ def retrieve_flashscore_data(
 
 def validate_and_check_url(url: str) -> str:
     """
-    Validates a given URL and checks if it exists via an HTTP GET request.
+    Validate a given URL and check if it exists via an HTTP GET request.
 
     This function verifies:
-      - The URL begins with 'https://'.
-      - The URL is not empty or only spaces.
-      - The URL responds without returning a 404 error.
-      - If the request is Forbidden (403), the URL is still considered valid.
-      - If the request is Unauthorized (401), the URL is still considered valid.
+    - The URL begins with 'https://'
+    - The URL is not empty or only spaces
+    - The URL responds without returning a 404 error
+    - If the request is Forbidden (403), the URL is still considered valid
+    - If the request is Unauthorized (401), the URL is still considered valid
 
-    Args:
-        url (str): The full URL to validate and check.
+    Parameters
+    ----------
+    url : str
+        The full URL to validate and check
 
-    Returns:
-        str: The validated URL if it exists.
+    Returns
+    -------
+    str
+        The validated URL if it exists
 
-    Raises:
-        ValueError: If the URL structure is invalid.
-        Exception: If the URL returns a 404 (Not Found) status.
+    Raises
+    ------
+    ValueError
+        If the URL structure is invalid
+    Exception
+        If the URL returns a 404 (Not Found) status or other request errors occur
     """
     logger.debug("Validating URL: %s", url)
 

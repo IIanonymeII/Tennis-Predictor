@@ -1,3 +1,12 @@
+"""
+ATP Player Data Processing Module.
+
+This module orchestrates the complete workflow for processing ATP tennis player data,
+including fetching, matching, and saving player information from various sources.
+The main function handles the entire pipeline from loading flashscore data to
+saving processed player information to CSV files.
+"""
+
 import logging
 from pathlib import Path
 from typing import Dict, List, Union

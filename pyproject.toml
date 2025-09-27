@@ -22,10 +22,17 @@ trueskill = "^0.4.5"
 bandit = "^1.8.6"
 pytest = "^8.4.2"
 ruff = "^0.13.2"
+interrogate = "^1.7.0"
 
 [tool.ruff]
 exclude = ["*/test_*.py", "*.ipynb"]
 line-length = 100
+
+[tool.interrogate]
+fail-under = 80
+exclude = ["*/__init__.py", "*/test*.py", "*.ipynb"]
+docstring-convention = "numpy"
+verbose = true
 
 [build-system]
 requires = ["poetry-core"]

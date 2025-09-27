@@ -1,3 +1,11 @@
+"""
+Player data CSV saver module.
+
+This module provides functionality to save comprehensive player data to CSV files
+with validation, logging, and error handling. It converts Player objects to
+structured DataFrames and handles file operations safely.
+"""
+
 import logging
 from pathlib import Path
 from typing import Dict, List, Union
@@ -17,14 +25,23 @@ def _convert_player_objects_to_dicts(player_objects: List[Player]) -> List[Dict]
     """
     Convert Player objects to dictionaries for DataFrame creation.
 
-    Args:
-        player_objects (List[Player]): List of Player objects
+    This function converts a list of Player objects into a list of dictionaries
+    by extracting their attributes. It handles objects with and without __dict__.
 
-    Returns:
-        List[Dict]: List of player data dictionaries
+    Parameters
+    ----------
+    player_objects : List[Player]
+        List of Player objects to convert
 
-    Raises:
-        AttributeError: If Player objects don't have expected attributes
+    Returns
+    -------
+    List[Dict]
+        List of player data dictionaries
+
+    Raises
+    ------
+    AttributeError
+        If Player objects don't have expected attributes
     """
     logger = logging.getLogger("PlayerConverter")
 
@@ -69,15 +86,23 @@ def save_players_data_to_csv(
     This function converts Player objects to a structured DataFrame and saves
     the data to a CSV file, creating the output directory if needed.
 
-    Args:
-        players_dataframe (pd.DataFrame): Original player DataFrame (for reference)
-        detailed_player_objects (List[Player]): List of Player objects with complete data
-        output_directory_path (Union[str, Path]): Directory path where CSV will be saved
+    Parameters
+    ----------
+    players_dataframe : pd.DataFrame
+        Original player DataFrame (for reference)
+    detailed_player_objects : List[Player]
+        List of Player objects with complete data
+    output_directory_path : Union[str, Path]
+        Directory path where CSV will be saved
 
-    Raises:
-        ValueError: If no player objects provided or conversion fails
-        IOError: If file writing fails
-        OSError: If directory creation fails
+    Raises
+    ------
+    ValueError
+        If no player objects provided or conversion fails
+    IOError
+        If file writing fails
+    OSError
+        If directory creation fails
     """
     logger = logging.getLogger("PlayerDataSaver")
 

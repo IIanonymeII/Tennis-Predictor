@@ -1,123 +1,18 @@
-# -- Match --
-# -- Service --
-# Aces (SH: 2, SI: 8)
-# Double Faults (SH: 0, SI: 0)
-# 1st Serve Percentage (SH: 59%, SI: 67%)
-# 1st Serve Points Won (SH: 50% (18/36), SI: 84% (38/45))
-# 2nd Serve Points Won (SH: 32% (8/25), SI: 55% (12/22))
-# Break Points Saved (SH: 46% (6/13), SI: 100% (3/3))
-# Average 1st Serve Speed (SH: 178 km/h, SI: 184 km/h)
-# Average 2nd Serve Speed (SH: 156 km/h, SI: 150 km/h)
+"""
+FlashScore statistics parser module.
 
-# -- Return --
-# 1st Return Points Won (SH: 16% (7/45), SI: 50% (18/36))
-# 2nd Return Points Won (SH: 45% (10/22), SI: 60% (15/25))
-# Break Points Converted (SH: 0% (0/3), SI: 54% (7/13))
+This module provides functionality to parse FlashScore statistics from response text
+using a segment-based approach. It handles various prefixes and extracts match
+statistics for tennis matches.
+"""
 
-# -- Points --
-# Winners (SH: 11, SI: 25)
-# Unforced Errors (SH: 27, SI: 12)
-# Net Points Won (SH: 100% (3/3), SI: 100% (1/1))
-# Service Points Won (SH: 43% (26/61), SI: 75% (50/67))
-# Return Points Won (SH: 25% (17/67), SI: 57% (35/61))
-# Total Points Won (SH: 34% (43/128), SI: 66% (85/128))
-# Last 10 Balls (SH: 2, SI: 8)
-# Match Points Saved (SH: 0, SI: 0)
-
-# -- Games --
-# Service Games Won (SH: 30% (3/10), SI: 100% (11/11))
-# Return Games Won (SH: 0% (0/11), SI: 70% (7/10))
-# Total Games Won (SH: 14% (3/21), SI: 86% (18/21))
-
-# -- Set 1 --
-# -- Service --
-# Aces (SH: 1, SI: 2)
-# Double Faults (SH: 0, SI: 0)
-# 1st Serve Percentage (SH: 60%, SI: 68%)
-# 1st Serve Points Won (SH: 56% (5/9), SI: 87% (13/15))
-# 2nd Serve Points Won (SH: 33% (2/6), SI: 57% (4/7))
-# Break Points Saved (SH: 0% (0/2), SI: 100% (1/1))
-
-# -- Return --
-# 1st Return Points Won (SH: 13% (2/15), SI: 44% (4/9))
-# 2nd Return Points Won (SH: 43% (3/7), SI: 67% (4/6))
-# Break Points Converted (SH: 0% (0/1), SI: 100% (2/2))
-
-# -- Points --
-# Winners (SH: 5, SI: 8)
-# Unforced Errors (SH: 7, SI: 5)
-# Net Points Won (SH: 100% (1/1), SI: 100% (1/1))
-# Service Points Won (SH: 47% (7/15), SI: 77% (17/22))
-# Return Points Won (SH: 23% (5/22), SI: 53% (8/15))
-# Total Points Won (SH: 32% (12/37), SI: 68% (25/37))
-
-# -- Games --
-# Service Games Won (SH: 33% (1/3), SI: 100% (4/4))
-# Return Games Won (SH: 0% (0/4), SI: 67% (2/3))
-# Total Games Won (SH: 14% (1/7), SI: 86% (6/7))
-
-# -- Set 2 --
-# -- Service --
-# Aces (SH: 0, SI: 2)
-# Double Faults (SH: 0, SI: 0)
-# 1st Serve Percentage (SH: 45%, SI: 64%)
-# 1st Serve Points Won (SH: 44% (4/9), SI: 78% (7/9))
-# 2nd Serve Points Won (SH: 27% (3/11), SI: 100% (5/5))
-# Break Points Saved (SH: 40% (2/5), SI: 0% (0/0))
-
-# -- Return --
-# 1st Return Points Won (SH: 22% (2/9), SI: 56% (5/9))
-# 2nd Return Points Won (SH: 0% (0/5), SI: 55% (6/11))
-# Break Points Converted (SH: 0% (0/0), SI: 60% (3/5))
-
-# -- Points --
-# Winners (SH: 2, SI: 8)
-# Unforced Errors (SH: 8, SI: 2)
-# Net Points Won (SH: 100% (1/1), SI: 0% (0/0))
-# Service Points Won (SH: 35% (7/20), SI: 86% (12/14))
-# Return Points Won (SH: 14% (2/14), SI: 65% (13/20))
-# Total Points Won (SH: 26% (9/34), SI: 74% (25/34))
-
-# -- Games --
-# Service Games Won (SH: 25% (1/4), SI: 100% (3/3))
-# Return Games Won (SH: 0% (0/3), SI: 75% (3/4))
-# Total Games Won (SH: 14% (1/7), SI: 86% (6/7))
-
-# -- Set 3 --
-# -- Service --
-# Aces (SH: 1, SI: 4)
-# Double Faults (SH: 0, SI: 0)
-# 1st Serve Percentage (SH: 69%, SI: 68%)
-# 1st Serve Points Won (SH: 50% (9/18), SI: 86% (18/21))
-# 2nd Serve Points Won (SH: 38% (3/8), SI: 30% (3/10))
-# Break Points Saved (SH: 67% (4/6), SI: 100% (2/2))
-
-# -- Return --
-# 1st Return Points Won (SH: 14% (3/21), SI: 50% (9/18))
-# 2nd Return Points Won (SH: 70% (7/10), SI: 63% (5/8))
-# Break Points Converted (SH: 0% (0/2), SI: 33% (2/6))
-
-# -- Points --
-# Winners (SH: 4, SI: 9)
-# Unforced Errors (SH: 12, SI: 5)
-# Net Points Won (SH: 100% (1/1), SI: 0% (0/0))
-# Service Points Won (SH: 46% (12/26), SI: 68% (21/31))
-# Return Points Won (SH: 32% (10/31), SI: 54% (14/26))
-# Total Points Won (SH: 39% (22/57), SI: 61% (35/57))
-
-# -- Games --
-# Service Games Won (SH: 33% (1/3), SI: 100% (4/4))
-# Return Games Won (SH: 0% (0/4), SI: 67% (2/3))
-# Total Games Won (SH: 14% (1/7), SI: 86% (6/7))
-
-# State variables for tracking SG statistics
 import logging
 import re
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 
-
+# Global variables for state tracking
 stats_dict = {}
 current_stat = None
 sh_value = None
@@ -206,6 +101,24 @@ prefix_handlers = {
 
 
 def process_segment(segment: str):
+    """
+    Process a single segment of the response text.
+
+    This function splits the segment by the delimiter and handles it according
+    to its prefix.
+
+    Parameters
+    ----------
+    segment : str
+        A single segment from the response text to process
+
+    Raises
+    ------
+    ValueError
+        If an unrecognized prefix is encountered
+    Exception
+        If there's an error during segment processing
+    """
     if "÷" not in segment:
         return  # Skip invalid segments
 
@@ -226,6 +139,22 @@ def process_segment(segment: str):
 
 
 def flashscore_stat_match_parser(response_text: str):
+    """
+    Parse FlashScore statistics from response text.
+
+    This function processes the entire response text by splitting it into segments
+    and processing each segment according to its prefix.
+
+    Parameters
+    ----------
+    response_text : str
+        The complete response text from FlashScore containing match statistics
+
+    Returns
+    -------
+    dict
+        A dictionary containing the parsed match statistics organized by events and features
+    """
     global stats_dict
     segments = response_text.split("¬")
 

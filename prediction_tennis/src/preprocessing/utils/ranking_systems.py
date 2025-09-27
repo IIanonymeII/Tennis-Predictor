@@ -1,3 +1,13 @@
+"""
+Ranking Systems Utility Module
+
+This module provides utility functions for various ranking systems, including
+Glicko rating calculations, rating movement analysis, and transformation
+functions for rating adjustments. The functions support different rating
+systems and provide tools for tracking and updating player ratings based on
+match outcomes.
+"""
+
 import logging
 from typing import List, Tuple
 
@@ -21,14 +31,25 @@ def calculate_rating_movement_from_history(
     and the rating from 'matches_lookback' matches ago. If insufficient history
     exists, it returns 0.0.
 
-    Args:
-        rating_history: List of (timestamp, rating) tuples in chronological order
-        current_pre_match_rating: Current pre-match rating
-        matches_lookback: Number of matches to look back for comparison
+    Parameters
+    ----------
+    rating_history : List[Tuple[pd.Timestamp, float]]
+        List of (timestamp, rating) tuples in chronological order
+    current_pre_match_rating : float
+        Current pre-match rating
+    matches_lookback : int
+        Number of matches to look back for comparison
 
-    Returns:
+    Returns
+    -------
+    float
         Rating movement as difference between current and historical rating.
         Returns 0.0 if insufficient history exists.
+
+    Raises
+    ------
+    TypeError
+        If rating_history is not a list or contains invalid elements
     """
     if not rating_history:
         logging.debug("Empty rating history, returning 0.0 movement")
@@ -65,16 +86,30 @@ def _update_player_glicko_rating(
     This is a helper function that implements the core Glicko update equations
     for a single player based on the outcome of one match.
 
-    Args:
-        player_rating: Current rating of the player
-        player_rd: Current rating deviation of the player
-        opponent_rating: Current rating of the opponent
-        opponent_rd: Current rating deviation of the opponent
-        player_score: Score achieved by player (1 for win, 0 for loss)
-        q_factor: Glicko system constant
+    Parameters
+    ----------
+    player_rating : float
+        Current rating of the player
+    player_rd : float
+        Current rating deviation of the player
+    opponent_rating : float
+        Current rating of the opponent
+    opponent_rd : float
+        Current rating deviation of the opponent
+    player_score : float
+        Score achieved by player (1 for win, 0 for loss)
+    q_factor : float
+        Glicko system constant
 
-    Returns:
+    Returns
+    -------
+    Tuple[float, float]
         Tuple containing updated (rating, rating_deviation)
+
+    Raises
+    ------
+    ValueError
+        If any input parameters are invalid (e.g., negative RD values)
     """
     # Calculate g(RD) for opponent
     g_opponent_rd = _calculate_g_function(rating_deviation=opponent_rd, q_factor=q_factor)
@@ -104,12 +139,22 @@ def _calculate_g_function(rating_deviation: float, q_factor: float) -> float:
     """
     Calculate the g(RD) function used in Glicko rating updates.
 
-    Args:
-        rating_deviation: Rating deviation value
-        q_factor: Glicko system constant
+    Parameters
+    ----------
+    rating_deviation : float
+        Rating deviation value
+    q_factor : float
+        Glicko system constant
 
-    Returns:
+    Returns
+    -------
+    float
         g(RD) value
+
+    Raises
+    ------
+    ValueError
+        If rating_deviation is negative
     """
     return 1 / np.sqrt(
         1 + (GLICKO_CONSTANT_3_SQUARED * (q_factor**2) * (rating_deviation**2)) / PI_SQUARED
@@ -120,12 +165,22 @@ def _calculate_expected_score(player_rating: float, opponent_rating: float) -> f
     """
     Calculate expected score for a player against an opponent.
 
-    Args:
-        player_rating: Player's current rating
-        opponent_rating: Opponent's current rating
+    Parameters
+    ----------
+    player_rating : float
+        Player's current rating
+    opponent_rating : float
+        Opponent's current rating
 
-    Returns:
+    Returns
+    -------
+    float
         Expected score (probability of winning)
+
+    Raises
+    ------
+    ValueError
+        If ratings are not finite numbers
     """
     return 1 / (1 + 10 ** ((opponent_rating - player_rating) / 400))
 
@@ -136,18 +191,27 @@ def _calculate_update_values(
     """
     Calculate transformed update values based on the specified method.
 
-    Args:
-        win_step: Base win step value
-        lose_step: Base lose step value
-        transformation_method: Transformation method to apply
-        transformation_factor: Factor for the transformation
+    Parameters
+    ----------
+    win_step : float
+        Base win step value
+    lose_step : float
+        Base lose step value
+    transformation_method : str
+        Transformation method to apply
+    transformation_factor : float
+        Factor for the transformation
 
-    Returns:
+    Returns
+    -------
+    Tuple[float, float]
         Tuple of (transformed_win_step, transformed_lose_step)
 
-    Raises:
-        ValueError: If transformation method is invalid or would cause
-                   mathematical errors
+    Raises
+    ------
+    ValueError
+        If transformation method is invalid or would cause
+        mathematical errors
     """
     try:
         if transformation_method == "power":
@@ -218,15 +282,22 @@ def _apply_transformation(value: float, method: str) -> float:
     """
     Apply a single transformation to a value.
 
-    Args:
-        value: Value to transform
-        method: Transformation method ("power", "exp", or "log")
+    Parameters
+    ----------
+    value : float
+        Value to transform
+    method : str
+        Transformation method ("power", "exp", or "log")
 
-    Returns:
+    Returns
+    -------
+    float
         Transformed value
 
-    Raises:
-        ValueError: If transformation would cause mathematical errors
+    Raises
+    ------
+    ValueError
+        If transformation would cause mathematical errors
     """
     try:
         if method == "power":

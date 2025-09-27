@@ -1,3 +1,4 @@
+"""...."""
 from dataclasses import replace
 import logging
 from typing import List, Optional, Tuple
@@ -22,6 +23,7 @@ class FlashscoreMatchScoreProcessor:
         self.current_match: Match
 
     def initialize_variables(self, match: Match) -> None:
+        """ initialize_variables """
         self.logger.info("___ INIT ___")
 
         # Verify that match is an instance of the Match class
@@ -114,6 +116,7 @@ class FlashscoreMatchScoreProcessor:
         return player1_scores + player2_scores
 
     def _score_break_set(self, text: str) -> List[Optional[str]]:
+        """ score break """
         player1_patterns = [
             {"pattern": r"¬DA÷([^¬÷]+)¬BB÷", "optional_value": True},  # Set 2 (optional)
             {"pattern": r"¬DC÷([^¬÷]+)¬BD÷", "optional_value": True},  # Set 2 (optional)

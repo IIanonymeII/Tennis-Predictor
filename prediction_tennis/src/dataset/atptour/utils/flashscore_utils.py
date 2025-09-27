@@ -1,11 +1,17 @@
+"""
+FlashScore data extraction module.
+
+This module provides functionality to extract and combine tournament data
+from multiple FlashScore CSV files into a single DataFrame.
+"""
+
 import logging
 import os
 import pandas as pd
 
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("[FLASCORE UTILS]")
 
 
 def extract_df_from_flashscore(folder_path: str) -> pd.DataFrame:
@@ -15,13 +21,23 @@ def extract_df_from_flashscore(folder_path: str) -> pd.DataFrame:
     This function reads all CSV files matching the pattern "tournament_*.csv"
     from the specified folder and concatenates them into a single DataFrame.
 
-    Args:
-        folder_path (str): Path to the folder containing Flashscore CSV files.
-                          Defaults to FOLDER_FLASHSCORE_RAW_PATH.
+    Parameters
+    ----------
+    folder_path : str
+        Path to the folder containing Flashscore CSV files
 
-    Returns:
-        pd.DataFrame: Combined DataFrame containing all tournament data,
-                     or empty DataFrame if no files are found.
+    Returns
+    -------
+    pd.DataFrame
+        Combined DataFrame containing all tournament data,
+        or empty DataFrame if no files are found
+
+    Raises
+    ------
+    FileNotFoundError
+        If the specified folder does not exist
+    PermissionError
+        If there are insufficient permissions to read the folder or files
     """
     # Get all CSV files that match the pattern "tournament_xx.csv"
     flashscore_csv_files = [

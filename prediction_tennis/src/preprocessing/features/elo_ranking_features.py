@@ -1,4 +1,12 @@
-# SIMPLE RATING
+"""
+ELO rating computation module for tennis matches.
+
+This module provides various implementations of ELO rating systems for tennis players,
+including standard ELO, tournament-based ELO, round-based ELO, and momentum ELO.
+Each function processes match data chronologically and updates player ratings based
+on match outcomes.
+"""
+
 import logging
 from typing import Dict, Optional, Tuple
 import numpy as np
@@ -49,30 +57,98 @@ def compute_elo_rankings(
     verbose: bool = False,
 ) -> np.ndarray:
     """
+ELO rating computation module for tennis matches.
+
+This module provides various implementations of ELO rating systems for tennis players,
+including standard ELO, tournament-based ELO, round-based ELO, and momentum ELO.
+Each function processes match data chronologically and updates player ratings based
+on match outcomes.
+"""
+
+import logging
+from typing import Dict, Optional, Tuple
+import numpy as np
+import pandas as pd
+from tqdm import tqdm
+
+
+# Configure logging
+logger = logging.getLogger("[ELO RANTING]")
+
+# Constants
+DEFAULT_STARTING_RATING = 1500.0
+DEFAULT_DIVISOR = 400
+DEFAULT_SET_DIVISOR = 600
+MAX_EXPONENT = 100
+MOMENTUM_DECAY_FACTOR = 0.9
+
+# Tournament level multipliers for ATP tournaments
+TOURNAMENT_MULTIPLIERS: Dict[float, float] = {
+    250.0: 0.8,  # ATP 250
+    500.0: 1.0,  # ATP 500
+    750.0: 1.0,  # ATP 750
+    1000.0: 1.0,  # ATP 1000 (Masters)
+    1500.0: 1.0,  # ATP Finals
+    2000.0: 1.5,  # Grand Slams
+}
+
+# Round multipliers based on tournament round importance
+ROUND_MULTIPLIERS: Dict[int, float] = {
+    1: 2.0,  # Final
+    2: 1.5,  # Semifinal
+    3: 1.3,  # Quarterfinal
+    4: 1.2,  # Round of 16
+    8: 1.0,  # Round of 32
+    16: 1.0,  # Round of 64
+    32: 1.0,  # Round of 128
+    64: 0.8,  # Qualifying rounds
+    128: 0.5,  # Early qualifying
+}
+
+
+def compute_elo_rankings(
+    matches_df: pd.DataFrame,
+    k_factor: int,
+    surface: str = "all",
+    divisor: int = DEFAULT_DIVISOR,
+    verbose: bool = False,
+) -> np.ndarray:
+    """
     Compute standard ELO rankings for players based on match outcomes.
 
     This function processes each match in the provided DataFrame, records the
     pre-match ratings for both players, and updates their ratings using the
     standard ELO formula.
 
-    Args:
-        matches_df: DataFrame containing match details with columns:
-            - 'player1_id_factor': Factorized ID for player 1
-            - 'player2_id_factor': Factorized ID for player 2
-            - 'winner': Match winner (1 for player 1, 2 for player 2)
-            - 'match_date': Date/timestamp of the match
-        k_factor: K factor controlling magnitude of rating changes
-        surface: Surface type for progress display (default: "all")
-        divisor: Divisor for ELO expected score formula (default: 400)
-        verbose: Whether to show detailed progress information
+    Parameters
+    ----------
+    matches_df : pd.DataFrame
+        DataFrame containing match details with columns:
+        - 'player1_id_factor': Factorized ID for player 1
+        - 'player2_id_factor': Factorized ID for player 2
+        - 'winner': Match winner (1 for player 1, 2 for player 2)
+        - 'match_date': Date/timestamp of the match
+    k_factor : int
+        K factor controlling magnitude of rating changes
+    surface : str, optional
+        Surface type for progress display, by default "all"
+    divisor : int, optional
+        Divisor for ELO expected score formula, by default DEFAULT_DIVISOR (400)
+    verbose : bool, optional
+        Whether to show detailed progress information, by default False
 
-    Returns:
+    Returns
+    -------
+    np.ndarray
         2D numpy array (matches x 2) containing pre-match ratings
         for player 1 and player 2
 
-    Raises:
-        KeyError: If required columns are missing from matches_df
-        ValueError: If k_factor or divisor are not positive
+    Raises
+    ------
+    KeyError
+        If required columns are missing from matches_df
+    ValueError
+        If k_factor or divisor are not positive
     """
     if k_factor <= 0:
         raise ValueError("k_factor must be positive")
@@ -140,7 +216,6 @@ def compute_elo_rankings(
     logger.info(f"Completed ELO ranking computation for {surface} surface")
     return match_ratings
 
-
 def compute_tournament_round_based_elo(
     matches_df: pd.DataFrame, k_factor: int, surface: str = "all", divisor: int = DEFAULT_DIVISOR
 ) -> np.ndarray:
@@ -151,21 +226,31 @@ def compute_tournament_round_based_elo(
     considers both tournament importance and round significance:
     effective_k = k_base × tournament_multiplier × round_multiplier
 
-    Args:
-        matches_df: DataFrame with match data including:
-            - Standard match columns (as in compute_elo_rankings)
-            - 'tournament_level': Numeric tournament level
-            - 'round_number': Numeric round identifier
-        k_factor: Base K factor for rating updates
-        surface: Surface type for progress display
-        divisor: Divisor for ELO expected score formula
+    Parameters
+    ----------
+    matches_df : pd.DataFrame
+        DataFrame with match data including:
+        - Standard match columns (as in compute_elo_rankings)
+        - 'tournament_level': Numeric tournament level
+        - 'round_number': Numeric round identifier
+    k_factor : int
+        Base K factor for rating updates
+    surface : str, optional
+        Surface type for progress display, by default "all"
+    divisor : int, optional
+        Divisor for ELO expected score formula, by default DEFAULT_DIVISOR (400)
 
-    Returns:
+    Returns
+    -------
+    np.ndarray
         2D numpy array containing pre-match ratings for each player pair
 
-    Raises:
-        KeyError: If required columns are missing from matches_df
-        ValueError: If k_factor or divisor are not positive
+    Raises
+    ------
+    KeyError
+        If required columns are missing from matches_df
+    ValueError
+        If k_factor or divisor are not positive
     """
     if k_factor <= 0:
         raise ValueError("k_factor must be positive")
@@ -243,7 +328,6 @@ def compute_tournament_round_based_elo(
     logger.info("Completed tournament/round-based ELO computation")
     return match_ratings
 
-
 def compute_tournament_based_elo(
     matches_df: pd.DataFrame,
     k_base: int,
@@ -257,15 +341,28 @@ def compute_tournament_based_elo(
     This function applies different K-factors based on tournament importance:
     effective_k = k_base × tournament_multiplier
 
-    Args:
-        matches_df: DataFrame with match data including 'tournament_level'
-        k_base: Base K factor for rating updates
-        surface: Surface type for progress display
-        divisor: Divisor for ELO expected score formula
-        tournament_multipliers: Custom tournament multipliers (optional)
+    Parameters
+    ----------
+    matches_df : pd.DataFrame
+        DataFrame with match data including 'tournament_level'
+    k_base : int
+        Base K factor for rating updates
+    surface : str, optional
+        Surface type for progress display, by default "all"
+    divisor : int, optional
+        Divisor for ELO expected score formula, by default DEFAULT_DIVISOR (400)
+    tournament_multipliers : Optional[Dict[float, float]], optional
+        Custom tournament multipliers, by default None (uses default multipliers)
 
-    Returns:
+    Returns
+    -------
+    np.ndarray
         2D numpy array containing pre-match ratings for each player pair
+
+    Raises
+    ------
+    ValueError
+        If k_base or divisor are not positive
     """
     if k_base <= 0:
         raise ValueError("k_factor must be positive")
@@ -328,7 +425,6 @@ def compute_tournament_based_elo(
     logger.info("Completed tournament-based ELO computation")
     return match_ratings
 
-
 def compute_round_based_elo(
     matches_df: pd.DataFrame,
     k_base: int,
@@ -342,15 +438,28 @@ def compute_round_based_elo(
     This function applies different K-factors based on tournament round:
     effective_k = k_base × round_multiplier
 
-    Args:
-        matches_df: DataFrame with match data including 'round_number'
-        k_base: Base K factor for rating updates
-        surface: Surface type for progress display
-        divisor: Divisor for ELO expected score formula
-        round_multipliers: Custom round multipliers (optional)
+    Parameters
+    ----------
+    matches_df : pd.DataFrame
+        DataFrame with match data including 'round_number'
+    k_base : int
+        Base K factor for rating updates
+    surface : str, optional
+        Surface type for progress display, by default "all"
+    divisor : int, optional
+        Divisor for ELO expected score formula, by default DEFAULT_DIVISOR (400)
+    round_multipliers : Optional[Dict[int, float]], optional
+        Custom round multipliers, by default None (uses default multipliers)
 
-    Returns:
+    Returns
+    -------
+    np.ndarray
         2D numpy array containing pre-match ratings for each player pair
+
+    Raises
+    ------
+    ValueError
+        If k_base or divisor are not positive
     """
     if k_base <= 0:
         raise ValueError("k_factor must be positive")
@@ -411,7 +520,6 @@ def compute_round_based_elo(
     logger.info("Completed round-based ELO computation")
     return match_ratings
 
-
 def compute_momentum_elo_rankings(
     matches_df: pd.DataFrame,
     k_base: float,
@@ -428,17 +536,30 @@ def compute_momentum_elo_rankings(
     This can be updated recursively as:
     new_momentum = current_ELO_change + decay_factor × previous_momentum
 
-    Args:
-        matches_df: DataFrame with match data
-        k_base: Base K factor for rating updates
-        surface: Surface type for progress display
-        divisor: Divisor for ELO expected score formula
-        verbose: Whether to show detailed progress information
+    Parameters
+    ----------
+    matches_df : pd.DataFrame
+        DataFrame with match data
+    k_base : float
+        Base K factor for rating updates
+    surface : str, optional
+        Surface type for progress display, by default "all"
+    divisor : int, optional
+        Divisor for ELO expected score formula, by default DEFAULT_SET_DIVISOR (600)
+    verbose : bool, optional
+        Whether to show detailed progress information, by default False
 
-    Returns:
+    Returns
+    -------
+    Tuple[np.ndarray, np.ndarray]
         Tuple containing:
         - match_ratings: Pre-match ELO ratings (matches x 2)
         - match_momentum: Pre-match Momentum ELO ratings (matches x 2)
+
+    Raises
+    ------
+    ValueError
+        If k_base or divisor are not positive
     """
     if k_base <= 0:
         raise ValueError("k_factor must be positive")

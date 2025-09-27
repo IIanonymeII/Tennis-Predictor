@@ -20,11 +20,15 @@ def extract_unique_players_from_flashscore(flashscore_dataframe: pd.DataFrame) -
     """
     Extract unique players from flashscore data.
 
-    Args:
-        flashscore_dataframe (pd.DataFrame): Raw flashscore data.
+    Parameters
+    ----------
+    flashscore_dataframe : pd.DataFrame
+        Raw flashscore data.
 
-    Returns:
-        pd.DataFrame: DataFrame with unique players (player_id, player_name).
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with unique players (player_id, player_name).
     """
     logger = logging.getLogger("DataExtractor")
 

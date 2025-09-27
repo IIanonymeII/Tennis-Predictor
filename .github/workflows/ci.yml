@@ -58,6 +58,10 @@ jobs:
 
       - name: Ruff Formatter (check only, line-length = 100)
         run: poetry run ruff format --check ./prediction_tennis/
+
+      - name: Interrogate (Comment, fail-under 80%)
+        run: poetry run interrogate ./prediction_tennis/
+        
   ##########################################
   # 3️⃣ Tests unitaires
   ##########################################

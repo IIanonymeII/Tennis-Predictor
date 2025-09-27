@@ -1,3 +1,11 @@
+"""
+Tournament data CSV saver module.
+
+This module provides functionality to save tournament data to CSV files with
+validation, logging, and error handling. It converts tournament data from
+a list of dictionaries to a structured DataFrame and handles file operations safely.
+"""
+
 import logging
 from pathlib import Path
 from typing import Dict, List, Union
@@ -23,18 +31,25 @@ def save_tournament_data_to_csv(
     structured DataFrame and saves it to a CSV file, creating the output
     directory if needed.
 
-    Args:
-        tournament_data (List[Dict[str, str]]): List of dictionaries containing
-            tournament data
-        output_directory_path (Union[str, Path]): Directory path where CSV will be saved
-        filename (str, optional): Name of the output CSV file. Defaults to "tournament_data.csv"
+    Parameters
+    ----------
+    tournament_data : List[Dict[str, str]]
+        List of dictionaries containing tournament data
+    output_directory_path : Union[str, Path]
+        Directory path where CSV will be saved
+    filename : str, optional
+        Name of the output CSV file, by default "tournament_data.csv"
 
-    Raises:
-        ValueError: If no tournament data provided or data is invalid
-        IOError: If file writing fails
-        OSError: If directory creation fails
+    Raises
+    ------
+    ValueError
+        If no tournament data provided, data is invalid, or DataFrame creation fails
+    IOError
+        If file writing fails
+    OSError
+        If directory creation fails
     """
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger("[SAVE TOURNAMENT]")
 
     # Validate input data
     if not tournament_data:

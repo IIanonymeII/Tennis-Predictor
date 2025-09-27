@@ -1,4 +1,11 @@
-# SIMPLE RATING
+"""
+Simple ranking computation module for tennis matches.
+
+This module provides implementations of simple ranking systems for tennis players
+based on match outcomes. It includes basic win/loss scoring systems with customizable
+update steps and mathematical transformations applied to the scores.
+"""
+
 import logging
 import numpy as np
 import pandas as pd
@@ -42,6 +49,55 @@ def compute_simple_ranking(
     verbose: bool = False,
 ) -> np.ndarray:
     """
+Simple ranking computation module for tennis matches.
+
+This module provides implementations of simple ranking systems for tennis players
+based on match outcomes. It includes basic win/loss scoring systems with customizable
+update steps and mathematical transformations applied to the scores.
+"""
+
+import logging
+import numpy as np
+import pandas as pd
+from tqdm import tqdm
+
+from prediction_tennis.src.preprocessing.utils.ranking_systems import (
+    _apply_transformation,
+    _calculate_update_values,
+)
+
+logger = logging.getLogger("[SIMPLE RANKING]")
+
+# Constants
+DEFAULT_WIN_STEP = 1.0
+DEFAULT_LOSE_STEP = 1.0
+DEFAULT_TRANSFORMATION_METHOD = "power"
+DEFAULT_TRANSFORMATION_FACTOR = 1.0
+
+# Valid transformation methods
+VALID_TRANSFORMATION_METHODS = [
+    "power",
+    "exp",
+    "log",
+    "power-log",
+    "power-exp",
+    "log-exp",
+    "log-power",
+    "exp-log",
+    "exp-power",
+]
+
+
+def compute_simple_ranking(
+    matches_df: pd.DataFrame,
+    surface: str = "all",
+    win_step: float = DEFAULT_WIN_STEP,
+    lose_step: float = DEFAULT_LOSE_STEP,
+    transformation_method: str = DEFAULT_TRANSFORMATION_METHOD,
+    transformation_factor: float = DEFAULT_TRANSFORMATION_FACTOR,
+    verbose: bool = False,
+) -> np.ndarray:
+    """
     Compute player rankings based on match outcomes using customizable
     update steps and transformation methods.
 
@@ -50,31 +106,44 @@ def compute_simple_ranking(
     The update steps (win and lose) can be transformed using various
     mathematical functions.
 
-    Args:
-        matches_df: DataFrame containing match details with columns:
-            - 'player1_id_factor': Identifier for player 1
-            - 'player2_id_factor': Identifier for player 2
-            - 'winner': Winning player (1 for player1, 2 for player2)
-            - 'match_date': Date or timestamp of the match
-        surface: Playing surface identifier for display purposes
-        win_step: Base score increment for the winning player
-        lose_step: Base score decrement for the losing player
-        transformation_method: Method to transform update steps. Options:
-            - "power": Use step ** transformation_factor
-            - "exp": Use math.exp(step * transformation_factor)
-            - "log": Use math.log(step + transformation_factor)
-            - Hybrid methods: "power-log", "power-exp", "log-exp",
-              "log-power", "exp-log", "exp-power"
-        transformation_factor: Factor used in the transformation
-        verbose: Whether to display detailed progress information
+    Parameters
+    ----------
+    matches_df : pd.DataFrame
+        DataFrame containing match details with columns:
+        - 'player1_id_factor': Identifier for player 1
+        - 'player2_id_factor': Identifier for player 2
+        - 'winner': Winning player (1 for player1, 2 for player2)
+        - 'match_date': Date or timestamp of the match
+    surface : str, optional
+        Playing surface identifier for display purposes, by default "all"
+    win_step : float, optional
+        Base score increment for the winning player, by default DEFAULT_WIN_STEP (1.0)
+    lose_step : float, optional
+        Base score decrement for the losing player, by default DEFAULT_LOSE_STEP (1.0)
+    transformation_method : str, optional
+        Method to transform update steps, by default DEFAULT_TRANSFORMATION_METHOD ("power").
+        Options:
+        - "power": Use step ** transformation_factor
+        - "exp": Use math.exp(step * transformation_factor)
+        - "log": Use math.log(step + transformation_factor)
+        - Hybrid methods: "power-log", "power-exp", "log-exp",
+          "log-power", "exp-log", "exp-power"
+    transformation_factor : float, optional
+        Factor used in the transformation, by default DEFAULT_TRANSFORMATION_FACTOR (1.0)
+    verbose : bool, optional
+        Whether to display detailed progress information, by default False
 
-    Returns:
+    Returns
+    -------
+    np.ndarray
         2D numpy array where each row contains pre-match scores
         for player1 and player2
 
-    Raises:
-        ValueError: If transformation method is invalid or would cause
-                   mathematical errors (e.g., log of negative number)
+    Raises
+    ------
+    ValueError
+        If transformation method is invalid or would cause mathematical errors,
+        or if required columns are missing from matches_df
     """
     logger.info(
         f"Computing simple ranking for surface '{surface}' using method '{transformation_method}'"
@@ -166,20 +235,36 @@ def compute_transformed_winloss_rankings(
     and applies transformations to compute ratings as:
     rating = transform(wins) - transform(losses)
 
-    Args:
-        matches_df: DataFrame containing match history
-        surface: Surface type for display purposes only
-        win_step: Base increment for winners
-        lose_step: Base increment for losers
-        transformation_method: Transformation method or hybrid method
-            (e.g., "exp-log", "power-log", etc.)
+    Parameters
+    ----------
+    matches_df : pd.DataFrame
+        DataFrame containing match history with required columns:
+        - 'player1_id_factor': Identifier for player 1
+        - 'player2_id_factor': Identifier for player 2
+        - 'winner': Winning player (1 for player1, 2 for player2)
+        - 'match_date': Date or timestamp of the match
+    surface : str, optional
+        Surface type for display purposes only, by default "all"
+    win_step : float, optional
+        Base increment for winners, by default DEFAULT_WIN_STEP (1.0)
+    lose_step : float, optional
+        Base increment for losers, by default DEFAULT_LOSE_STEP (1.0)
+    transformation_method : str, optional
+        Transformation method or hybrid method (e.g., "exp-log", "power-log", etc.),
+        by default DEFAULT_TRANSFORMATION_METHOD ("power")
+    verbose : bool, optional
+        Whether to display detailed progress information, by default False
 
-    Returns:
+    Returns
+    -------
+    np.ndarray
         2D numpy array of shape (num_matches, 2) with transformed ratings
         for player1 and player2 before each match
 
-    Raises:
-        ValueError: If parameters are invalid
+    Raises
+    ------
+    ValueError
+        If parameters are invalid or transformation method is not in valid methods list
     """
     logger.info(
         f"Computing transformed win-loss rankings for surface '{surface}' using method '{transformation_method}'"

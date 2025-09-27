@@ -1,3 +1,10 @@
+"""
+Text extraction utilities module.
+
+This module provides utility functions for extracting specific patterns from text,
+including general pattern matching, odds extraction, and year extraction.
+"""
+
 import logging
 import re
 from typing import Optional
@@ -9,20 +16,31 @@ def extract_pattern_from_text(
     text: str, pattern: str, optional_value: bool = False
 ) -> Optional[str]:
     """
-    Extracts a single pattern match from the given text.
+    Extract a single pattern match from the given text.
 
-    Args:
-        text (str): The input text to search within.
-        pattern (str): The regex pattern to search for.
-        optional_value (bool, optional): If True, returns None when the match is not exactly one.
-            Defaults to False.
+    This function searches for a regex pattern in the input text and returns
+    the matched string if exactly one match is found. If multiple matches
+    are found, it raises a ValueError unless optional_value is True.
 
-    Returns:
-        Optional[str]: The matched string if exactly one match is found, or None if
-        `optional_value` is True and the match is not exactly one.
+    Parameters
+    ----------
+    text : str
+        The input text to search within
+    pattern : str
+        The regex pattern to search for
+    optional_value : bool, optional
+        If True, returns None when the match is not exactly one, by default False
 
-    Raises:
-        ValueError: If the number of matches is not exactly one and `optional_value` is False.
+    Returns
+    -------
+    Optional[str]
+        The matched string if exactly one match is found, or None if
+        `optional_value` is True and the match is not exactly one
+
+    Raises
+    ------
+    ValueError
+        If the number of matches is not exactly one and `optional_value` is False
     """
     matches = re.findall(pattern, text)
 
@@ -45,16 +63,26 @@ def extract_pattern_from_text(
 
 def extract_odds(odd_str: str) -> tuple:
     """
-    Extracts odds from a formatted string.
+    Extract odds from a formatted string.
 
-    Args:
-        odd_str (str): The input string containing odds.
+    This function parses a string containing odds in the format of a number
+    optionally followed by [u] or [d] and another number. If the second
+    number is not present, it defaults to the first number.
 
-    Returns:
-        tuple: A tuple containing two odds as strings.
+    Parameters
+    ----------
+    odd_str : str
+        The input string containing odds
 
-    Raises:
-        ValueError: If the input string does not match the expected format.
+    Returns
+    -------
+    tuple
+        A tuple containing two odds as strings (odd1, odd2)
+
+    Raises
+    ------
+    ValueError
+        If the input string does not match the expected format
     """
     # This regex does the following:
     #  - (?P<odd1>\d+(\.\d+)?) captures the first number (integer or decimal) and names it "odd1".
@@ -81,14 +109,24 @@ def extract_year(text: str) -> str:
     """
     Extract a 4-digit year from the given text using a regular expression.
 
-    Args:
-        text (str): The text containing the year (e.g. "ATP Acapulco 2024").
+    This function searches for a 4-digit number pattern in the input text
+    and returns it as a string. Commonly used for extracting years from
+    tournament names or other text containing year information.
 
-    Returns:
-        str: The extracted year.
+    Parameters
+    ----------
+    text : str
+        The text containing the year (e.g. "ATP Acapulco 2024")
 
-    Raises:
-        ValueError: If no 4-digit year is found in the text.
+    Returns
+    -------
+    str
+        The extracted 4-digit year
+
+    Raises
+    ------
+    ValueError
+        If no 4-digit year is found in the text
     """
     logger.debug("Extracting year from text: %s", text)
     match = re.search(r"(\d{4})", text)

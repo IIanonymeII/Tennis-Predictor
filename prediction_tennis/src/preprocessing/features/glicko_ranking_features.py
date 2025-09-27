@@ -1,4 +1,11 @@
-# SIMPLE RATING
+"""
+Glicko rating computation module for tennis matches.
+
+This module provides implementation of the Glicko rating system for tennis players.
+The Glicko system extends the Elo rating system by incorporating rating deviation
+(uncertainty) into the calculations, providing a more nuanced assessment of player strength.
+"""
+
 import logging
 import numpy as np
 import pandas as pd
@@ -31,35 +38,47 @@ def compute_glicko_ratings(
     of skill, such as chess or tennis. It extends the Elo rating system by
     incorporating rating deviation (uncertainty) into the calculations.
 
-    Args:
-        matches_df: DataFrame containing match details with required columns:
-            - 'player1_id_factor': Numeric ID for player 1
-            - 'player2_id_factor': Numeric ID for player 2
-            - 'winner': Match winner (1 for player1, 2 for player2)
-            - 'match_date': Date of the match
-        surface: Surface type for matches (used for verbose output)
-        initial_rating: Starting rating for new players
-        initial_rating_deviation: Starting rating deviation for new players
-        q_factor: Glicko system constant for calculations
-        verbose: Enable detailed progress information
+    Parameters
+    ----------
+    matches_df : pd.DataFrame
+        DataFrame containing match details with required columns:
+        - 'player1_id_factor': Numeric ID for player 1
+        - 'player2_id_factor': Numeric ID for player 2
+        - 'winner': Match winner (1 for player1, 2 for player2)
+        - 'match_date': Date of the match
+    surface : str, optional
+        Surface type for matches (used for verbose output), by default "all"
+    initial_rating : float, optional
+        Starting rating for new players, by default DEFAULT_INITIAL_RATING (1500.0)
+    initial_rating_deviation : float, optional
+        Starting rating deviation for new players, by default DEFAULT_INITIAL_RD (350.0)
+    q_factor : float, optional
+        Glicko system constant for calculations, by default DEFAULT_Q_FACTOR
+    verbose : bool, optional
+        Enable detailed progress information, by default False
 
-    Returns:
+    Returns
+    -------
+    np.ndarray
         2D numpy array of shape (n_matches, 2) containing pre-match ratings
         for [player1, player2] in each row
 
-    Raises:
-        ValueError: If required columns are missing from the DataFrame
+    Raises
+    ------
+    ValueError
+        If required columns are missing from the DataFrame or if parameters are invalid
 
-    Example:
-        >>> matches_df = pd.DataFrame({
-        ...     'player1_id_factor': [0, 1],
-        ...     'player2_id_factor': [1, 0],
-        ...     'winner': [1, 2],
-        ...     'match_date': ['2023-01-01', '2023-01-02']
-        ... })
-        >>> ratings = compute_glicko_ratings(matches_df)
-        >>> ratings.shape
-        (2, 2)
+    Examples
+    --------
+    >>> matches_df = pd.DataFrame({
+    ...     'player1_id_factor': [0, 1],
+    ...     'player2_id_factor': [1, 0],
+    ...     'winner': [1, 2],
+    ...     'match_date': ['2023-01-01', '2023-01-02']
+    ... })
+    >>> ratings = compute_glicko_ratings(matches_df)
+    >>> ratings.shape
+    (2, 2)
     """
     logger.info(
         f"Starting Glicko rating computation for {len(matches_df)} matches on surface: {surface}"
