@@ -66,4 +66,3 @@ class Tournaments:
             Dictionary representation of the Tournaments instance
         """
         return asdict(self)
-    

@@ -4,6 +4,7 @@ Module for computing rating movements in tennis matches.
 This module provides functionality to calculate the rating movement for each player
 by comparing their current rating with their rating from a specified number of matches ago.
 """
+
 import logging
 from typing import List, Tuple
 

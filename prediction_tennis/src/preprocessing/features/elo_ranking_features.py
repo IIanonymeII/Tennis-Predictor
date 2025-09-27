@@ -158,6 +158,7 @@ def compute_elo_rankings(
     logger.info(f"Completed ELO ranking computation for {surface} surface")
     return match_ratings
 
+
 def compute_tournament_round_based_elo(
     matches_df: pd.DataFrame, k_factor: int, surface: str = "all", divisor: int = DEFAULT_DIVISOR
 ) -> np.ndarray:
@@ -270,6 +271,7 @@ def compute_tournament_round_based_elo(
     logger.info("Completed tournament/round-based ELO computation")
     return match_ratings
 
+
 def compute_tournament_based_elo(
     matches_df: pd.DataFrame,
     k_base: int,
@@ -367,6 +369,7 @@ def compute_tournament_based_elo(
     logger.info("Completed tournament-based ELO computation")
     return match_ratings
 
+
 def compute_round_based_elo(
     matches_df: pd.DataFrame,
     k_base: int,
@@ -461,6 +464,7 @@ def compute_round_based_elo(
 
     logger.info("Completed round-based ELO computation")
     return match_ratings
+
 
 def compute_momentum_elo_rankings(
     matches_df: pd.DataFrame,

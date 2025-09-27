@@ -39,6 +39,7 @@ class Player:
     backhand : Optional[str], optional
         Backhand style ('two_handed' or 'one_handed'), by default None
     """
+
     id: str
     name: str
     birthday: Optional[date] = None
