@@ -48,64 +48,6 @@ ROUND_MULTIPLIERS: Dict[int, float] = {
 }
 
 
-# ELO RANKING
-def compute_elo_rankings(
-    matches_df: pd.DataFrame,
-    k_factor: int,
-    surface: str = "all",
-    divisor: int = DEFAULT_DIVISOR,
-    verbose: bool = False,
-) -> np.ndarray:
-    """
-ELO rating computation module for tennis matches.
-
-This module provides various implementations of ELO rating systems for tennis players,
-including standard ELO, tournament-based ELO, round-based ELO, and momentum ELO.
-Each function processes match data chronologically and updates player ratings based
-on match outcomes.
-"""
-
-import logging
-from typing import Dict, Optional, Tuple
-import numpy as np
-import pandas as pd
-from tqdm import tqdm
-
-
-# Configure logging
-logger = logging.getLogger("[ELO RANTING]")
-
-# Constants
-DEFAULT_STARTING_RATING = 1500.0
-DEFAULT_DIVISOR = 400
-DEFAULT_SET_DIVISOR = 600
-MAX_EXPONENT = 100
-MOMENTUM_DECAY_FACTOR = 0.9
-
-# Tournament level multipliers for ATP tournaments
-TOURNAMENT_MULTIPLIERS: Dict[float, float] = {
-    250.0: 0.8,  # ATP 250
-    500.0: 1.0,  # ATP 500
-    750.0: 1.0,  # ATP 750
-    1000.0: 1.0,  # ATP 1000 (Masters)
-    1500.0: 1.0,  # ATP Finals
-    2000.0: 1.5,  # Grand Slams
-}
-
-# Round multipliers based on tournament round importance
-ROUND_MULTIPLIERS: Dict[int, float] = {
-    1: 2.0,  # Final
-    2: 1.5,  # Semifinal
-    3: 1.3,  # Quarterfinal
-    4: 1.2,  # Round of 16
-    8: 1.0,  # Round of 32
-    16: 1.0,  # Round of 64
-    32: 1.0,  # Round of 128
-    64: 0.8,  # Qualifying rounds
-    128: 0.5,  # Early qualifying
-}
-
-
 def compute_elo_rankings(
     matches_df: pd.DataFrame,
     k_factor: int,

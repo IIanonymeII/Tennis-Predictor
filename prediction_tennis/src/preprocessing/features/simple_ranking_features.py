@@ -38,56 +38,6 @@ VALID_TRANSFORMATION_METHODS = [
 ]
 
 
-# SIMPLE RATING
-def compute_simple_ranking(
-    matches_df: pd.DataFrame,
-    surface: str = "all",
-    win_step: float = DEFAULT_WIN_STEP,
-    lose_step: float = DEFAULT_LOSE_STEP,
-    transformation_method: str = DEFAULT_TRANSFORMATION_METHOD,
-    transformation_factor: float = DEFAULT_TRANSFORMATION_FACTOR,
-    verbose: bool = False,
-) -> np.ndarray:
-    """
-Simple ranking computation module for tennis matches.
-
-This module provides implementations of simple ranking systems for tennis players
-based on match outcomes. It includes basic win/loss scoring systems with customizable
-update steps and mathematical transformations applied to the scores.
-"""
-
-import logging
-import numpy as np
-import pandas as pd
-from tqdm import tqdm
-
-from prediction_tennis.src.preprocessing.utils.ranking_systems import (
-    _apply_transformation,
-    _calculate_update_values,
-)
-
-logger = logging.getLogger("[SIMPLE RANKING]")
-
-# Constants
-DEFAULT_WIN_STEP = 1.0
-DEFAULT_LOSE_STEP = 1.0
-DEFAULT_TRANSFORMATION_METHOD = "power"
-DEFAULT_TRANSFORMATION_FACTOR = 1.0
-
-# Valid transformation methods
-VALID_TRANSFORMATION_METHODS = [
-    "power",
-    "exp",
-    "log",
-    "power-log",
-    "power-exp",
-    "log-exp",
-    "log-power",
-    "exp-log",
-    "exp-power",
-]
-
-
 def compute_simple_ranking(
     matches_df: pd.DataFrame,
     surface: str = "all",
