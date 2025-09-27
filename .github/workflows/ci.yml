@@ -29,7 +29,7 @@ jobs:
         run: poetry install --with dev
 
       - name: Bandit security scan
-        run: poetry run bandit -r .\prediction_tennis\ --exclude '*/test_*.py' -ll # report issues for MEDIUM and higher
+        run: poetry run bandit -r ./prediction_tennis/ --exclude '*/test_*.py' -ll # report issues for MEDIUM and higher
   ##########################################
   # 2️⃣ Qualité de code
   ##########################################
@@ -54,8 +54,7 @@ jobs:
         run: poetry install --with dev
 
       - name: Ruff Linter
-        run: poetry run ruff check .\prediction_tennis\
-
+        run: poetry run ruff check ./prediction_tennis/
   ##########################################
   # 3️⃣ Tests unitaires
   ##########################################
