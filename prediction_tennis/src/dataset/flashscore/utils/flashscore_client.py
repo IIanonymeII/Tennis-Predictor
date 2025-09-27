@@ -6,7 +6,10 @@ import requests
 
 logger = logging.getLogger("[UTIL] [FLASHSCORE_CLIENT]")
 
-def retrieve_flashscore_data(url: str, return_as_text: bool = True) -> Union[str, requests.Response]:
+
+def retrieve_flashscore_data(
+    url: str, return_as_text: bool = True
+) -> Union[str, requests.Response]:
     """
     Retrieve data from FlashScore using a custom header.
 
@@ -40,7 +43,8 @@ def retrieve_flashscore_data(url: str, return_as_text: bool = True) -> Union[str
     error_message = f"Failed to fetch data from {url}: HTTP {response.status_code}"
     logger.error(error_message)
     raise ConnectionError(error_message)
-    
+
+
 def validate_and_check_url(url: str) -> str:
     """
     Validates a given URL and checks if it exists via an HTTP GET request.
@@ -79,7 +83,7 @@ def validate_and_check_url(url: str) -> str:
     # Perform an HTTP GET request to verify the URL exists
     try:
         response = requests.get(url, timeout=10)
-        
+
         # Allow 403 (Forbidden)    as a valid response
         # Allow 401 (Unauthorized) as a valid response
         if response.status_code == 404:

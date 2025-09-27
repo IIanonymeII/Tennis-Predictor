@@ -4,8 +4,11 @@ from typing import Dict
 
 from prediction_tennis.src.dataset.flashscore.models.matchs import Match
 from prediction_tennis.src.dataset.flashscore.models.players import Player
-from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import retrieve_flashscore_data
+from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import (
+    retrieve_flashscore_data,
+)
 from prediction_tennis.src.dataset.flashscore.utils.text_extraction import extract_pattern_from_text
+
 
 class FlashscoreMatchStatusProcessor:
     """
@@ -15,22 +18,23 @@ class FlashscoreMatchStatusProcessor:
     information from API response texts using regex patterns, and updates the
     match object accordingly.
     """
+
     def __init__(self):
         """
         Initialize the processor with logging and mapping configurations.
         """
         self.logger = logging.getLogger("[FLASHSCORE][PARSER] [MATCH][STATUS]")
-        
+
         # Initialize variables for the current match and API URL.
         self.current_match: Match
         self.url_api: str
 
         # Mapping of status IDs to standardized status names.
         self.status_mapping: Dict[str, str] = {
-            "1" : "SCHEDULED",
-            "3" : "FINISH",
-            "8" : "RETIRED",
-            "9" : "WALKOVER",
+            "1": "SCHEDULED",
+            "3": "FINISH",
+            "8": "RETIRED",
+            "9": "WALKOVER",
             "54": "AWARDED",
         }
 
@@ -56,7 +60,7 @@ class FlashscoreMatchStatusProcessor:
         if not isinstance(match, Match):
             self.logger.error("Provided object is not an instance of the Match class")
             raise ValueError("Provided object is not an instance of the Match class")
-        
+
         # Create a copy of the match object and store the API URL for the match status.
         self.current_match = replace(match)
         self.url_api = self.current_match.status_link
@@ -87,7 +91,7 @@ class FlashscoreMatchStatusProcessor:
 
         self.logger.error(f"Unknown status ID: {status_id}")
         raise ValueError(f"Unknown status ID: {status_id}")
-    
+
     def _winner(self, text: str) -> int:
         """
         Extract the winner information from the provided text.
@@ -113,7 +117,7 @@ class FlashscoreMatchStatusProcessor:
 
         self.logger.info(f"Extracted winner: {standardized_winner}")
         return standardized_winner
-    
+
     def process_data(self, match: Match) -> Match:
         """
         Retrieve Flashscore data, extract status and winner information, and update the match object.
@@ -140,37 +144,35 @@ class FlashscoreMatchStatusProcessor:
         self.logger.debug(f"Match updated: Winner Player {winner} [{status}]")
         return self.current_match
 
-if __name__ == "__main__":    
+
+if __name__ == "__main__":
     logging.basicConfig(
         level=logging.DEBUG,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     )
-    
+
     # FINISH
     id = "Kx3ou23b"
     # RETIRED
     id = "C2238Yq4"
     # WALKAVER
-    id= "OYu8QUV7"
+    id = "OYu8QUV7"
 
-    player1 = Player(id          = "golem",
-                     name        = "golem",
-                     nationality = "golem",
-                     link        = "golem")
+    player1 = Player(id="golem", name="golem", nationality="golem", link="golem")
     player2 = replace(player1)
 
     data = Match(
-        match_id   = f"{id}",
-        odds_link  = "golem",
-        stats_link = "golem",
-        score_link = "golem",
-        status_link= f"https://2.flashscore.ninja/2/x/feed/dc_1_{id}",
-        match_date = "golem",
-        timestamp  = "golem",
-        round      = "golem",
-        player1    = player1,
-        player2    = player2,
-        )
+        match_id=f"{id}",
+        odds_link="golem",
+        stats_link="golem",
+        score_link="golem",
+        status_link=f"https://2.flashscore.ninja/2/x/feed/dc_1_{id}",
+        match_date="golem",
+        timestamp="golem",
+        round="golem",
+        player1=player1,
+        player2=player2,
+    )
 
     parser = FlashscoreMatchStatusProcessor()
     current_match = parser.process_data(match=data)

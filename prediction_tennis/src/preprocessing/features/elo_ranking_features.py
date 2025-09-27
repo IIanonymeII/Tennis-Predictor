@@ -18,33 +18,36 @@ MOMENTUM_DECAY_FACTOR = 0.9
 
 # Tournament level multipliers for ATP tournaments
 TOURNAMENT_MULTIPLIERS: Dict[float, float] = {
-    250.0: 0.8,    # ATP 250
-    500.0: 1.0,    # ATP 500
-    750.0: 1.0,    # ATP 750
-    1000.0: 1.0,   # ATP 1000 (Masters)
-    1500.0: 1.0,   # ATP Finals
-    2000.0: 1.5    # Grand Slams
+    250.0: 0.8,  # ATP 250
+    500.0: 1.0,  # ATP 500
+    750.0: 1.0,  # ATP 750
+    1000.0: 1.0,  # ATP 1000 (Masters)
+    1500.0: 1.0,  # ATP Finals
+    2000.0: 1.5,  # Grand Slams
 }
 
 # Round multipliers based on tournament round importance
 ROUND_MULTIPLIERS: Dict[int, float] = {
-    1: 2.0,    # Final
-    2: 1.5,    # Semifinal
-    3: 1.3,    # Quarterfinal
-    4: 1.2,    # Round of 16
-    8: 1.0,    # Round of 32
-    16: 1.0,   # Round of 64
-    32: 1.0,   # Round of 128
-    64: 0.8,   # Qualifying rounds
+    1: 2.0,  # Final
+    2: 1.5,  # Semifinal
+    3: 1.3,  # Quarterfinal
+    4: 1.2,  # Round of 16
+    8: 1.0,  # Round of 32
+    16: 1.0,  # Round of 64
+    32: 1.0,  # Round of 128
+    64: 0.8,  # Qualifying rounds
     128: 0.5,  # Early qualifying
 }
 
+
 # ELO RANKING
-def compute_elo_rankings(matches_df: pd.DataFrame, 
-                         k_factor: int, 
-                         surface: str = "all", 
-                         divisor: int = DEFAULT_DIVISOR, 
-                         verbose: bool = False) -> np.ndarray:
+def compute_elo_rankings(
+    matches_df: pd.DataFrame,
+    k_factor: int,
+    surface: str = "all",
+    divisor: int = DEFAULT_DIVISOR,
+    verbose: bool = False,
+) -> np.ndarray:
     """
     Compute standard ELO rankings for players based on match outcomes.
 
@@ -71,16 +74,16 @@ def compute_elo_rankings(matches_df: pd.DataFrame,
         KeyError: If required columns are missing from matches_df
         ValueError: If k_factor or divisor are not positive
     """
-    if k_factor <= 0: 
+    if k_factor <= 0:
         raise ValueError("k_factor must be positive")
-    if divisor <=0: 
+    if divisor <= 0:
         raise ValueError("divisor must be positive")
 
     logger.info(f"Computing ELO rankings for {len(matches_df)} matches with k_factor={k_factor}")
 
     # Determine total number of unique players
     total_players: int = int(
-        max(matches_df['player1_id_factor'].max(), matches_df['player2_id_factor'].max()) + 1
+        max(matches_df["player1_id_factor"].max(), matches_df["player2_id_factor"].max()) + 1
     )
 
     # Initialize player ratings at default starting rating
@@ -91,18 +94,14 @@ def compute_elo_rankings(matches_df: pd.DataFrame,
 
     # Process matches with progress bar
     progress_description = f"Processing '{surface}' ELO RANKING"
-    progress_bar = tqdm(
-        matches_df.itertuples(),
-        total=len(matches_df),
-        desc=progress_description
-    )
+    progress_bar = tqdm(matches_df.itertuples(), total=len(matches_df), desc=progress_description)
 
     for row in progress_bar:
         match_index = row.Index
         player1_id = row.player1_id_factor
         player2_id = row.player2_id_factor
         winner = row.winner
-        match_date = row.match_date # Could be a string, datetime, etc.
+        match_date = row.match_date  # Could be a string, datetime, etc.
 
         # Get current ratings for both players
         rating_player1: float = current_ratings[player1_id]
@@ -119,12 +118,12 @@ def compute_elo_rankings(matches_df: pd.DataFrame,
         exponent_1 = np.clip(rating_diff_1, -MAX_EXPONENT, MAX_EXPONENT)
         exponent_2 = np.clip(rating_diff_2, -MAX_EXPONENT, MAX_EXPONENT)
 
-        expected_player1: float = 1 / (1 + 10 ** exponent_1)
-        expected_player2: float = 1 / (1 + 10 ** exponent_2)
+        expected_player1: float = 1 / (1 + 10**exponent_1)
+        expected_player2: float = 1 / (1 + 10**exponent_2)
 
         # Determine actual scores based on match outcome
-        actual_score_player1 : int = 1 if winner == 1 else 0
-        actual_score_player2 : int = 1 if winner == 2 else 0
+        actual_score_player1: int = 1 if winner == 1 else 0
+        actual_score_player2: int = 1 if winner == 2 else 0
 
         # Update ratings using ELO formula
         rating_change_1 = k_factor * (actual_score_player1 - expected_player1)
@@ -135,17 +134,16 @@ def compute_elo_rankings(matches_df: pd.DataFrame,
 
         if verbose:
             progress_bar.set_description(
-                f"Processing '{surface}' ELO (k={k_factor}, "
-                f"div={divisor}): '{match_date}'"
+                f"Processing '{surface}' ELO (k={k_factor}, div={divisor}): '{match_date}'"
             )
 
     logger.info(f"Completed ELO ranking computation for {surface} surface")
     return match_ratings
 
-def compute_tournament_round_based_elo(matches_df: pd.DataFrame, 
-                                       k_factor: int, 
-                                       surface: str = "all", 
-                                       divisor: int = DEFAULT_DIVISOR) -> np.ndarray:
+
+def compute_tournament_round_based_elo(
+    matches_df: pd.DataFrame, k_factor: int, surface: str = "all", divisor: int = DEFAULT_DIVISOR
+) -> np.ndarray:
     """
     Compute ELO rankings with tournament and round-based adjustments.
 
@@ -169,16 +167,16 @@ def compute_tournament_round_based_elo(matches_df: pd.DataFrame,
         KeyError: If required columns are missing from matches_df
         ValueError: If k_factor or divisor are not positive
     """
-    if k_factor <= 0: 
+    if k_factor <= 0:
         raise ValueError("k_factor must be positive")
-    if divisor <=0 : 
+    if divisor <= 0:
         raise ValueError("divisor must be positive")
 
     logger.info(f"Computing tournament/round-based ELO for {len(matches_df)} matches")
 
     # Determine the total number of players.
     total_players: int = int(
-        max(matches_df['player1_id_factor'].max(), matches_df['player2_id_factor'].max()) + 1
+        max(matches_df["player1_id_factor"].max(), matches_df["player2_id_factor"].max()) + 1
     )
 
     # Initialize player ratings, starting at DEFAULT_STARTING_RATING Elo points.
@@ -189,9 +187,7 @@ def compute_tournament_round_based_elo(matches_df: pd.DataFrame,
 
     # Process each match with a progress bar.
     progress_bar = tqdm(
-        matches_df.itertuples(),
-        total=len(matches_df),
-        desc="Processing Tournament/Round ELO"
+        matches_df.itertuples(), total=len(matches_df), desc="Processing Tournament/Round ELO"
     )
 
     for row in progress_bar:
@@ -210,12 +206,12 @@ def compute_tournament_round_based_elo(matches_df: pd.DataFrame,
         match_ratings[match_index, 1] = rating_player2
 
         # Get tournament and round multipliers
-        tournament_level = getattr(row, 'type', None)
-        round_number     = getattr(row, 'round', None)
+        tournament_level = getattr(row, "type", None)
+        round_number = getattr(row, "round", None)
 
         # Get multipliers using the dictionaries; default to 1.0 if the provided key is not found.
         tournament_multiplier = TOURNAMENT_MULTIPLIERS.get(tournament_level, 1.0)
-        round_multiplier      = ROUND_MULTIPLIERS.get(round_number, 1.0)
+        round_multiplier = ROUND_MULTIPLIERS.get(round_number, 1.0)
 
         # Calculate effective K factor
         effective_k = k_factor * tournament_multiplier * round_multiplier
@@ -227,8 +223,8 @@ def compute_tournament_round_based_elo(matches_df: pd.DataFrame,
         exponent_1 = np.clip(rating_diff_1, -MAX_EXPONENT, MAX_EXPONENT)
         exponent_2 = np.clip(rating_diff_2, -MAX_EXPONENT, MAX_EXPONENT)
 
-        expected_player1 = 1 / (1 + 10 ** exponent_1)
-        expected_player2 = 1 / (1 + 10 ** exponent_2)
+        expected_player1 = 1 / (1 + 10**exponent_1)
+        expected_player2 = 1 / (1 + 10**exponent_2)
 
         # Determine actual scores and update ratings
         actual_score_player1: int = 1 if winner == 1 else 0
@@ -241,19 +237,20 @@ def compute_tournament_round_based_elo(matches_df: pd.DataFrame,
         current_ratings[player2_id] += rating_change_2
 
         progress_bar.set_description(
-            f"Processing '{surface}' ELO (k_base={k_factor}, "
-            f"divisor={divisor}): {match_date}"
+            f"Processing '{surface}' ELO (k_base={k_factor}, divisor={divisor}): {match_date}"
         )
 
     logger.info("Completed tournament/round-based ELO computation")
     return match_ratings
 
-def compute_tournament_based_elo( matches_df: pd.DataFrame,
-                                 k_base: int,
-                                 surface: str = "all",
-                                 divisor: int = DEFAULT_DIVISOR,
-                                 tournament_multipliers: Optional[Dict[float, float]]=None
-                                 ) -> np.ndarray:
+
+def compute_tournament_based_elo(
+    matches_df: pd.DataFrame,
+    k_base: int,
+    surface: str = "all",
+    divisor: int = DEFAULT_DIVISOR,
+    tournament_multipliers: Optional[Dict[float, float]] = None,
+) -> np.ndarray:
     """
     Compute ELO rankings with tournament-level adjustments only.
 
@@ -270,11 +267,11 @@ def compute_tournament_based_elo( matches_df: pd.DataFrame,
     Returns:
         2D numpy array containing pre-match ratings for each player pair
     """
-    if k_base <= 0: 
+    if k_base <= 0:
         raise ValueError("k_factor must be positive")
-    if divisor <= 0: 
+    if divisor <= 0:
         raise ValueError("divisor must be positive")
-    
+
     # Tournament multipliers
     if tournament_multipliers is None:
         tournament_multipliers = TOURNAMENT_MULTIPLIERS.copy()
@@ -282,15 +279,13 @@ def compute_tournament_based_elo( matches_df: pd.DataFrame,
     logger.info(f"Computing tournament-based ELO for {len(matches_df)} matches")
 
     total_players = int(
-        max(matches_df['player1_id_factor'].max(), matches_df['player2_id_factor'].max()) + 1
+        max(matches_df["player1_id_factor"].max(), matches_df["player2_id_factor"].max()) + 1
     )
     current_ratings: np.ndarray = np.full(total_players, DEFAULT_STARTING_RATING, dtype=float)
-    match_ratings  : np.ndarray = np.zeros((len(matches_df), 2), dtype=float)
+    match_ratings: np.ndarray = np.zeros((len(matches_df), 2), dtype=float)
 
     progress_bar = tqdm(
-        matches_df.itertuples(),
-        total=len(matches_df),
-        desc="Processing Tournament-based ELO"
+        matches_df.itertuples(), total=len(matches_df), desc="Processing Tournament-based ELO"
     )
 
     for row in progress_bar:
@@ -306,7 +301,7 @@ def compute_tournament_based_elo( matches_df: pd.DataFrame,
         match_ratings[match_index] = [rating_player1, rating_player2]
 
         # Determine K-factor based on tournament level
-        tournament_level = getattr(row, 'type', None)
+        tournament_level = getattr(row, "type", None)
         multiplier = tournament_multipliers.get(tournament_level, 1.0)
         effective_k = k_base * multiplier
 
@@ -317,8 +312,8 @@ def compute_tournament_based_elo( matches_df: pd.DataFrame,
         exponent_1 = np.clip(rating_diff_1, -MAX_EXPONENT, MAX_EXPONENT)
         exponent_2 = np.clip(rating_diff_2, -MAX_EXPONENT, MAX_EXPONENT)
 
-        expected_player1 = 1 / (1 + 10 ** exponent_1)
-        expected_player2 = 1 / (1 + 10 ** exponent_2)
+        expected_player1 = 1 / (1 + 10**exponent_1)
+        expected_player2 = 1 / (1 + 10**exponent_2)
 
         # Update ratings based on match outcome
         actual_score_player1, actual_score_player2 = (1, 0) if winner == 1 else (0, 1)
@@ -327,18 +322,20 @@ def compute_tournament_based_elo( matches_df: pd.DataFrame,
         current_ratings[player2_id] += effective_k * (actual_score_player2 - expected_player2)
 
         progress_bar.set_description(
-            f"Processing '{surface}' ELO (k_base={k_base}, "
-            f"divisor={divisor}): {match_date}"
+            f"Processing '{surface}' ELO (k_base={k_base}, divisor={divisor}): {match_date}"
         )
 
     logger.info("Completed tournament-based ELO computation")
     return match_ratings
 
-def compute_round_based_elo(matches_df: pd.DataFrame,
-                            k_base: int,
-                            surface: str = "all",
-                            divisor: int = DEFAULT_DIVISOR,
-                            round_multipliers: Optional[Dict[int, float]] = None) -> np.ndarray:
+
+def compute_round_based_elo(
+    matches_df: pd.DataFrame,
+    k_base: int,
+    surface: str = "all",
+    divisor: int = DEFAULT_DIVISOR,
+    round_multipliers: Optional[Dict[int, float]] = None,
+) -> np.ndarray:
     """
     Compute ELO rankings with round-level adjustments only.
 
@@ -355,9 +352,9 @@ def compute_round_based_elo(matches_df: pd.DataFrame,
     Returns:
         2D numpy array containing pre-match ratings for each player pair
     """
-    if k_base <= 0: 
+    if k_base <= 0:
         raise ValueError("k_factor must be positive")
-    if divisor  <=0: 
+    if divisor <= 0:
         raise ValueError("divisor must be positive")
 
     # Round multipliers
@@ -365,15 +362,13 @@ def compute_round_based_elo(matches_df: pd.DataFrame,
         round_multipliers = ROUND_MULTIPLIERS.copy()
 
     total_players: int = int(
-        max(matches_df['player1_id_factor'].max(), matches_df['player2_id_factor'].max()) + 1
+        max(matches_df["player1_id_factor"].max(), matches_df["player2_id_factor"].max()) + 1
     )
-    current_ratings : np.ndarray = np.full(total_players, DEFAULT_STARTING_RATING, dtype=float)
+    current_ratings: np.ndarray = np.full(total_players, DEFAULT_STARTING_RATING, dtype=float)
     match_ratings: np.ndarray = np.zeros((len(matches_df), 2), dtype=float)
 
     progress_bar = tqdm(
-        matches_df.itertuples(),
-        total=len(matches_df),
-        desc="Processing Round-based ELO"
+        matches_df.itertuples(), total=len(matches_df), desc="Processing Round-based ELO"
     )
 
     for row in progress_bar:
@@ -389,7 +384,7 @@ def compute_round_based_elo(matches_df: pd.DataFrame,
         match_ratings[match_index] = [rating_player1, rating_player2]
 
         # Determine K-factor based on round
-        round_number = getattr(row, 'round', None)
+        round_number = getattr(row, "round", None)
         multiplier = round_multipliers.get(round_number, 1.0)
         effective_k = k_base * multiplier
 
@@ -400,8 +395,8 @@ def compute_round_based_elo(matches_df: pd.DataFrame,
         exponent_1 = np.clip(rating_diff_1, -MAX_EXPONENT, MAX_EXPONENT)
         exponent_2 = np.clip(rating_diff_2, -MAX_EXPONENT, MAX_EXPONENT)
 
-        expected_player1 = 1 / (1 + 10 ** exponent_1)
-        expected_player2 = 1 / (1 + 10 ** exponent_2)
+        expected_player1 = 1 / (1 + 10**exponent_1)
+        expected_player2 = 1 / (1 + 10**exponent_2)
 
         # Update ratings based on match outcome
         actual_score_player1, actual_score_player2 = (1, 0) if winner == 1 else (0, 1)
@@ -410,18 +405,20 @@ def compute_round_based_elo(matches_df: pd.DataFrame,
         current_ratings[player2_id] += effective_k * (actual_score_player2 - expected_player2)
 
         progress_bar.set_description(
-            f"Processing '{surface}' ELO (k_base={k_base}, "
-            f"divisor={divisor}): {match_date}"
+            f"Processing '{surface}' ELO (k_base={k_base}, divisor={divisor}): {match_date}"
         )
 
     logger.info("Completed round-based ELO computation")
     return match_ratings
 
-def compute_momentum_elo_rankings(matches_df: pd.DataFrame, 
-                                  k_base: float, 
-                                  surface: str = "all", 
-                                  divisor: int = DEFAULT_SET_DIVISOR, 
-                                  verbose: bool = False) -> Tuple[np.ndarray, np.ndarray]:
+
+def compute_momentum_elo_rankings(
+    matches_df: pd.DataFrame,
+    k_base: float,
+    surface: str = "all",
+    divisor: int = DEFAULT_SET_DIVISOR,
+    verbose: bool = False,
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Compute both standard ELO and Momentum ELO rankings.
 
@@ -443,40 +440,37 @@ def compute_momentum_elo_rankings(matches_df: pd.DataFrame,
         - match_ratings: Pre-match ELO ratings (matches x 2)
         - match_momentum: Pre-match Momentum ELO ratings (matches x 2)
     """
-    if k_base  <= 0: 
+    if k_base <= 0:
         raise ValueError("k_factor must be positive")
-    if divisor <=0 : 
+    if divisor <= 0:
         raise ValueError("divisor must be positive")
 
     logger.info(f"Computing momentum ELO for {len(matches_df)} matches")
 
     # Determine total number of players.
     total_players: int = int(
-        max(matches_df['player1_id_factor'].max(), matches_df['player2_id_factor'].max()) + 1
+        max(matches_df["player1_id_factor"].max(), matches_df["player2_id_factor"].max()) + 1
     )
-    
+
     # Initialize standard ELO ratings and momentum ratings
-    current_ratings : np.ndarray = np.full(total_players, DEFAULT_STARTING_RATING, dtype=float)
+    current_ratings: np.ndarray = np.full(total_players, DEFAULT_STARTING_RATING, dtype=float)
     momentum_ratings: np.ndarray = np.zeros(total_players, dtype=float)
-    
+
     # Arrays for storing pre-match values
-    match_ratings : np.ndarray = np.zeros((len(matches_df), 2), dtype=float)
+    match_ratings: np.ndarray = np.zeros((len(matches_df), 2), dtype=float)
     match_momentum: np.ndarray = np.zeros((len(matches_df), 2), dtype=float)
-    
+
     # Progress bar for visual feedback.
     progress_bar = tqdm(
-        matches_df.itertuples(),
-        total=len(matches_df),
-        desc="Processing Momentum ELO"
+        matches_df.itertuples(), total=len(matches_df), desc="Processing Momentum ELO"
     )
-    
-    
+
     for row in progress_bar:
         match_index = row.Index
-        player1_id  = row.player1_id_factor
-        player2_id  = row.player2_id_factor
-        winner      = row.winner
-        match_date  = row.match_date
+        player1_id = row.player1_id_factor
+        player2_id = row.player2_id_factor
+        winner = row.winner
+        match_date = row.match_date
 
         # Record pre-match ratings and momentum
         rating_player1 = current_ratings[player1_id]
@@ -496,8 +490,8 @@ def compute_momentum_elo_rankings(matches_df: pd.DataFrame,
         exponent_1 = np.clip(rating_diff_1, -MAX_EXPONENT, MAX_EXPONENT)
         exponent_2 = np.clip(rating_diff_2, -MAX_EXPONENT, MAX_EXPONENT)
 
-        expected_player1 = 1 / (1 + 10 ** exponent_1)
-        expected_player2 = 1 / (1 + 10 ** exponent_2)
+        expected_player1 = 1 / (1 + 10**exponent_1)
+        expected_player2 = 1 / (1 + 10**exponent_2)
 
         # Determine match outcomes and calculate ELO changes
         actual_score_player1 = 1 if winner == 1 else 0
@@ -512,8 +506,8 @@ def compute_momentum_elo_rankings(matches_df: pd.DataFrame,
 
         # Update momentum ELO recursively
         # New momentum = current_change + decay_factor * previous_momentum
-        momentum_ratings[player1_id] = (elo_change_player1 + MOMENTUM_DECAY_FACTOR * momentum_player1)
-        momentum_ratings[player2_id] = (elo_change_player2 + MOMENTUM_DECAY_FACTOR * momentum_player2)
+        momentum_ratings[player1_id] = elo_change_player1 + MOMENTUM_DECAY_FACTOR * momentum_player1
+        momentum_ratings[player2_id] = elo_change_player2 + MOMENTUM_DECAY_FACTOR * momentum_player2
 
         if verbose:
             progress_bar.set_description(

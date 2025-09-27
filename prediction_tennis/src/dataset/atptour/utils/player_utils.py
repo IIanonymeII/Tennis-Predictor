@@ -15,7 +15,6 @@ NAME_EXCEPTION = ["bin"]
 TIMEOUT = 10
 
 
-
 def clean_key(key: str) -> str:
     """
     Clean player key by replacing hyphens with spaces and applying manual overrides.
@@ -33,6 +32,7 @@ def clean_key(key: str) -> str:
     cleaned = key.replace("-", " ").strip().lower()
     return REPLACE_KEYS.get(cleaned, cleaned)
 
+
 def extract_names(entries: List[Dict[str, Any]]) -> List[str]:
     """
     Extract full names from data entries.
@@ -47,7 +47,15 @@ def extract_names(entries: List[Dict[str, Any]]) -> List[str]:
         >>> extract_names([{"FirstName": "John", "LastName": "Doe"}])
         ['john doe']
     """
-    return [f"{entry.get('FirstName', '')} {entry.get('LastName', '')}".strip().lower().replace("-"," ").replace("'"," ").replace("."," ")  for entry in entries]
+    return [
+        f"{entry.get('FirstName', '')} {entry.get('LastName', '')}".strip()
+        .lower()
+        .replace("-", " ")
+        .replace("'", " ")
+        .replace(".", " ")
+        for entry in entries
+    ]
+
 
 def find_best_match(target: str, names: List[str]) -> Tuple[str, int]:
     """
@@ -67,6 +75,7 @@ def find_best_match(target: str, names: List[str]) -> Tuple[str, int]:
     best_match, score = process.extractOne(target, names, scorer=fuzz.token_sort_ratio)
     return best_match, score
 
+
 def generate_name_variants(name: str, particular_case: Dict[str, str]) -> List[str]:
     """
     Generate variants of the player name slug for search purposes.
@@ -85,7 +94,7 @@ def generate_name_variants(name: str, particular_case: Dict[str, str]) -> List[s
     name = particular_case.get(name, name)
 
     # Split name and filter out exceptions
-    parts = name.split('-')
+    parts = name.split("-")
     parts = [part for part in parts if part not in NAME_EXCEPTION]
 
     # Generate variants - replace hyphens with URL-encoded spaces and add individual parts
@@ -99,27 +108,27 @@ def generate_name_variants(name: str, particular_case: Dict[str, str]) -> List[s
 def generate_player_name_variants(player_name: str) -> List[str]:
     """
     Generate name variants for a given player name, including all combinations and permutations.
-    
+
     Args:
         player_name (str): Original player name.
-        
+
     Returns:
         List[str]: List of name variants to search for.
     """
     try:
         # Get initial variants from existing function
         base_variants = generate_name_variants(player_name, particular_case=NAME_TO_CHANGE)
-        
+
         # Use set to avoid duplicates, start with base variants
         all_variants = set(base_variants)
-        
+
         # Get the original name (after any particular_case transformations)
         processed_name = NAME_TO_CHANGE.get(player_name, player_name)
-        
+
         # Split by dash and filter out exceptions
-        name_parts = processed_name.split('-')
+        name_parts = processed_name.split("-")
         name_parts = [part for part in name_parts if part not in NAME_EXCEPTION]
-        
+
         if len(name_parts) > 1:
             # Generate all combinations of 2 or more parts
             for r in range(2, len(name_parts) + 1):
@@ -127,20 +136,22 @@ def generate_player_name_variants(player_name: str) -> List[str]:
                 for combo in combinations(name_parts, r):
                     # For each combination, generate all permutations
                     for perm in permutations(combo):
-                        
                         # Join with URL-encoded space (matching your existing format)
-                        variant_encoded = '%20'.join(perm)
+                        variant_encoded = "%20".join(perm)
                         all_variants.add(variant_encoded)
-        
+
         # Convert to sorted list for consistency
         final_variants = sorted(list(all_variants))
-        
-        logger.debug(f"Generated {len(final_variants)} variants for '{player_name}': {final_variants}")
+
+        logger.debug(
+            f"Generated {len(final_variants)} variants for '{player_name}': {final_variants}"
+        )
         return final_variants
-        
+
     except Exception as exc:
         logger.error(f"Failed to generate variants for '{player_name}': {exc}")
         return [player_name]
+
 
 def build_player_url(player_id: str, timeout: int = TIMEOUT) -> Optional[str]:
     """

@@ -11,9 +11,9 @@ logger = logging.getLogger("[TRUESKILL RANTING]")
 
 
 # TRUESKILL RANKING
-def compute_trueskill_ratings(matches_df: pd.DataFrame,
-                              surface: str = "all",
-                              verbose: bool = False) -> np.ndarray:    
+def compute_trueskill_ratings(
+    matches_df: pd.DataFrame, surface: str = "all", verbose: bool = False
+) -> np.ndarray:
     """
     Compute pre-match TrueSkill ratings for all players across all matches.
 
@@ -39,22 +39,20 @@ def compute_trueskill_ratings(matches_df: pd.DataFrame,
         TypeError: If matches_df is not a pandas DataFrame
     """
     logger.info(f"Starting TrueSkill rating computation for {len(matches_df)} matches")
-    
+
     # Validate input
-    if not isinstance(matches_df, pd.DataFrame): 
+    if not isinstance(matches_df, pd.DataFrame):
         raise TypeError("matches_df must be a pandas DataFrame")
 
-    required_columns = ['player1_id_factor', 'player2_id_factor', 'winner', 'match_date']
+    required_columns = ["player1_id_factor", "player2_id_factor", "winner", "match_date"]
     missing_columns = [col for col in required_columns if col not in matches_df.columns]
-    if missing_columns: 
+    if missing_columns:
         raise ValueError(f"Missing required columns: {missing_columns}")
-    
 
     # Calculate total number of unique players
     max_player_id: int = max(
-        matches_df['player1_id_factor'].max(),
-        matches_df['player2_id_factor'].max()
-        )    
+        matches_df["player1_id_factor"].max(), matches_df["player2_id_factor"].max()
+    )
     total_players = int(max_player_id + 1)
 
     logger.info(f"Initializing TrueSkill ratings for {total_players} players")
@@ -72,11 +70,7 @@ def compute_trueskill_ratings(matches_df: pd.DataFrame,
         progress_desc = "Processing TrueSkill ratings"
 
     # Process each match chronologically
-    progress_bar = tqdm(
-        matches_df.itertuples(),
-        total=len(matches_df),
-        desc=progress_desc
-    )
+    progress_bar = tqdm(matches_df.itertuples(), total=len(matches_df), desc=progress_desc)
 
     for match_data in progress_bar:
         match_index = match_data.Index
@@ -107,10 +101,12 @@ def compute_trueskill_ratings(matches_df: pd.DataFrame,
         # Update player ratings with new values
         player_ratings[player1_id] = updated_rating1
         player_ratings[player2_id] = updated_rating2
-        
+
         # Update progress bar with current match date if verbose
         if verbose:
-            progress_bar.set_description(f"Processing '{surface}' TrueSkill ratings: '{match_date}'")
+            progress_bar.set_description(
+                f"Processing '{surface}' TrueSkill ratings: '{match_date}'"
+            )
 
     logger.info("TrueSkill rating computation completed successfully")
     return pre_match_ratings

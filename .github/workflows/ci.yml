@@ -55,6 +55,9 @@ jobs:
 
       - name: Ruff Linter
         run: poetry run ruff check ./prediction_tennis/
+
+      - name: Ruff Formatter (check only, line-length = 100)
+        run: poetry run ruff format --check ./prediction_tennis/
   ##########################################
   # 3️⃣ Tests unitaires
   ##########################################

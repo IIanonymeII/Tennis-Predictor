@@ -1,4 +1,3 @@
-
 import logging
 from typing import List, Tuple
 
@@ -6,7 +5,9 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from prediction_tennis.src.preprocessing.utils.ranking_systems import calculate_rating_movement_from_history
+from prediction_tennis.src.preprocessing.utils.ranking_systems import (
+    calculate_rating_movement_from_history,
+)
 
 logger = logging.getLogger("[MOVEMENT]")
 
@@ -14,10 +15,12 @@ logger = logging.getLogger("[MOVEMENT]")
 DEFAULT_LOOKBACK_MATCHES = 5
 RATING_PREFIX = "rating"
 
-def compute_rating_movement(matches_df      : pd.DataFrame,
-                            lookback_matches: int = DEFAULT_LOOKBACK_MATCHES,
-                            rating_prefix   : str = RATING_PREFIX
-                            ) -> np.ndarray:
+
+def compute_rating_movement(
+    matches_df: pd.DataFrame,
+    lookback_matches: int = DEFAULT_LOOKBACK_MATCHES,
+    rating_prefix: str = RATING_PREFIX,
+) -> np.ndarray:
     """
     Calculate rating movement for each match using the specified rating type from 'lookback_matches' games ago.
 
@@ -32,28 +35,27 @@ def compute_rating_movement(matches_df      : pd.DataFrame,
 
     Returns:
         A 2D numpy array of shape (n_matches, 2), each row is the movement for player 1 and player 2.
-        
+
     Raises:
         ValueError: If lookback_matches is not positive.
     """
-    if lookback_matches <= 0: 
+    if lookback_matches <= 0:
         raise ValueError("lookback_matches must be positive")
 
     # Convert match date to datetime if not already
-    matches_df['match_date'] = pd.to_datetime(matches_df['match_date'])
+    matches_df["match_date"] = pd.to_datetime(matches_df["match_date"])
 
     # Calculate total number of unique players
     total_players = int(
-        max(
-            matches_df['player1_id_factor'].max(),
-            matches_df['player2_id_factor'].max()
-        ) + 1
+        max(matches_df["player1_id_factor"].max(), matches_df["player2_id_factor"].max()) + 1
     )
 
     # Initialize rating history for each player
     # Each player gets a list of (timestamp, rating) tuples
-    player_rating_history: List[List[Tuple[pd.Timestamp, float]]] = [[] for _ in range(total_players)]
-    
+    player_rating_history: List[List[Tuple[pd.Timestamp, float]]] = [
+        [] for _ in range(total_players)
+    ]
+
     # Initialize result array to store rating movements
     match_movements = np.zeros((len(matches_df), 2), dtype=float)
 
@@ -65,7 +67,7 @@ def compute_rating_movement(matches_df      : pd.DataFrame,
     for row in tqdm(
         matches_df.itertuples(),
         total=len(matches_df),
-        desc=f"Calculating last {lookback_matches} movements ({rating_prefix})"
+        desc=f"Calculating last {lookback_matches} movements ({rating_prefix})",
     ):
         match_index = row.Index
         player1_id = int(row.player1_id_factor)
@@ -80,14 +82,14 @@ def compute_rating_movement(matches_df      : pd.DataFrame,
         movement_player1 = calculate_rating_movement_from_history(
             rating_history=player_rating_history[player1_id],
             current_pre_match_rating=current_rating_player1,
-            matches_lookback=lookback_matches
+            matches_lookback=lookback_matches,
         )
-        
+
         # Calculate rating movement for player 2
         movement_player2 = calculate_rating_movement_from_history(
             rating_history=player_rating_history[player2_id],
             current_pre_match_rating=current_rating_player2,
-            matches_lookback=lookback_matches
+            matches_lookback=lookback_matches,
         )
 
         # Store movements in result array

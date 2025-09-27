@@ -37,10 +37,10 @@ class SlidingWindowRotatingHandler(logging.FileHandler):
         self.max_files = max_files
         self.current_line_count = 0
         self.current_index = 0
-        
+
         # Construct the current log file name.
         self.current_filename = f"{self.base_log_filename}_{self.current_index}"
-        
+
         # If overwrite_existing is True, start fresh by removing existing log files
         if overwrite_existing:
             self._remove_existing_logs()
@@ -49,7 +49,7 @@ class SlidingWindowRotatingHandler(logging.FileHandler):
             # Find the highest existing log file index to continue from there
             self.current_index = self._find_current_index()
             self.current_filename = f"{self.base_log_filename}_{self.current_index}"
-            
+
             # If the current file exists, count its current number of lines.
             if os.path.exists(self.current_filename):
                 try:
@@ -57,12 +57,12 @@ class SlidingWindowRotatingHandler(logging.FileHandler):
                         self.current_line_count = sum(1 for _ in file)
                 except Exception:
                     self.current_line_count = 0
-            
+
             # If current file has reached max lines, rotate immediately
             if self.current_line_count >= self.max_lines_per_file:
                 self._prepare_next_file()
                 mode = "w"  # New file should be opened in write mode
-        
+
         # Initialize FileHandler with the current file.
         super().__init__(self.current_filename, mode, encoding, delay)
 
@@ -72,13 +72,15 @@ class SlidingWindowRotatingHandler(logging.FileHandler):
         """
         pattern = f"{self.base_log_filename}_*"
         existing_files = glob.glob(pattern)
-        
+
         for file_path in existing_files:
             try:
                 os.remove(file_path)
                 print(f"[LOGGING INIT] Removed existing log file: {file_path}")
             except Exception as err:
-                print(f"[LOGGING INIT] Warning: Could not remove {file_path}: {err}", file=sys.stderr)
+                print(
+                    f"[LOGGING INIT] Warning: Could not remove {file_path}: {err}", file=sys.stderr
+                )
 
     def _find_current_index(self) -> int:
         """
@@ -86,10 +88,10 @@ class SlidingWindowRotatingHandler(logging.FileHandler):
         """
         pattern = f"{self.base_log_filename}_*"
         existing_files = glob.glob(pattern)
-        
+
         if not existing_files:
             return 0
-        
+
         indices = []
         for file_path in existing_files:
             try:
@@ -98,7 +100,7 @@ class SlidingWindowRotatingHandler(logging.FileHandler):
                 indices.append(int(index_str))
             except (IndexError, ValueError):
                 continue
-        
+
         return max(indices) if indices else 0
 
     def _prepare_next_file(self) -> None:
@@ -140,7 +142,10 @@ class SlidingWindowRotatingHandler(logging.FileHandler):
                     os.remove(oldest_filename)
                 except Exception as err:
                     # Use print instead of logging to avoid recursion
-                    print(f"Warning: Failed to remove old log file '{oldest_filename}': {err}", file=sys.stderr)
+                    print(
+                        f"Warning: Failed to remove old log file '{oldest_filename}': {err}",
+                        file=sys.stderr,
+                    )
 
     def emit(self, record: logging.LogRecord) -> None:
         """
@@ -187,7 +192,7 @@ def initialize_logging(log_file: str | Path) -> None:
 
         # Create the directory structure if needed
         log_dir = log_file.parent
-        if log_dir and str(log_dir) != '.':
+        if log_dir and str(log_dir) != ".":
             print(f"[LOGGING INIT] Ensuring directory exists: {log_dir}")
             if not log_dir.exists():
                 log_dir.mkdir(parents=True, mode=0o750, exist_ok=True)
@@ -206,7 +211,7 @@ def initialize_logging(log_file: str | Path) -> None:
             max_lines_per_file=10_000,
             max_files=10,
             encoding="utf-8",
-            overwrite_existing=True  # Set to False if you want to preserve existing logs
+            overwrite_existing=True,  # Set to False if you want to preserve existing logs
         )
         rotating_handler.setLevel(logging.INFO)
         rotating_handler.setFormatter(logging.Formatter(log_format))
@@ -230,7 +235,7 @@ def initialize_logging(log_file: str | Path) -> None:
         logger = logging.getLogger("initialize_logging")
         logger.info("Logging system successfully configured and tested.")
         print("[LOGGING DONE] Logging system initialized successfully.")
-        
+
     except PermissionError as perr:
         print(f"[LOGGING ERROR] Security violation prevented: {str(perr)}", file=sys.stderr)
         raise

@@ -10,10 +10,8 @@ logger = logging.getLogger(__name__)
 
 # Constants
 TIMEOUT = 10
-HEADERS = {
-    "Accept": "*/*",
-    "User-Agent": "Bot"
-}
+HEADERS = {"Accept": "*/*", "User-Agent": "Bot"}
+
 
 def fetch_player_data(atp_url: str) -> Optional[dict]:
     """
@@ -26,10 +24,7 @@ def fetch_player_data(atp_url: str) -> Optional[dict]:
         dict or None: Parsed JSON data, or None on error.
     """
     conn = http.client.HTTPSConnection("www.atptour.com")
-    headers = {
-        "Accept": "*/*",
-        "User-Agent": "Thunder Client (https://www.thunderclient.com)"
-    }
+    headers = {"Accept": "*/*", "User-Agent": "Thunder Client (https://www.thunderclient.com)"}
 
     try:
         conn.request("GET", atp_url, headers=headers)
@@ -44,6 +39,7 @@ def fetch_player_data(atp_url: str) -> Optional[dict]:
         return None
     finally:
         conn.close()
+
 
 def fetch_player_by_name(name: str, host: str = "www.atptour.com") -> Optional[Union[Dict, str]]:
     """

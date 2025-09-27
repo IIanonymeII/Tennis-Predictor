@@ -1,5 +1,3 @@
-
-
 from dataclasses import dataclass, field
 import logging
 from typing import Dict, List
@@ -9,11 +7,13 @@ from prediction_tennis.src.dataset.flashscore.models.matchs import Match
 
 logger = logging.getLogger("[DATACLASS] [TOURNAMENT]")
 
+
 @dataclass
 class TournamentsMinimaliste:
     """Minimal representation of a Tournament with essential attributes."""
-    id           : str
-    slug         : str
+
+    id: str
+    slug: str
     link_archives: str
 
     def __post_init__(self):
@@ -21,25 +21,29 @@ class TournamentsMinimaliste:
 
     def __str__(self):
         return f"[{self.slug}] => {self.link_archives}"
-        
+
+
 @dataclass
 class Tournaments(TournamentsMinimaliste):
     """Full representation of a Tournament including matches and additional details."""
-    name        : str
-    year        : str
-    link        : str
+
+    name: str
+    year: str
+    link: str
     link_results: str
-    winner_name : str
-    list_match  : List[Match] = field(default_factory=list)  # Avoid mutable default argument
+    winner_name: str
+    list_match: List[Match] = field(default_factory=list)  # Avoid mutable default argument
 
     def __post_init__(self):
         super().__post_init__()  # Call parent post-init if needed
-        logger.info(f"Tournaments created: Name={self.name}, Year={self.year}, Matches={len(self.list_match)}")
+        logger.info(
+            f"Tournaments created: Name={self.name}, Year={self.year}, Matches={len(self.list_match)}"
+        )
 
     def add_match(self, match: Match) -> None:
         """
         Add a Match instance to the tournament's match list.
-        
+
         Args:
             match (Match): A Match instance to add.
         """
@@ -53,7 +57,7 @@ class Tournaments(TournamentsMinimaliste):
         """
         Convert the Tournament instance to a list of dictionaries.
         Each dictionary represents the tournament-level details merged with one match's details.
-        
+
         Returns:
             List[Dict[str, str]]: A list where each element is a dictionary containing:
                 "name", "year", "link", "link_results", "winner_name" and match details
@@ -63,10 +67,10 @@ class Tournaments(TournamentsMinimaliste):
 
         # Base tournament info that will be merged with each match's details.
         base_info: Dict[str, str] = {
-            "tournament_id"   : self.id,
-            "tournament_slug" : self.slug,
-            "tournament_name" : self.name,
-            "tournament_year" : self.year,
+            "tournament_id": self.id,
+            "tournament_slug": self.slug,
+            "tournament_name": self.name,
+            "tournament_year": self.year,
         }
 
         if not self.list_match:

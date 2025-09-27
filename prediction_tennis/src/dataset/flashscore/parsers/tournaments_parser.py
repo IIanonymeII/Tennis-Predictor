@@ -7,6 +7,7 @@ from prediction_tennis.src.dataset.flashscore.models.tournaments import Tourname
 from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import validate_and_check_url
 from prediction_tennis.src.dataset.flashscore.utils.text_extraction import extract_pattern_from_text
 
+
 class FlashscoreTournamentProcessor:
     """
     A processor for handling Flashscore tournament data.
@@ -14,6 +15,7 @@ class FlashscoreTournamentProcessor:
     This class is responsible for processing data from Flashscore to extract and manage
     information about various tournaments, including their names (slugs) and unique identifiers (IDs).
     """
+
     def __init__(self):
         """Initialize the parser state and set up logging."""
         self.logger = logging.getLogger("[FLASHSCORE][PARSER] [TOURNAMENT]")
@@ -43,7 +45,7 @@ class FlashscoreTournamentProcessor:
         self.logger.info("Tournament slug extracted: %s", tournament_slug)
 
         return tournament_slug
-    
+
     def _tournament_id(self, text: str) -> str:
         """
         Extracts the tournament ID from the given text.
@@ -86,14 +88,16 @@ class FlashscoreTournamentProcessor:
                 self.logger.info(f"[{tournament_slug} ({tournament_id})]")
 
                 # Validate and construct archive URL
-                url_archive = validate_and_check_url(url=f"{self.base_url}{tournament_slug}/archive/")
+                url_archive = validate_and_check_url(
+                    url=f"{self.base_url}{tournament_slug}/archive/"
+                )
 
                 # Create a tournament object
                 tournament = TournamentsMinimaliste(
-                    slug          = tournament_slug,
-                    id            = tournament_id,
-                    link_archives = url_archive,
-                    )
+                    slug=tournament_slug,
+                    id=tournament_id,
+                    link_archives=url_archive,
+                )
 
                 self.list_tournaments.append(tournament)
 
@@ -101,17 +105,18 @@ class FlashscoreTournamentProcessor:
                 self.logger.error(f"Error processing tournament data: {e}")
         return self.list_tournaments.copy()
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",)
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    )
     url = "https://www.flashscore.com/x/req/m_2_5724"
-    
+
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()  # Raise an exception for HTTP errors.
-    
+
     except Exception:
         logging.exception("Error fetching data:")
 

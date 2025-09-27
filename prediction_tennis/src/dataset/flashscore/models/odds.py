@@ -3,6 +3,7 @@ import logging
 
 logger = logging.getLogger("[DATACLASS] [ODD]")
 
+
 @dataclass
 class HomeAwayOdds:
     """
@@ -11,14 +12,16 @@ class HomeAwayOdds:
     Attributes:
         bet_variant (str): The type of bet, e.g., "Match", "Set 1".
         bookmaker   (str): The name of the bookmaker, e.g., "Betclic", "Bwin".
-        odd_start   (str): The starting odds 
+        odd_start   (str): The starting odds
         odd_end     (str): The ending odds
     """
-    bet_variant: str # e.g., "Match", "Set 1" ...
-    bookmaker  : str # e.g., "Betclic", "Bwin" ...
-    odd_start  : str 
-    odd_end    : str
-  
+
+    bet_variant: str  # e.g., "Match", "Set 1" ...
+    bookmaker: str  # e.g., "Betclic", "Bwin" ...
+    odd_start: str
+    odd_end: str
+
+
 @dataclass
 class OverUnderOdds:
     """
@@ -32,12 +35,14 @@ class OverUnderOdds:
         odd_start       (str): The starting odds.
         odd_end         (str): The ending odds.
     """
-    bet_variant    : str # e.g., "Match", "Set 1"  ...
-    threshold_type : str # e.g., "Games" or "Set"  ...
-    threshold_value: str # e.g., "21.5", "3.5"     ...
-    bookmaker      : str # e.g., "Betclic", "Bwin" ...
-    odd_start      : str
-    odd_end        : str
+
+    bet_variant: str  # e.g., "Match", "Set 1"  ...
+    threshold_type: str  # e.g., "Games" or "Set"  ...
+    threshold_value: str  # e.g., "21.5", "3.5"     ...
+    bookmaker: str  # e.g., "Betclic", "Bwin" ...
+    odd_start: str
+    odd_end: str
+
 
 @dataclass
 class CorrectScoreOdds:
@@ -50,7 +55,8 @@ class CorrectScoreOdds:
         odd_start (str): The starting odds for the predicted score.
         odd_end   (str): The ending odds for the predicted score.
     """
-    score    : str # e.g., "2:0", "2:1"     ...
-    bookmaker: str # e.g., "Betclic", "Bwin"...
+
+    score: str  # e.g., "2:0", "2:1"     ...
+    bookmaker: str  # e.g., "Betclic", "Bwin"...
     odd_start: str
-    odd_end  : str
+    odd_end: str

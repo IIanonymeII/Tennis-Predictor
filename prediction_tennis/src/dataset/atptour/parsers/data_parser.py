@@ -7,7 +7,10 @@ from prediction_tennis.src.dataset.atptour.models.players import Player
 
 logger = logging.getLogger(__name__)
 
-def extract_player_info(data: Union[Dict, List, str]) -> Union[Dict[str, Optional[str]], List[Dict[str, Optional[str]]]]:
+
+def extract_player_info(
+    data: Union[Dict, List, str],
+) -> Union[Dict[str, Optional[str]], List[Dict[str, Optional[str]]]]:
     """
     Extract player information from JSON data.
 
@@ -31,22 +34,25 @@ def extract_player_info(data: Union[Dict, List, str]) -> Union[Dict[str, Optiona
     if isinstance(data, dict):
         # Extract from single dict
         return {
-            'LastName': data.get('LastName'),
-            'FirstName': data.get('FirstName'),
-            'player_id': data.get('PlayerId')
+            "LastName": data.get("LastName"),
+            "FirstName": data.get("FirstName"),
+            "player_id": data.get("PlayerId"),
         }
     elif isinstance(data, list):
         # Extract from each dict in list
         extracted_list = []
         for item in data:
-            extracted_list.append({
-                'LastName': item.get('LastName'),
-                'FirstName': item.get('FirstName'),
-                'player_id': item.get('PlayerId')
-            })
+            extracted_list.append(
+                {
+                    "LastName": item.get("LastName"),
+                    "FirstName": item.get("FirstName"),
+                    "player_id": item.get("PlayerId"),
+                }
+            )
         return extracted_list if extracted_list else []
     # If data is not dict or list (probably str), return empty list
     return []
+
 
 def parse_hand_backhand(data: Dict) -> Tuple[str, str]:
     """
@@ -72,6 +78,7 @@ def parse_hand_backhand(data: Dict) -> Tuple[str, str]:
     else:
         backhand = "two_handed" if backhand_raw == "2" else "one_handed"
     return hand, backhand
+
 
 def parse_player_json(data: dict, player_id: str) -> Optional[Player]:
     """
@@ -102,7 +109,7 @@ def parse_player_json(data: dict, player_id: str) -> Optional[Player]:
             height=height,
             turn_pro=pro_year,
             hand=hand,
-            backhand=backhand
+            backhand=backhand,
         )
     except Exception as e:
         logger.warning(f"Error parsing player data: {e}")

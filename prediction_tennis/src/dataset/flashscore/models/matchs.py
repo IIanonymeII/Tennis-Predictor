@@ -1,10 +1,12 @@
-
-
 from dataclasses import dataclass, field
 import logging
 from typing import Dict, List, Optional, Tuple, Union
 
-from prediction_tennis.src.dataset.flashscore.models.odds import CorrectScoreOdds, HomeAwayOdds, OverUnderOdds
+from prediction_tennis.src.dataset.flashscore.models.odds import (
+    CorrectScoreOdds,
+    HomeAwayOdds,
+    OverUnderOdds,
+)
 from prediction_tennis.src.dataset.flashscore.models.players import Player
 
 
@@ -21,8 +23,9 @@ class Scores:
         tiebreak (Optional[str]): Tiebreak score or details, if applicable.
         duration (Optional[str]): Duration or time information for the set.
     """
-    score   : Optional[str] = field(default=None) 
-    tiebreak: Optional[str] = field(default=None) 
+
+    score: Optional[str] = field(default=None)
+    tiebreak: Optional[str] = field(default=None)
     duration: Optional[str] = field(default=None)
 
 
@@ -56,6 +59,7 @@ class Match:
         p1_odd_home_away (List[HomeAwayOdds]): List of home-away odds for player 1.
         p2_odd_home_away (List[HomeAwayOdds]): List of home-away odds for player 2.
     """
+
     match_id: str
     match_date: str
     timestamp: str
@@ -63,20 +67,20 @@ class Match:
     player1: Player  # Player class should be defined elsewhere.
     player2: Player  # Player class should be defined elsewhere.
 
-    odds_link  : str
-    stats_link : str
-    score_link : str
+    odds_link: str
+    stats_link: str
+    score_link: str
     status_link: str
 
     surface_type: str = ""  # Tennis court surface type (e.g., "hard", "clay", "grass", "carpet")
 
-    status: str = "X" # 'X' default; possible values: 'Retired', 'Walkover', 'finish'
+    status: str = "X"  # 'X' default; possible values: 'Retired', 'Walkover', 'finish'
     winner: int = -1  # (-1) default, 1 for player1, 2 for player2
 
     p1_win_sets: int = 0
     p2_win_sets: int = 0
 
-    global_duration :str = ""
+    global_duration: str = ""
 
     p1_set1: Scores = field(default_factory=Scores)
     p1_set2: Scores = field(default_factory=Scores)
@@ -90,18 +94,19 @@ class Match:
     p2_set4: Scores = field(default_factory=Scores)
     p2_set5: Scores = field(default_factory=Scores)
 
-    p1_odd_home_away: List[HomeAwayOdds]     = field(default_factory=list)
-    p2_odd_home_away: List[HomeAwayOdds]     = field(default_factory=list)
-    over_odd        : List[OverUnderOdds]    = field(default_factory=list)
-    under_odd       : List[OverUnderOdds]    = field(default_factory=list)
-    correct_odd     : List[CorrectScoreOdds] = field(default_factory=list)
+    p1_odd_home_away: List[HomeAwayOdds] = field(default_factory=list)
+    p2_odd_home_away: List[HomeAwayOdds] = field(default_factory=list)
+    over_odd: List[OverUnderOdds] = field(default_factory=list)
+    under_odd: List[OverUnderOdds] = field(default_factory=list)
+    correct_odd: List[CorrectScoreOdds] = field(default_factory=list)
 
-    def append_set(self, 
-                   set_number  : int,
-                   score_set   : Tuple[str, str],
-                   tiebreak_set: Tuple[str, str],
-                   duration    : str) -> None:
-        
+    def append_set(
+        self,
+        set_number: int,
+        score_set: Tuple[str, str],
+        tiebreak_set: Tuple[str, str],
+        duration: str,
+    ) -> None:
         """
         Append set details for both players.
 
@@ -119,7 +124,7 @@ class Match:
             ValueError: If set_number is not between 1 and 5 (inclusive).
         """
         logger.debug("Appending set %d details.", set_number)
-       
+
         if set_number not in range(1, 6):
             logger.error("Invalid set number: %d", set_number)
             raise ValueError("Set number must be 1, 2, 3, 4, or 5.")
@@ -129,7 +134,7 @@ class Match:
         attr_player2 = f"p2_set{set_number}"
 
         # Unpack the set details for both players.
-        p1_score   , p2_score    = score_set
+        p1_score, p2_score = score_set
         p1_tiebreak, p2_tiebreak = tiebreak_set
 
         # Create Scores instances for each player's set.
@@ -139,12 +144,12 @@ class Match:
         # Set the set details as attributes of the Match instance.
         setattr(self, attr_player1, player1_scores)
         setattr(self, attr_player2, player2_scores)
-        
+
         logger.info(
             "Set %d appended for both players: Player1 %s, Player2 %s",
             set_number,
             player1_scores,
-            player2_scores
+            player2_scores,
         )
 
     def calcul_score(self) -> None:
@@ -161,7 +166,7 @@ class Match:
         for set_number in range(1, 6):
             set_p1: Optional[str] = getattr(self, f"p1_set{set_number}").score
             set_p2: Optional[str] = getattr(self, f"p2_set{set_number}").score
-            
+
             logger.info("Set %d score: Player1: %s - Player2: %s", set_number, set_p1, set_p2)
 
             if set_p1 is None or set_p2 is None:
@@ -174,7 +179,7 @@ class Match:
             except ValueError:
                 logger.error("Invalid score format in set %d: %s - %s", set_number, set_p1, set_p2)
                 raise ValueError(f"Invalid score format in set {set_number}: {set_p1} - {set_p2}")
-            
+
             if p1_games > p2_games:
                 self.p1_win_sets += 1
 
@@ -182,14 +187,16 @@ class Match:
                 self.p2_win_sets += 1
 
             else:
-                logger.warning("Unexpected tie score in set %d: %d - %d", set_number, p1_games, p2_games)     
-                continue   
-        
-        logger.info("Final set counts: Player1: %d, Player2: %d", self.p1_win_sets, self.p2_win_sets)
+                logger.warning(
+                    "Unexpected tie score in set %d: %d - %d", set_number, p1_games, p2_games
+                )
+                continue
 
-    def append_home_away(self, 
-                         player_1: HomeAwayOdds,
-                         player_2: HomeAwayOdds) -> None:
+        logger.info(
+            "Final set counts: Player1: %d, Player2: %d", self.p1_win_sets, self.p2_win_sets
+        )
+
+    def append_home_away(self, player_1: HomeAwayOdds, player_2: HomeAwayOdds) -> None:
         """
         Append a HomeAwayOdds instance for player 1&2 to the odds list.
 
@@ -203,16 +210,16 @@ class Match:
         self.p2_odd_home_away.append(player_2)
         logger.debug("Appended home-away odds for player2: %s", player_2)
 
-    def append_over_under(self, 
-                      over: Optional[OverUnderOdds] = None, 
-                      under: Optional[OverUnderOdds] = None) -> None:
+    def append_over_under(
+        self, over: Optional[OverUnderOdds] = None, under: Optional[OverUnderOdds] = None
+    ) -> None:
         """
         Append a single OverUnderOdds instance for over or under to the odds list.
 
         Args:
             over  (Optional[OverUnderOdds]): OverUnderOdds instance for 'over' odds. Mutually exclusive with 'under'.
             under (Optional[OverUnderOdds]): OverUnderOdds instance for 'under' odds. Mutually exclusive with 'over'.
-        
+
         Raises:
             ValueError: If both or neither of 'over' and 'under' are provided.
         """
@@ -226,8 +233,7 @@ class Match:
             self.under_odd.append(under)
             logger.debug("Appended over-under odds for under: %s", under)
 
-    def append_correct_score(self, 
-                                correct: CorrectScoreOdds) -> None:
+    def append_correct_score(self, correct: CorrectScoreOdds) -> None:
         """
         Append a CorrectScoreOdds instance for correctsore to the odds list.
 
@@ -238,9 +244,11 @@ class Match:
         logger.debug("Appended correct odd: %s", correct)
 
     def __str__(self) -> str:
-        return (f"[{self.match_id} - {self.match_date}][{self.round}] [{self.status}] [{self.surface_type}]\n"
-                f"    player 1 -> {self.player1} [{self.p1_win_sets}] [{self.p1_set1.score} - {self.p1_set2.score} - {self.p1_set3.score} - {self.p1_set4.score} - {self.p1_set5.score}]\n"
-                f"    player 2 -> {self.player2} [{self.p2_win_sets}] [{self.p2_set1.score} - {self.p2_set2.score} - {self.p2_set3.score} - {self.p2_set4.score} - {self.p2_set5.score}]\n")
+        return (
+            f"[{self.match_id} - {self.match_date}][{self.round}] [{self.status}] [{self.surface_type}]\n"
+            f"    player 1 -> {self.player1} [{self.p1_win_sets}] [{self.p1_set1.score} - {self.p1_set2.score} - {self.p1_set3.score} - {self.p1_set4.score} - {self.p1_set5.score}]\n"
+            f"    player 2 -> {self.player2} [{self.p2_win_sets}] [{self.p2_set1.score} - {self.p2_set2.score} - {self.p2_set3.score} - {self.p2_set4.score} - {self.p2_set5.score}]\n"
+        )
 
     def to_dict(self) -> Dict[str, str]:
         """
@@ -253,81 +261,81 @@ class Match:
         result: Dict[str, Union[int, str, None]] = {}
         # =======================================================================================
         # Top-level fields
-        result["match_id"]   = self.match_id
+        result["match_id"] = self.match_id
         result["match_date"] = self.match_date
-        result["timestamp"]  = self.timestamp
-        result["round"]      = self.round
-        
+        result["timestamp"] = self.timestamp
+        result["round"] = self.round
+
         # =======================================================================================
-        # Player 
-        result["player1_name"]        = self.player1.name
-        result["player2_name"]        = self.player2.name
-        result["player1_id"]          = self.player1.id
-        result["player2_id"]          = self.player2.id
+        # Player
+        result["player1_name"] = self.player1.name
+        result["player2_name"] = self.player2.name
+        result["player1_id"] = self.player1.id
+        result["player2_id"] = self.player2.id
         result["player1_nationality"] = self.player1.nationality
         result["player2_nationality"] = self.player2.nationality
-        result["player1_link"]        = self.player1.link
-        result["player2_link"]        = self.player2.link
-        
+        result["player1_link"] = self.player1.link
+        result["player2_link"] = self.player2.link
+
         # =======================================================================================
-        result["odds_link"]       = self.odds_link
-        result["stats_link"]      = self.stats_link
-        result["score_link"]      = self.score_link
-        result["status_link"]     = self.status_link
-        result["surface"]         = self.surface_type
-        result["status"]          = self.status
-        result["winner"]          = self.winner
-        result["p1_win_sets"]     = self.p1_win_sets
-        result["p2_win_sets"]     = self.p2_win_sets
+        result["odds_link"] = self.odds_link
+        result["stats_link"] = self.stats_link
+        result["score_link"] = self.score_link
+        result["status_link"] = self.status_link
+        result["surface"] = self.surface_type
+        result["status"] = self.status
+        result["winner"] = self.winner
+        result["p1_win_sets"] = self.p1_win_sets
+        result["p2_win_sets"] = self.p2_win_sets
         result["global_duration"] = self.global_duration
-        
+
         # =======================================================================================
         # Flatten nested Scores for player 1 (sets 1 to 5)
         for set_index, set_obj in enumerate(
             [self.p1_set1, self.p1_set2, self.p1_set3, self.p1_set4, self.p1_set5], start=1
         ):
-            result[f"p1_set{set_index}_score"]    = set_obj.score 
-            result[f"p1_set{set_index}_tiebreak"] = set_obj.tiebreak 
-            result[f"p1_set{set_index}_duration"] = set_obj.duration 
+            result[f"p1_set{set_index}_score"] = set_obj.score
+            result[f"p1_set{set_index}_tiebreak"] = set_obj.tiebreak
+            result[f"p1_set{set_index}_duration"] = set_obj.duration
 
         # Flatten nested Scores for player 2 (sets 1 to 5)
         for set_index, set_obj in enumerate(
             [self.p2_set1, self.p2_set2, self.p2_set3, self.p2_set4, self.p2_set5], start=1
         ):
-            result[f"p2_set{set_index}_score"]    = set_obj.score 
-            result[f"p2_set{set_index}_tiebreak"] = set_obj.tiebreak 
+            result[f"p2_set{set_index}_score"] = set_obj.score
+            result[f"p2_set{set_index}_tiebreak"] = set_obj.tiebreak
             result[f"p2_set{set_index}_duration"] = set_obj.duration
-        
+
         # =======================================================================================
         #                            [ODD] HOME - AWAY
         # Flatten odds for player 1 & 2
         for odds_list, prefix in [(self.p1_odd_home_away, "p1"), (self.p2_odd_home_away, "p2")]:
             for odd in odds_list:
                 key_start = f"{prefix}_odd_home_away_{odd.bookmaker}_{odd.bet_variant}_start"
-                key_end   = f"{prefix}_odd_home_away_{odd.bookmaker}_{odd.bet_variant}_end"
+                key_end = f"{prefix}_odd_home_away_{odd.bookmaker}_{odd.bet_variant}_end"
                 result[key_start] = odd.odd_start
-                result[key_end]   = odd.odd_end
-        
+                result[key_end] = odd.odd_end
+
         # =======================================================================================
         #                            [ODD] OVER - UNDER
         # Flatten odds for over and under
         for odds_list, prefix in [(self.over_odd, "over"), (self.under_odd, "under")]:
             for odd in odds_list:
                 key_start = f"{prefix}_odd_{odd.bookmaker}_{odd.bet_variant}_{odd.threshold_type}_{odd.threshold_value}_start"
-                key_end   = f"{prefix}_odd_{odd.bookmaker}_{odd.bet_variant}_{odd.threshold_type}_{odd.threshold_value}_end"
+                key_end = f"{prefix}_odd_{odd.bookmaker}_{odd.bet_variant}_{odd.threshold_type}_{odd.threshold_value}_end"
                 result[key_start] = odd.odd_start
-                result[key_end]   = odd.odd_end
-        
+                result[key_end] = odd.odd_end
+
         # =======================================================================================
         #                            [ODD] CORRECT SCORE
         # Flatten odds for correct score
         for odd in self.correct_odd:
             key_start = f"correct_odd_{odd.bookmaker}_{odd.score}_start"
-            key_end   = f"correct_odd_{odd.bookmaker}_{odd.score}_end"
+            key_end = f"correct_odd_{odd.bookmaker}_{odd.score}_end"
             result[key_start] = odd.odd_start
-            result[key_end]   = odd.odd_end
-        
+            result[key_end] = odd.odd_end
+
         # =======================================================================================
-        
+
         logger.debug(f"Match to_dict() output: {result}")
         return result

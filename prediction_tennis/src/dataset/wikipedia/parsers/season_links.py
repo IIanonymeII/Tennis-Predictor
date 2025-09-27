@@ -60,7 +60,7 @@ class ATPSeasonLinkExtractor:
         navbox_container = soup.find("div", class_="navbox-container")
         if navbox_container:
             nav_table = navbox_container.find("table", class_="navbox")
-            
+
             if nav_table:
                 # Process the correct table here
                 self.logger.info("Table found")
@@ -69,7 +69,6 @@ class ATPSeasonLinkExtractor:
         else:
             self.logger.warning("No navigation table found in HTML content")
             return []
-
 
         # Extract all anchor tags with href matching the season pattern
         links = [
@@ -117,7 +116,7 @@ class ATPSeasonLinkExtractor:
             Dict[str, str]: Dictionary with season year as key and season link as value.
         """
         self.logger.info(f"Starting extraction of season-year dictionary from {wikipedia_url}")
-        
+
         # Fetch HTML content
         html_content = self.fetch_webpage_content(wikipedia_url)
         if not html_content:
@@ -126,21 +125,19 @@ class ATPSeasonLinkExtractor:
 
         # Extract season links
         season_links = self.extract_season_links(html_content)
-        
+
         # Process links and return year-to-URL mapping
         return self.process_season_links(season_links)
 
+
 if __name__ == "__main__":
     # Configure logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s"
-    )
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
     # Example usage
     wikipedia_url = "https://fr.wikipedia.org/wiki/ATP_Tour"
     extractor = ATPSeasonLinkExtractor()
     season_years = extractor.extract_season_years(wikipedia_url)
-    
+
     for year, link in season_years.items():
         print(f"{year}: {link}")

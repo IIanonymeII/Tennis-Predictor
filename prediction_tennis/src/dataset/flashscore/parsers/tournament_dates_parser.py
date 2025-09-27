@@ -5,10 +5,15 @@ import logging
 from typing import Any, List
 from bs4 import BeautifulSoup, Tag
 
-from prediction_tennis.src.dataset.flashscore.models.tournaments import Tournaments, TournamentsMinimaliste
-from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import validate_and_check_url, retrieve_flashscore_data
+from prediction_tennis.src.dataset.flashscore.models.tournaments import (
+    Tournaments,
+    TournamentsMinimaliste,
+)
+from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import (
+    validate_and_check_url,
+    retrieve_flashscore_data,
+)
 from prediction_tennis.src.dataset.flashscore.utils.text_extraction import extract_year
-
 
 
 class FlashscoreTournamentArchiveParser:
@@ -31,7 +36,7 @@ class FlashscoreTournamentArchiveParser:
         # Lists to store tournament
         self.list_tournament_date: List[Tournaments] = []
 
-    def initialize_variables(self, tournament : TournamentsMinimaliste) -> None:
+    def initialize_variables(self, tournament: TournamentsMinimaliste) -> None:
         """
         Initialize tournament-related variables using the provided tournament object.
 
@@ -45,9 +50,12 @@ class FlashscoreTournamentArchiveParser:
 
         # Verify that match is an instance of the Match class
         if not isinstance(tournament, TournamentsMinimaliste):
-            self.logger.error("Provided object is not an instance of the TournamentsMinimaliste class")
-            raise ValueError("Provided object is not an instance of the TournamentsMinimaliste class")
-
+            self.logger.error(
+                "Provided object is not an instance of the TournamentsMinimaliste class"
+            )
+            raise ValueError(
+                "Provided object is not an instance of the TournamentsMinimaliste class"
+            )
 
         # reset value
         self.list_tournament_date: List[Tournaments] = []
@@ -57,7 +65,7 @@ class FlashscoreTournamentArchiveParser:
 
         # Construct the URL for the tournament's archive page.
         self.url_archive = self.current_minimaliste_tournament.link_archives
-        
+
         self.logger.info(f"{self.current_minimaliste_tournament}")
 
     def get_archive_section(self, soup: BeautifulSoup) -> Tag:
@@ -80,7 +88,7 @@ class FlashscoreTournamentArchiveParser:
         if archive_section is None:
             self.logger.error("The tournament archive section was not found")
             raise Exception("The tournament archive section was not found")
-        
+
         self.logger.info("Tournament archive section found")
         return archive_section
 
@@ -98,20 +106,20 @@ class FlashscoreTournamentArchiveParser:
             ValueError: If required HTML elements are not found in the row.
         """
         self.logger.debug("Parsing an archive row")
-        
+
         # Initialize extracted data variables
-        tournament_name        : str = ""
-        tournament_link        : str = ""
-        tournament_link_result : str = ""
-        tournament_winner      : str = ""
-        tournament_year        : str = ""
+        tournament_name: str = ""
+        tournament_link: str = ""
+        tournament_link_result: str = ""
+        tournament_winner: str = ""
+        tournament_year: str = ""
 
         # Locate the season div containing tournament information
         season_div: Any = row.find("div", class_="archive__season")
         if season_div is None:
             self.logger.error("Season div not found in archive row.")
             raise ValueError("Season div not found in archive row.")
-            
+
         # Extract tournament name and link
         link_tag: Any = season_div.find("a", class_="archive__text--clickable")
         if link_tag is None:
@@ -127,21 +135,24 @@ class FlashscoreTournamentArchiveParser:
             self.logger.error("Href attribute missing in the link tag")
             raise ValueError("Href attribute missing in the link tag")
 
-        try: # Construct full tournament link and validate
+        try:  # Construct full tournament link and validate
             tournament_link = validate_and_check_url(url=f"{self.base_url}{raw_link}")
             tournament_link_result = validate_and_check_url(url=f"{tournament_link}results/")
         except Exception as exc:
             self.logger.error("Failed to build full link: %s", exc)
             raise
 
-        try: # Extract year from the tournament name
+        try:  # Extract year from the tournament name
             tournament_year = extract_year(text=tournament_name)
         except Exception as exc:
-            self.logger.error("Failed to extract year from tournament name '%s': %s", tournament_name, exc)
+            self.logger.error(
+                "Failed to extract year from tournament name '%s': %s", tournament_name, exc
+            )
             raise
-                
-        self.logger.debug(f"[{tournament_year}] Tournament '{tournament_name}' found => {tournament_link}")
-    
+
+        self.logger.debug(
+            f"[{tournament_year}] Tournament '{tournament_name}' found => {tournament_link}"
+        )
 
         # Extract winner information if available
         winner_div = row.find("div", class_="archive__winner")
@@ -151,19 +162,19 @@ class FlashscoreTournamentArchiveParser:
                 tournament_winner = winner_tag.get_text(strip=True)
                 self.logger.debug("Winner found: %s", tournament_winner)
 
-
-
         # Create and return a 'Tournaments' dataclass instance with extracted data
         tournament_date = Tournaments(
-            name         = tournament_name,
-            year         = tournament_year,
-            link         = tournament_link ,
-            link_results = tournament_link_result,
-            winner_name  = tournament_winner,
+            name=tournament_name,
+            year=tournament_year,
+            link=tournament_link,
+            link_results=tournament_link_result,
+            winner_name=tournament_winner,
             **self.current_minimaliste_tournament.__dict__,
-            )
+        )
 
-        self.logger.info("TournamentsDate created for tournament '%s' (%s)", tournament_name, tournament_year)
+        self.logger.info(
+            "TournamentsDate created for tournament '%s' (%s)", tournament_name, tournament_year
+        )
         return tournament_date
 
     def found_all_date_in_archive(self, tournament: TournamentsMinimaliste) -> List[Tournaments]:
@@ -199,7 +210,9 @@ class FlashscoreTournamentArchiveParser:
             soup = BeautifulSoup(response_text, "html.parser")
         except Exception as exc:
             self.logger.error("Error retrieving or parsing the tournament archive page: %s", exc)
-            raise ConnectionError("Error retrieving or parsing the tournament archive page") from exc
+            raise ConnectionError(
+                "Error retrieving or parsing the tournament archive page"
+            ) from exc
 
         # Step 3: Extract the tournament archive section.
         archive_section = self.get_archive_section(soup=soup)
@@ -207,7 +220,7 @@ class FlashscoreTournamentArchiveParser:
         # Step 4: Process each tournament row to extract details
         rows = archive_section.find_all("div", class_="archive__row")
         self.logger.info("Found %d archive rows.", len(rows))
-        
+
         for row in rows:
             try:
                 tournament_date: Tournaments = self.parse_archive_row(row=row)
@@ -215,13 +228,14 @@ class FlashscoreTournamentArchiveParser:
             except Exception as exc:
                 self.logger.error("Error parsing archive row: %s", exc)
 
-        self.logger.info("Finished processing archive rows. Total records: %d", len(self.list_tournament_date))
+        self.logger.info(
+            "Finished processing archive rows. Total records: %d", len(self.list_tournament_date)
+        )
 
         return self.list_tournament_date.copy()
 
 
 if __name__ == "__main__":
-    
     # Configure logging for the application.
     logging.basicConfig(
         level=logging.INFO,
@@ -229,13 +243,13 @@ if __name__ == "__main__":
     )
 
     data = TournamentsMinimaliste(
-        slug          = "acapulco",
-        id            = "golem",
-        link_archives ="https://www.flashscore.com/tennis/atp-singles/acapulco/archive/"
-        )
+        slug="acapulco",
+        id="golem",
+        link_archives="https://www.flashscore.com/tennis/atp-singles/acapulco/archive/",
+    )
 
     parser = FlashscoreTournamentArchiveParser()
-    tournament_list: List[Tournaments] = parser.found_all_date_in_archive(tournament = data)
+    tournament_list: List[Tournaments] = parser.found_all_date_in_archive(tournament=data)
 
     for tournament in tournament_list:
         print(tournament)

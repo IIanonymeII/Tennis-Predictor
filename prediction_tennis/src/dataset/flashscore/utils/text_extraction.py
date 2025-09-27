@@ -5,7 +5,9 @@ from typing import Optional
 logger = logging.getLogger("[UTIL] [EXTRACT]")
 
 
-def extract_pattern_from_text(text: str, pattern: str, optional_value: bool = False) -> Optional[str]:
+def extract_pattern_from_text(
+    text: str, pattern: str, optional_value: bool = False
+) -> Optional[str]:
     """
     Extracts a single pattern match from the given text.
 
@@ -32,11 +34,14 @@ def extract_pattern_from_text(text: str, pattern: str, optional_value: bool = Fa
 
     logger.error(
         "Multiple results found: expected exactly 1 result, found %d using pattern '%s' in text: %s",
-        len(matches), pattern, text
+        len(matches),
+        pattern,
+        text,
     )
     raise ValueError(
         f"Expected exactly 1 result, but found {len(matches)} using pattern '{pattern}' in text: {text}"
     )
+
 
 def extract_odds(odd_str: str) -> tuple:
     """
@@ -56,40 +61,41 @@ def extract_odds(odd_str: str) -> tuple:
     #  - (?:\[[ud]\](?P<odd2>\d+(\.\d+)?))? is an optional non-capturing group that:
     #       - Matches a '[' followed by either 'u' or 'd' and a ']'
     #       - Then captures the following number (integer or decimal) as "odd2"
-    pattern = r'(?P<odd1>\d+(\.\d+)?)(?:\[[ud]\](?P<odd2>\d+(\.\d+)?))?'
+    pattern = r"(?P<odd1>\d+(\.\d+)?)(?:\[[ud]\](?P<odd2>\d+(\.\d+)?))?"
     result = re.fullmatch(pattern, odd_str.strip())
 
     if not result:
         logger.error(f"Invalid format: {odd_str}")
         raise ValueError(f"Invalid format: {odd_str}")
 
-    odd1 = result.group('odd1')
+    odd1 = result.group("odd1")
     # If the second odd is not present, default to the first odd.
-    odd2 = result.group('odd2') if result.group('odd2') else odd1
+    odd2 = result.group("odd2") if result.group("odd2") else odd1
 
     logger.debug(f"Extracted odds: odd1={odd1}, odd2={odd2}")
 
     return (odd1, odd2)
 
+
 def extract_year(text: str) -> str:
-        """
-        Extract a 4-digit year from the given text using a regular expression.
-        
-        Args:
-            text (str): The text containing the year (e.g. "ATP Acapulco 2024").
-        
-        Returns:
-            str: The extracted year.
-        
-        Raises:
-            ValueError: If no 4-digit year is found in the text.
-        """
-        logger.debug("Extracting year from text: %s", text)
-        match = re.search(r"(\d{4})", text)
-        if match:
-            year = match.group(1)
-            logger.info("Year extracted: %s", year)
-            return year
-        else:
-            logger.error("Year not found in tournament text: '%s'", text)
-            raise ValueError(f"Year not found in tournament text: '{text}'")
+    """
+    Extract a 4-digit year from the given text using a regular expression.
+
+    Args:
+        text (str): The text containing the year (e.g. "ATP Acapulco 2024").
+
+    Returns:
+        str: The extracted year.
+
+    Raises:
+        ValueError: If no 4-digit year is found in the text.
+    """
+    logger.debug("Extracting year from text: %s", text)
+    match = re.search(r"(\d{4})", text)
+    if match:
+        year = match.group(1)
+        logger.info("Year extracted: %s", year)
+        return year
+    else:
+        logger.error("Year not found in tournament text: '%s'", text)
+        raise ValueError(f"Year not found in tournament text: '{text}'")

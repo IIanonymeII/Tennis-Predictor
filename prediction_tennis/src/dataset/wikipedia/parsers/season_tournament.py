@@ -13,7 +13,7 @@ class ATPSeasonParser:
     Parser for extracting ATP season tournament data from Wikipedia.
 
     This class fetches and parses HTML content from a Wikipedia page,
-    extracting structured tournament information based on specific 
+    extracting structured tournament information based on specific
     color-coded table rows.
 
     Attributes:
@@ -23,16 +23,16 @@ class ATPSeasonParser:
 
     # Mapping of row background colors to tournament categories
     TOURNAMENT_MAPPING: Dict[str, str] = {
-        "Int'Series"   : "ATP 250",
-        "ATP250"       : "ATP 250",
-        "SeriesGold"   : "ATP 500",
-        "ATP500"       : "ATP 500",
+        "Int'Series": "ATP 250",
+        "ATP250": "ATP 250",
+        "SeriesGold": "ATP 500",
+        "ATP500": "ATP 500",
         "MastersSeries": "ATP 1000",
-        "Masters1000"  : "ATP 1000",
-        "Super9"       : "ATP 1000",
-        "Masters"      : "Masters Cup",
-        "G.Chelem"     : "Grand Chelem",
-        "J.olympiques" : "JO",
+        "Masters1000": "ATP 1000",
+        "Super9": "ATP 1000",
+        "Masters": "Masters Cup",
+        "G.Chelem": "Grand Chelem",
+        "J.olympiques": "JO",
     }
 
     # Mapping of French surface labels to English descriptions
@@ -47,12 +47,12 @@ class ATPSeasonParser:
     }
 
     def __init__(self) -> None:
-        self.url : str = ""
+        self.url: str = ""
         self.year: str = ""
         self.logger = logging.getLogger(f"[SEASON {self.year}]")
 
     def initialize_variables(self, url: str, year: str):
-        self.url : str = url
+        self.url: str = url
         self.year: str = year
         self.logger = logging.getLogger(f"[SEASON {self.year}]")
 
@@ -66,7 +66,7 @@ class ATPSeasonParser:
         self.logger.info(f"Fetching webpage content from: {self.url}")
         headers = {"User-Agent": "Bot"}
         try:
-            response = requests.get(self.url,headers=headers, timeout=10)
+            response = requests.get(self.url, headers=headers, timeout=10)
             response.raise_for_status()
             return response.text
         except requests.exceptions.RequestException as exc:
@@ -86,14 +86,14 @@ class ATPSeasonParser:
         Raises:
             NotImplementedError: If tournament type is not recognized.
         """
-        cleaned_type = tournament_type.replace('\xa0', '').replace(" ", "").strip()
+        cleaned_type = tournament_type.replace("\xa0", "").replace(" ", "").strip()
         mapped_type = self.TOURNAMENT_MAPPING.get(cleaned_type)
-        
+
         if mapped_type is None:
             error_msg = f"Tournament type '{cleaned_type}' is not implemented yet."
             self.logger.error(error_msg)
             raise NotImplementedError(error_msg)
-        
+
         return mapped_type
 
     def extract_prize_money(self, prize_str: str) -> int:
@@ -112,26 +112,26 @@ class ATPSeasonParser:
         exchange_rate_eur = 1.08  # EUR to USD conversion rate
         exchange_rate_gbp = 1.25  # GBP to USD conversion rate
         exchange_rate_aud = 0.64  # AUD to USD conversion rate
-        
+
         is_euro = "€" in prize_str
         is_pound = "£" in prize_str
         is_aud = "A$" in prize_str or "AU$" in prize_str
 
         cleaned_prize = (
-            prize_str.replace('\xa0', '')
-            .replace('AU$', '')
-            .replace('A$', '')
-            .replace('$', '')
-            .replace('€', '')
-            .replace('£', '')
-            .replace(',', '')
-            .replace('[c]', '')
+            prize_str.replace("\xa0", "")
+            .replace("AU$", "")
+            .replace("A$", "")
+            .replace("$", "")
+            .replace("€", "")
+            .replace("£", "")
+            .replace(",", "")
+            .replace("[c]", "")
         )
 
         try:
             if cleaned_prize == "NC":
                 return 0
-            
+
             prize_money = int(cleaned_prize)
 
             # Convert from EUR to USD
@@ -145,7 +145,7 @@ class ATPSeasonParser:
             # Convert from AUD to USD
             elif is_aud:
                 prize_money = int(prize_money * exchange_rate_aud)
-            
+
             return prize_money
 
         except ValueError as exc:
@@ -166,14 +166,14 @@ class ATPSeasonParser:
         Raises:
             NotImplementedError: If surface type is not recognized.
         """
-        cleaned_surface = surface_str.replace('\xa0', '').replace(" ", "").strip()
+        cleaned_surface = surface_str.replace("\xa0", "").replace(" ", "").strip()
         mapped_surface = self.SURFACE_MAPPING.get(cleaned_surface)
-        
+
         if mapped_surface is None:
             error_msg = f"Surface type '{cleaned_surface}' is not implemented yet."
             self.logger.error(error_msg)
             raise NotImplementedError(error_msg)
-        
+
         return mapped_surface
 
     def handle_special_case_number_suffix(self, name_segments: List[str]) -> str:
@@ -193,7 +193,7 @@ class ATPSeasonParser:
             self.logger.debug("Extracted trailing digit '%s' and city '%s'", trailing_digit, city)
 
             # If the city is 'marseille', do not modify the name
-            if city in ["Marseille", "Valence","Vienne"]:
+            if city in ["Marseille", "Valence", "Vienne"]:
                 self.logger.debug("Skipping number suffix modification for city: %s", city)
                 return ""
 
@@ -215,7 +215,7 @@ class ATPSeasonParser:
         """
         if standardized_name == "new-york":
             first_segment: str = name_segments[0].strip().lower().replace(" ", "-")
-            
+
             # If "us-open" is present in the first part, use it instead
             if "us-open" in first_segment:
                 self.logger.debug(
@@ -224,7 +224,7 @@ class ATPSeasonParser:
                 )
                 return first_segment
             elif "western-&-southern-open" in first_segment:
-                return "cincinnati" # covid effect
+                return "cincinnati"  # covid effect
 
         return standardized_name
 
@@ -248,7 +248,7 @@ class ATPSeasonParser:
                 )
                 return first_segment
         return standardized_name
-    
+
     def handle_special_case_atlanta(self, name_segments: List[str], standardized_name: str) -> str:
         """
         Handle special case for the "Atlanta" tournament, considering "Verizon Tennis Challenge".
@@ -262,7 +262,7 @@ class ATPSeasonParser:
         """
         if standardized_name == "atlanta":
             first_segment: str = name_segments[0].strip().lower().replace(" ", "-")
-            
+
             if "verizon-tennis-challenge" in first_segment:
                 self.logger.debug(
                     "Special case for 'atlanta' detected; using alternative name: %s",
@@ -272,7 +272,9 @@ class ATPSeasonParser:
 
         return standardized_name
 
-    def handle_special_case_long_island(self, name_segments: List[str], standardized_name: str) -> str:
+    def handle_special_case_long_island(
+        self, name_segments: List[str], standardized_name: str
+    ) -> str:
         """
         Handle special case for the "Long Island" tournament, considering "US Open".
 
@@ -292,13 +294,15 @@ class ATPSeasonParser:
                     first_segment,
                 )
                 return "us-open"
-            
+
             elif "new-york-open" in first_segment:
                 return "new-york"
-            
+
         return standardized_name
 
-    def handle_special_case_nitto_atp(self, name_segments: List[str], standardized_name: str) -> str:
+    def handle_special_case_nitto_atp(
+        self, name_segments: List[str], standardized_name: str
+    ) -> str:
         """
         Handle special case for ATP Finals tournaments with various naming conventions.
 
@@ -313,7 +317,7 @@ class ATPSeasonParser:
             "atp tour world championships",
             "nitto atp finals",
             "barclays atp world tour finals",
-            "atp world tour finals", 
+            "atp world tour finals",
             "tennis masters cup",
         }
 
@@ -328,8 +332,10 @@ class ATPSeasonParser:
             return "finals-turin"
 
         return standardized_name
-    
-    def handle_special_case_astana_open(self, name_segments: List[str], standardized_name: str) -> str:
+
+    def handle_special_case_astana_open(
+        self, name_segments: List[str], standardized_name: str
+    ) -> str:
         """
         Handle special case for the Astana Open tournament with various naming conventions.
 
@@ -345,9 +351,9 @@ class ATPSeasonParser:
             "astana atp 500",
             "atp astana",
             "atp 500 astana",
-            "astana"
+            "astana",
         }
-        
+
         first_segment_cleaned = name_segments[0].strip().lower()
 
         if first_segment_cleaned in astana_keywords:
@@ -357,10 +363,12 @@ class ATPSeasonParser:
                 first_segment_cleaned,
             )
             return "astana"
-        
+
         return standardized_name
 
-    def handle_special_case_next_gen_atp(self, name_segments: List[str], standardized_name: str) -> str:
+    def handle_special_case_next_gen_atp(
+        self, name_segments: List[str], standardized_name: str
+    ) -> str:
         """
         Handle special case for the Next Gen ATP Finals tournament with various naming conventions.
 
@@ -389,7 +397,7 @@ class ATPSeasonParser:
             return "next-gen-finals-jeddah"
 
         return standardized_name
-            
+
     def handle_special_case_olympics(self, name_segments: List[str], standardized_name: str) -> str:
         """
         Handle special case for the Summer Olympic Tennis Event with various naming conventions.
@@ -452,8 +460,10 @@ class ATPSeasonParser:
             return "milan"
 
         return standardized_name
-        
-    def handle_special_case_grand_slam_cup(self, name_segments: List[str], standardized_name: str) -> str:
+
+    def handle_special_case_grand_slam_cup(
+        self, name_segments: List[str], standardized_name: str
+    ) -> str:
         """
         Handle special case for the Grand Slam Cup tournament with various naming conventions.
 
@@ -481,7 +491,7 @@ class ATPSeasonParser:
             return "grand-slam-cup"
 
         return standardized_name
-    
+
     def handle_special_case_acapulco(self, name_segments: List[str], standardized_name: str) -> str:
         """
         Handle special case for the Acapulco Tournament (Abierto Mexicano Telcel) with various naming conventions.
@@ -510,7 +520,7 @@ class ATPSeasonParser:
             )
             return "acapulco"
 
-        return standardized_name 
+        return standardized_name
 
     def handle_special_case_houston(self, name_segments: List[str], standardized_name: str) -> str:
         """
@@ -572,8 +582,10 @@ class ATPSeasonParser:
             return "miami"
 
         return standardized_name
-    
-    def handle_special_case_wimbledon(self, name_segments: List[str], standardized_name: str) -> str:
+
+    def handle_special_case_wimbledon(
+        self, name_segments: List[str], standardized_name: str
+    ) -> str:
         """
         Handle special case for the Wimbledon Tournament (The Championships) with various naming conventions.
 
@@ -605,7 +617,7 @@ class ATPSeasonParser:
 
     def remove_parentheses_content(self, tournament_name: str) -> str:
         """
-        Remove any text enclosed in parentheses '()' or square brackets '[]' 
+        Remove any text enclosed in parentheses '()' or square brackets '[]'
         from the tournament name.
 
         Args:
@@ -615,16 +627,18 @@ class ATPSeasonParser:
             str: Cleaned tournament name with content inside parentheses removed.
         """
         cleaned_name = re.sub(r"[\(\[].*?[\)\]]", "", tournament_name).strip()
-        self.logger.debug("Removed parentheses content: '%s' -> '%s'", tournament_name, cleaned_name)
+        self.logger.debug(
+            "Removed parentheses content: '%s' -> '%s'", tournament_name, cleaned_name
+        )
         return cleaned_name
-    
+
     def extract_tournament_name(self, tournament_name: str) -> str:
         """
         Clean and standardize the tournament name.
 
-        This function processes a raw tournament name string, extracts and standardizes 
-        the name by converting it to lowercase, replacing spaces with hyphens, handling 
-        specific cases (e.g., "paris" with "roland-garros", ATP Finals cases), and applying 
+        This function processes a raw tournament name string, extracts and standardizes
+        the name by converting it to lowercase, replacing spaces with hyphens, handling
+        specific cases (e.g., "paris" with "roland-garros", ATP Finals cases), and applying
         various predefined replacements. The function also normalizes the string to remove accents.
 
         Args:
@@ -654,20 +668,48 @@ class ATPSeasonParser:
         self.logger.debug("Base standardized name: %s", standardized_tournament_name)
 
         # Handle special cases
-        standardized_tournament_name = self.handle_special_case_nitto_atp(name_segments, standardized_tournament_name)
-        standardized_tournament_name = self.handle_special_case_astana_open(name_segments, standardized_tournament_name)
-        standardized_tournament_name = self.handle_special_case_paris(name_segments, standardized_tournament_name)
-        standardized_tournament_name = self.handle_special_case_new_york(name_segments, standardized_tournament_name)
-        standardized_tournament_name = self.handle_special_case_atlanta(name_segments, standardized_tournament_name)
-        standardized_tournament_name = self.handle_special_case_long_island(name_segments, standardized_tournament_name)
-        standardized_tournament_name = self.handle_special_case_next_gen_atp(name_segments, standardized_tournament_name)
-        standardized_tournament_name = self.handle_special_case_olympics(name_segments, standardized_tournament_name)
-        standardized_tournament_name = self.handle_special_case_milan(name_segments, standardized_tournament_name)
-        standardized_tournament_name = self.handle_special_case_acapulco(name_segments, standardized_tournament_name)
-        standardized_tournament_name = self.handle_special_case_grand_slam_cup(name_segments, standardized_tournament_name)
-        standardized_tournament_name = self.handle_special_case_houston(name_segments, standardized_tournament_name)
-        standardized_tournament_name = self.handle_special_case_miami(name_segments, standardized_tournament_name)
-        standardized_tournament_name = self.handle_special_case_wimbledon(name_segments, standardized_tournament_name)
+        standardized_tournament_name = self.handle_special_case_nitto_atp(
+            name_segments, standardized_tournament_name
+        )
+        standardized_tournament_name = self.handle_special_case_astana_open(
+            name_segments, standardized_tournament_name
+        )
+        standardized_tournament_name = self.handle_special_case_paris(
+            name_segments, standardized_tournament_name
+        )
+        standardized_tournament_name = self.handle_special_case_new_york(
+            name_segments, standardized_tournament_name
+        )
+        standardized_tournament_name = self.handle_special_case_atlanta(
+            name_segments, standardized_tournament_name
+        )
+        standardized_tournament_name = self.handle_special_case_long_island(
+            name_segments, standardized_tournament_name
+        )
+        standardized_tournament_name = self.handle_special_case_next_gen_atp(
+            name_segments, standardized_tournament_name
+        )
+        standardized_tournament_name = self.handle_special_case_olympics(
+            name_segments, standardized_tournament_name
+        )
+        standardized_tournament_name = self.handle_special_case_milan(
+            name_segments, standardized_tournament_name
+        )
+        standardized_tournament_name = self.handle_special_case_acapulco(
+            name_segments, standardized_tournament_name
+        )
+        standardized_tournament_name = self.handle_special_case_grand_slam_cup(
+            name_segments, standardized_tournament_name
+        )
+        standardized_tournament_name = self.handle_special_case_houston(
+            name_segments, standardized_tournament_name
+        )
+        standardized_tournament_name = self.handle_special_case_miami(
+            name_segments, standardized_tournament_name
+        )
+        standardized_tournament_name = self.handle_special_case_wimbledon(
+            name_segments, standardized_tournament_name
+        )
 
         # Apply a series of replacements to normalize specific tournament names.
         standardized_tournament_name = (
@@ -687,21 +729,21 @@ class ATPSeasonParser:
             .replace("bâle", "basel")
             .replace("anvers", "antwerp")
             .replace("bois-le-duc", "hertogenbosch")
-            .replace("cabo-san-lucas","los-cabos")
-            .replace("palma-de-majorque","mallorca")
-            .replace("majorque","mallorca")
-            .replace("st.-petersburg","st-petersburg")
-            .replace("saint-pétersbourg","st-petersburg")
-            .replace("washington-d.c.","washington")
-            .replace("d.c.","washington")
-            .replace("oeiras","estoril")
-            .replace("johannesbourg","johannesburg")
-            .replace("sankt-pölten","portschach")
-            .replace("santiago-du-chili","santiago")
-            .replace("santa-margherita-di-pula","sardinia")
-            .replace("bournemouth","brighton")
-            .replace('bombay','mumbai')
-            .replace("naples","napoli")
+            .replace("cabo-san-lucas", "los-cabos")
+            .replace("palma-de-majorque", "mallorca")
+            .replace("majorque", "mallorca")
+            .replace("st.-petersburg", "st-petersburg")
+            .replace("saint-pétersbourg", "st-petersburg")
+            .replace("washington-d.c.", "washington")
+            .replace("d.c.", "washington")
+            .replace("oeiras", "estoril")
+            .replace("johannesbourg", "johannesburg")
+            .replace("sankt-pölten", "portschach")
+            .replace("santiago-du-chili", "santiago")
+            .replace("santa-margherita-di-pula", "sardinia")
+            .replace("bournemouth", "brighton")
+            .replace("bombay", "mumbai")
+            .replace("naples", "napoli")
         )
         self.logger.debug(
             "Tournament name after applying replacements: %s", standardized_tournament_name
@@ -715,13 +757,12 @@ class ATPSeasonParser:
         self.logger.debug("Final cleaned tournament name: %s", cleaned_name)
 
         return cleaned_name
-    
 
     def extract_tournament_from_row(self, row: Tag) -> Tournaments:
         """
         Extract tournament information from a single table row.
 
-        This method parses a table row and converts its cell contents 
+        This method parses a table row and converts its cell contents
         into a structured Tournaments object.
 
         Args:
@@ -738,7 +779,7 @@ class ATPSeasonParser:
             year=self.year,
             type=self.extract_tournament_type(cell_texts[3]),
             money=self.extract_prize_money(cell_texts[4]),
-            surface=self.extract_surface(cell_texts[5])
+            surface=self.extract_surface(cell_texts[5]),
         )
         return tournament
 
@@ -753,13 +794,13 @@ class ATPSeasonParser:
 
         self.logger.info(f"Parsing ATP season data from {self.url}")
         html_content = self.fetch_webpage_content()
-        
+
         if not html_content:
             self.logger.error("No HTML content retrieved; aborting extraction.")
             return []
 
         soup = BeautifulSoup(html_content, "html.parser")
-        
+
         # Locate the 'Simple' section table
         simple_heading = soup.find("h3", id="Simple", string="Simple")
         if not simple_heading:
@@ -778,7 +819,7 @@ class ATPSeasonParser:
 
         tbody = simple_table.tbody
         processed_rows: List[Tournaments] = []
-        
+
         for row in tbody.find_all("tr"):
             style = row.get("style", "")
             if "background-color" not in style:
@@ -786,19 +827,20 @@ class ATPSeasonParser:
             if "background-color:#CCCCCF" in style:
                 # "info" row, skip
                 continue
-            
+
             processed = self.extract_tournament_from_row(row)
             processed_rows.append(processed)
 
-        self.logger.info(f"Extracted and processed {len(processed_rows)} rows from the 'Simple' table")
+        self.logger.info(
+            f"Extracted and processed {len(processed_rows)} rows from the 'Simple' table"
+        )
         return processed_rows
 
 
 if __name__ == "__main__":
     # Configure logging
     logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
     # Example usage: Parse and display ATP season data from the given URL

@@ -25,6 +25,7 @@ ruff = "^0.13.2"
 
 [tool.ruff]
 exclude = ["*/test_*.py", "*.ipynb"]
+line-length = 100
 
 [build-system]
 requires = ["poetry-core"]
