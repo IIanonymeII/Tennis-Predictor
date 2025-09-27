@@ -116,3 +116,124 @@ def _calculate_expected_score(player_rating: float, opponent_rating: float) -> f
         Expected score (probability of winning)
     """
     return 1 / (1 + 10 ** ((opponent_rating - player_rating) / 400))
+
+def _calculate_update_values(win_step: float,
+                             lose_step: float,
+                             transformation_method: str,
+                             transformation_factor: float) -> tuple[float, float]:
+    """
+    Calculate transformed update values based on the specified method.
+    
+    Args:
+        win_step: Base win step value
+        lose_step: Base lose step value
+        transformation_method: Transformation method to apply
+        transformation_factor: Factor for the transformation
+        
+    Returns:
+        Tuple of (transformed_win_step, transformed_lose_step)
+        
+    Raises:
+        ValueError: If transformation method is invalid or would cause
+                   mathematical errors
+    """
+    try:
+        if transformation_method == "power":
+            update_win = win_step ** transformation_factor
+            update_lose = lose_step ** transformation_factor
+            
+        elif transformation_method == "exp":
+            update_win = np.exp(win_step * transformation_factor)
+            update_lose = np.exp(lose_step * transformation_factor)
+            
+        elif transformation_method == "log":
+            # Ensure arguments to log are positive
+            if win_step + transformation_factor <= 0:
+                raise ValueError("Log transformation requires positive argument")
+            if lose_step + transformation_factor <= 0:
+                raise ValueError("Log transformation requires positive argument")
+            update_win = np.log(win_step + transformation_factor)
+            update_lose = np.log(lose_step + transformation_factor)
+            
+        elif transformation_method == "power-log":
+            if lose_step + transformation_factor <= 0:
+                raise ValueError("Log transformation requires positive argument")
+            update_win = win_step ** transformation_factor
+            update_lose = np.log(lose_step + transformation_factor)
+            
+        elif transformation_method == "power-exp":
+            update_win = win_step ** transformation_factor
+            update_lose = np.exp(lose_step * transformation_factor)
+            
+        elif transformation_method == "log-exp":
+            if win_step + transformation_factor <= 0:
+                raise ValueError("Log transformation requires positive argument")
+            update_win = np.log(win_step + transformation_factor)
+            update_lose = np.exp(lose_step * transformation_factor)
+            
+        elif transformation_method == "log-power":
+            if win_step + transformation_factor <= 0:
+                raise ValueError("Log transformation requires positive argument")
+            update_win = np.log(win_step + transformation_factor)
+            update_lose = lose_step ** transformation_factor
+            
+        elif transformation_method == "exp-log":
+            if lose_step + transformation_factor <= 0:
+                raise ValueError("Log transformation requires positive argument")
+            update_win = np.exp(win_step * transformation_factor)
+            update_lose = np.log(lose_step + transformation_factor)
+            
+        elif transformation_method == "exp-power":
+            update_win = np.exp(win_step * transformation_factor)
+            update_lose = lose_step ** transformation_factor
+            
+        else:
+            logging.warning(f"Unknown transformation method '{transformation_method}', "
+                          f"using default (no transformation)")
+            update_win = win_step
+            update_lose = lose_step
+            
+    except (ValueError, OverflowError) as e:
+        logging.error(f"Error calculating update values: {e}")
+        raise ValueError(f"Invalid transformation parameters: {e}") from e
+    
+    return update_win, update_lose
+
+def _apply_transformation(value: float, method: str) -> float:
+    """
+    Apply a single transformation to a value.
+    
+    Args:
+        value: Value to transform
+        method: Transformation method ("power", "exp", or "log")
+        
+    Returns:
+        Transformed value
+        
+    Raises:
+        ValueError: If transformation would cause mathematical errors
+    """
+    try:
+        if method == "power":
+            return value ** 2
+            
+        elif method == "exp":
+            # Scale and clamp to avoid overflow
+            scaled_value = min(50, value / 100)
+            return np.exp(scaled_value)
+            
+        elif method == "log":
+            # Handle negative values using reciprocal transformation
+            if value < 0:
+                return np.log1p(1 / abs(value))
+            else:
+                return np.log1p(value)
+                
+        else:
+            logging.warning(f"Unknown transformation method '{method}', "
+                          f"returning original value")
+            return value
+            
+    except (ValueError, OverflowError) as e:
+        logging.error(f"Error applying transformation '{method}' to value {value}: {e}")
+        return value  # Return original value on error

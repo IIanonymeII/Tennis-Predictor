@@ -11,7 +11,8 @@ features/
 ├── __init__.py
 ├── elo_ranking_features.py       # Functions for Elo rating 
 ├── trueskill_ranking_features.py # Functions for Trueskill rating 
-├── glicko_ranking_features.py    # Functions for Trueskill rating 
+├── glicko_ranking_features.py    # Functions for Glicko rating 
+├── simple_ranking_features.py    # Functions for Simple rating 
 └── README.md               
 ```
 
@@ -44,6 +45,12 @@ features/
 >   - **Standard Glicko**: Classic rating update system  
 >   - **Movement during last *n* matches**: Tracks Glicko variations over a rolling match window  
 
+>**`simple_ranking_features.py`**
+ Implements Simple ratings for tennis match data.
+  Supported variants include:
+>
+>   - **Standard rating**: Adds `win_step` for a win and subtracts `lose_step` for a loss.
+>   - **Transformed ratings (exp, log, power):**: Applies a mathematical transformation to the standard rating. For example, the result can be `exp(value + step)`, `log(value + step)`, or `power(value + step)` depending on the chosen transformation method.
 
 ---
 
