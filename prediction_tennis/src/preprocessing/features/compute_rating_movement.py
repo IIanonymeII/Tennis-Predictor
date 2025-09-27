@@ -36,7 +36,8 @@ def compute_rating_movement(matches_df      : pd.DataFrame,
     Raises:
         ValueError: If lookback_matches is not positive.
     """
-    if lookback_matches <= 0: raise ValueError("lookback_matches must be positive")
+    if lookback_matches <= 0: 
+        raise ValueError("lookback_matches must be positive")
 
     # Convert match date to datetime if not already
     matches_df['match_date'] = pd.to_datetime(matches_df['match_date'])

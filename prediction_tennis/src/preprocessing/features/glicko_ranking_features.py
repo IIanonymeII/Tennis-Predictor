@@ -1,15 +1,14 @@
 # SIMPLE RATING
 import logging
-from typing import Any, List, Tuple
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from prediction_tennis.src.preprocessing.utils.ranking_systems import _update_player_glicko_rating, calculate_rating_movement_from_history
+from prediction_tennis.src.preprocessing.utils.ranking_systems import _update_player_glicko_rating
 
 
 # Configure logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("[GLICKO RANKING]")
 
 # Constants
 DEFAULT_INITIAL_RATING = 1500.0
@@ -61,15 +60,19 @@ def compute_glicko_ratings(matches_df: pd.DataFrame,
     """
     logger.info(f"Starting Glicko rating computation for {len(matches_df)} matches on surface: {surface}")
     
-    if initial_rating <= 0          : raise ValueError("initial_rating must be positive")
-    if initial_rating_deviation <= 0: raise ValueError("initial_rating_deviation must be positive")
-    if q_factor <= 0                : raise ValueError("q_factor must be positive")
+    if initial_rating <= 0          : 
+        raise ValueError("initial_rating must be positive")
+    if initial_rating_deviation <= 0: 
+        raise ValueError("initial_rating_deviation must be positive")
+    if q_factor <= 0                : 
+        raise ValueError("q_factor must be positive")
 
     # Validate required columns
     required_columns = ['player1_id_factor', 'player2_id_factor', 'winner', 'match_date']
     missing_columns = [col for col in required_columns if col not in matches_df.columns]
     
-    if missing_columns: raise ValueError(f"Missing required columns: {missing_columns}")
+    if missing_columns: 
+        raise ValueError(f"Missing required columns: {missing_columns}")
 
     # Determine total number of players
     max_player1_id = matches_df['player1_id_factor'].max()

@@ -1,16 +1,14 @@
   
 import json
 import logging
-from dataclasses import asdict, replace
+from dataclasses import replace
 from typing import Any, Dict, List
 
-import pandas as pd
 
 from prediction_tennis.src.dataset.flashscore.models.matchs import Match
 from prediction_tennis.src.dataset.flashscore.models.odds import CorrectScoreOdds, HomeAwayOdds, OverUnderOdds
 from prediction_tennis.src.dataset.flashscore.models.players import Player
 from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import retrieve_flashscore_data
-from prediction_tennis.src.dataset.flashscore.utils.text_extraction import extract_odds, extract_pattern_from_text
 
 
 
@@ -293,7 +291,6 @@ class FlashscoreOddsParser:
         return self.current_match  
 
 if __name__ == "__main__":
-    import requests
 
     # Set up logging (if not already configured)
     logging.basicConfig(level=logging.INFO,

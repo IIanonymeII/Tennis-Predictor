@@ -6,7 +6,6 @@ import logging
 import re
 from typing import Dict, List, Optional, Tuple
 from bs4 import BeautifulSoup
-import pandas as pd
 import requests
 
 from prediction_tennis.src.dataset.flashscore.models.players import Player

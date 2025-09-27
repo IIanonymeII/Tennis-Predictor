@@ -1,6 +1,6 @@
 from dataclasses import replace
 import logging
-from typing import Dict, Optional
+from typing import Dict
 
 from prediction_tennis.src.dataset.flashscore.models.matchs import Match
 from prediction_tennis.src.dataset.flashscore.models.players import Player

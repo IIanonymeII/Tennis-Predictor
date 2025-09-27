@@ -1,11 +1,10 @@
 # SIMPLE RATING
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from prediction_tennis.src.preprocessing.utils.ranking_systems import calculate_rating_movement_from_history
 
 # Configure logging
 logger = logging.getLogger("[ELO RANTING]")
@@ -72,8 +71,10 @@ def compute_elo_rankings(matches_df: pd.DataFrame,
         KeyError: If required columns are missing from matches_df
         ValueError: If k_factor or divisor are not positive
     """
-    if k_factor <= 0: raise ValueError("k_factor must be positive")
-    if divisor  <=0  : raise ValueError("divisor must be positive")
+    if k_factor <= 0: 
+        raise ValueError("k_factor must be positive")
+    if divisor <=0: 
+        raise ValueError("divisor must be positive")
 
     logger.info(f"Computing ELO rankings for {len(matches_df)} matches with k_factor={k_factor}")
 
@@ -168,8 +169,10 @@ def compute_tournament_round_based_elo(matches_df: pd.DataFrame,
         KeyError: If required columns are missing from matches_df
         ValueError: If k_factor or divisor are not positive
     """
-    if k_factor <= 0: raise ValueError("k_factor must be positive")
-    if divisor  <=0 : raise ValueError("divisor must be positive")
+    if k_factor <= 0: 
+        raise ValueError("k_factor must be positive")
+    if divisor <=0 : 
+        raise ValueError("divisor must be positive")
 
     logger.info(f"Computing tournament/round-based ELO for {len(matches_df)} matches")
 
@@ -267,8 +270,10 @@ def compute_tournament_based_elo( matches_df: pd.DataFrame,
     Returns:
         2D numpy array containing pre-match ratings for each player pair
     """
-    if k_base <= 0: raise ValueError("k_factor must be positive")
-    if divisor  <=0  : raise ValueError("divisor must be positive")
+    if k_base <= 0: 
+        raise ValueError("k_factor must be positive")
+    if divisor <= 0: 
+        raise ValueError("divisor must be positive")
     
     # Tournament multipliers
     if tournament_multipliers is None:
@@ -350,8 +355,10 @@ def compute_round_based_elo(matches_df: pd.DataFrame,
     Returns:
         2D numpy array containing pre-match ratings for each player pair
     """
-    if k_base <= 0: raise ValueError("k_factor must be positive")
-    if divisor  <=0  : raise ValueError("divisor must be positive")
+    if k_base <= 0: 
+        raise ValueError("k_factor must be positive")
+    if divisor  <=0: 
+        raise ValueError("divisor must be positive")
 
     # Round multipliers
     if round_multipliers is None:
@@ -436,8 +443,10 @@ def compute_momentum_elo_rankings(matches_df: pd.DataFrame,
         - match_ratings: Pre-match ELO ratings (matches x 2)
         - match_momentum: Pre-match Momentum ELO ratings (matches x 2)
     """
-    if k_base  <= 0: raise ValueError("k_factor must be positive")
-    if divisor <=0 : raise ValueError("divisor must be positive")
+    if k_base  <= 0: 
+        raise ValueError("k_factor must be positive")
+    if divisor <=0 : 
+        raise ValueError("divisor must be positive")
 
     logger.info(f"Computing momentum ELO for {len(matches_df)} matches")
 

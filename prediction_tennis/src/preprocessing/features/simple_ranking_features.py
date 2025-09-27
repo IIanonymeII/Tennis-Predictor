@@ -1,7 +1,5 @@
 # SIMPLE RATING
 import logging
-import math
-from typing import Any
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -9,32 +7,6 @@ from tqdm import tqdm
 from prediction_tennis.src.preprocessing.utils.ranking_systems import _apply_transformation, _calculate_update_values
 
 logger = logging.getLogger("[SIMPLE RANKING]")
-
-
-# Constants
-DEFAULT_WIN_STEP  = 1.0
-DEFAULT_LOSE_STEP = 1.0
-DEFAULT_TRANSFORMATION_METHOD = "power"
-DEFAULT_TRANSFORMATION_FACTOR = 1.0
-
-
-"""
-Simple ranking system for player match outcomes.
-
-This module provides functions to compute player rankings based on match
-outcomes using customizable update steps and various transformation methods.
-"""
-
-import logging
-import math
-from typing import Any, Union
-import numpy as np
-import pandas as pd
-from tqdm import tqdm
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # Constants
 DEFAULT_WIN_STEP = 1.0
@@ -91,9 +63,12 @@ def compute_simple_ranking(matches_df           : pd.DataFrame,
                    mathematical errors (e.g., log of negative number)
     """
     logger.info(f"Computing simple ranking for surface '{surface}' using method '{transformation_method}'")
-    if win_step              <= 0 : raise ValueError("win_step must be positive")
-    if lose_step             <= 0 : raise ValueError("lose_step must be positive")
-    if transformation_factor <= 0 : raise ValueError("transformation_factor must be positive")
+    if win_step              <= 0 :
+        raise ValueError("win_step must be positive")
+    if lose_step             <= 0 :
+        raise ValueError("lose_step must be positive")
+    if transformation_factor <= 0 :
+        raise ValueError("transformation_factor must be positive")
     
     if transformation_method not in VALID_TRANSFORMATION_METHODS:
         raise ValueError(f"transformation_method must be in {VALID_TRANSFORMATION_METHODS}")
@@ -101,7 +76,8 @@ def compute_simple_ranking(matches_df           : pd.DataFrame,
     # Validate inputs
     required_columns = ['player1_id_factor', 'player2_id_factor', 'winner', 'match_date']
     missing_columns  = [col for col in required_columns if col not in matches_df.columns]
-    if missing_columns: raise ValueError(f"Missing required columns: {missing_columns}")
+    if missing_columns: 
+        raise ValueError(f"Missing required columns: {missing_columns}")
 
     # Determine total number of players
     max_player_id = max(matches_df["player1_id_factor"].max(),matches_df["player2_id_factor"].max())
@@ -182,16 +158,18 @@ def compute_transformed_winloss_rankings(matches_df: pd.DataFrame,
         ValueError: If parameters are invalid
     """
     logger.info(f"Computing transformed win-loss rankings for surface '{surface}' using method '{transformation_method}'")
-    if win_step  <= 0 : raise ValueError("win_step must be positive")
-    if lose_step <= 0 : raise ValueError("lose_step must be positive")
-    
+    if win_step  <= 0 : 
+        raise ValueError("win_step must be positive")
+    if lose_step <= 0 : 
+        raise ValueError("lose_step must be positive")
     if transformation_method not in VALID_TRANSFORMATION_METHODS:
         raise ValueError(f"transformation_method must be in {VALID_TRANSFORMATION_METHODS}")
     
     # Validate inputs
     required_columns = ['player1_id_factor', 'player2_id_factor', 'winner', 'match_date']
     missing_columns  = [col for col in required_columns if col not in matches_df.columns]
-    if missing_columns: raise ValueError(f"Missing required columns: {missing_columns}")
+    if missing_columns: 
+        raise ValueError(f"Missing required columns: {missing_columns}")
 
     # Determine number of players
     max_player_id = max(matches_df["player1_id_factor"].max(), matches_df["player2_id_factor"].max())

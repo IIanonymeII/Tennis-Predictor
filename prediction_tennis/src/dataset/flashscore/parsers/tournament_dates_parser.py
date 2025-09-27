@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 
 from dataclasses import replace
-import re
 import logging
-from typing import Any, Dict, List, Set
+from typing import Any, List
 from bs4 import BeautifulSoup, Tag
-import pandas as pd
 
 from prediction_tennis.src.dataset.flashscore.models.tournaments import Tournaments, TournamentsMinimaliste
 from prediction_tennis.src.dataset.flashscore.utils.flashscore_client import validate_and_check_url, retrieve_flashscore_data

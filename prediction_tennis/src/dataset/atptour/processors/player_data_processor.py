@@ -167,9 +167,12 @@ def process_players_data_with_matching(players_dataframe: pd.DataFrame,
                                                         players_dataframe=players_dataframe
                                                         )
             
-            if match_result == "success" : successful_matches += 1
-            elif match_result == "failed": failed_matches += 1
-            else                         : skipped_players += 1
+            if match_result == "success" : 
+                successful_matches += 1
+            elif match_result == "failed": 
+                failed_matches += 1
+            else: 
+                skipped_players += 1
                 
         except Exception as exc:
             logger.error(f"Error processing player '{original_player_name}': {exc}")

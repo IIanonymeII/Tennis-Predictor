@@ -152,7 +152,7 @@ def extract_percentage(value: str):
     try:
         match = re.search(r"(\d+)%", value)
         return match.group(1) if match else value
-    except Exception as e:
+    except Exception:
         raise
 
 def handle_sh(value: str):

@@ -1,6 +1,6 @@
 
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 import logging
 from typing import Dict, List
 
@@ -64,10 +64,9 @@ class Tournaments(TournamentsMinimaliste):
         # Base tournament info that will be merged with each match's details.
         base_info: Dict[str, str] = {
             "tournament_id"   : self.id,
-            "tournament_slug"   : self.slug,
-            "tournament_name": self.name,
-            "tournament_id"   : self.id,
-            "tournament_year": self.year,
+            "tournament_slug" : self.slug,
+            "tournament_name" : self.name,
+            "tournament_year" : self.year,
         }
 
         if not self.list_match:

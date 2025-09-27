@@ -1,6 +1,5 @@
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 import logging
-from typing import Dict, Optional
 
 logger = logging.getLogger("[DATACLASS] [ODD]")
 

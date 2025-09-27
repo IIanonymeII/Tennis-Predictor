@@ -1,10 +1,8 @@
 
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 import logging
-from typing import Dict, List
 
-from prediction_tennis.src.dataset.flashscore.models.matchs import Match
 
 
 logger = logging.getLogger("[DATACLASS] [TOURNAMENT]")

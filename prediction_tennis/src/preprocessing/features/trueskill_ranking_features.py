@@ -1,12 +1,10 @@
 # SIMPLE RATING
 import logging
-from typing import List, Tuple
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 import trueskill
 
-from prediction_tennis.src.preprocessing.utils.ranking_systems import calculate_rating_movement_from_history
 
 # Configure logging
 logger = logging.getLogger("[TRUESKILL RANTING]")
@@ -43,11 +41,13 @@ def compute_trueskill_ratings(matches_df: pd.DataFrame,
     logger.info(f"Starting TrueSkill rating computation for {len(matches_df)} matches")
     
     # Validate input
-    if not isinstance(matches_df, pd.DataFrame): raise TypeError("matches_df must be a pandas DataFrame")
+    if not isinstance(matches_df, pd.DataFrame): 
+        raise TypeError("matches_df must be a pandas DataFrame")
 
     required_columns = ['player1_id_factor', 'player2_id_factor', 'winner', 'match_date']
     missing_columns = [col for col in required_columns if col not in matches_df.columns]
-    if missing_columns: raise ValueError(f"Missing required columns: {missing_columns}")
+    if missing_columns: 
+        raise ValueError(f"Missing required columns: {missing_columns}")
     
 
     # Calculate total number of unique players

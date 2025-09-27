@@ -2,7 +2,7 @@ import re
 import unicodedata
 import requests
 import logging
-from typing import List, Dict, Optional, Set
+from typing import List, Dict, Set
 from bs4 import BeautifulSoup, Tag
 
 from prediction_tennis.src.dataset.wikipedia.models.tournaments import Tournaments

@@ -21,6 +21,10 @@ trueskill = "^0.4.5"
 [tool.poetry.group.dev.dependencies]
 bandit = "^1.8.6"
 pytest = "^8.4.2"
+ruff = "^0.13.2"
+
+[tool.ruff]
+exclude = ["*/test_*.py", "*.ipynb"]
 
 [build-system]
 requires = ["poetry-core"]

@@ -51,7 +51,7 @@ def main() -> None:
     # Save tournament data to CSV
     save_tournament_data_to_csv(tournament_data=tournament_data,
                                 output_directory_path=WIKIPEDIA_RAW_PATH,
-                                filename=f"tournament.csv")
+                                filename="tournament.csv")
     logger.info("=== WIKIPEDIA Data Processing Successfully Completed ===")
 
 

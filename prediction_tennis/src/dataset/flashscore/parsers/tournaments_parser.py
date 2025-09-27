@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import logging
-from typing import Dict, List
-import pandas as pd
+from typing import List
 import requests
 
 from prediction_tennis.src.dataset.flashscore.models.tournaments import TournamentsMinimaliste
@@ -113,7 +112,7 @@ if __name__ == "__main__":
         response = requests.get(url, timeout=10)
         response.raise_for_status()  # Raise an exception for HTTP errors.
     
-    except Exception as fetch_error:
+    except Exception:
         logging.exception("Error fetching data:")
 
     data_str = response.text

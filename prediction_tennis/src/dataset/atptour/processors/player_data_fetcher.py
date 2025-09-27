@@ -4,7 +4,6 @@ from typing import Dict, List, Optional, Set
 from tqdm import tqdm
 
 from prediction_tennis.src.dataset.atptour.parsers.data_fetcher import fetch_player_data
-from prediction_tennis.src.dataset.atptour.utils.config import NAME_TO_CHANGE
 from prediction_tennis.src.dataset.atptour.utils.player_utils import clean_key, generate_player_name_variants
 
 
