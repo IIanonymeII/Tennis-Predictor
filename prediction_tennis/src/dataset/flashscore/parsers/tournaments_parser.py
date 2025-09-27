@@ -110,7 +110,7 @@ if __name__ == "__main__":
     url = "https://www.flashscore.com/x/req/m_2_5724"
     
     try:
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
         response.raise_for_status()  # Raise an exception for HTTP errors.
     
     except Exception as fetch_error:

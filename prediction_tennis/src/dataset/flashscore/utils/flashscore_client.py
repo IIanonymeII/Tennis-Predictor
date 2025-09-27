@@ -27,7 +27,7 @@ def retrieve_flashscore_data(url: str, return_as_text: bool = True) -> Union[str
     headers = {"x-fsign": "SW9D1eZo"}  # FlashScore specific header
 
     logger.info("Fetching data from URL: %s", url)
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=10)
 
     if response.status_code == 200:
         if return_as_text:
@@ -78,7 +78,7 @@ def validate_and_check_url(url: str) -> str:
 
     # Perform an HTTP GET request to verify the URL exists
     try:
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
         
         # Allow 403 (Forbidden)    as a valid response
         # Allow 401 (Unauthorized) as a valid response

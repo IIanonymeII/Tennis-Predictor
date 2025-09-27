@@ -230,7 +230,7 @@ if __name__ == "__main__":
     headers = {"x-fsign": "SW9D1eZo"}
 
     try:
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()  # Check for HTTP errors
         response_text = response.text
 

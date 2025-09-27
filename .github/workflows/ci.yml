@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ##########################################
+  # 1️⃣ Sécurité
+  ##########################################
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12" 
+
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v4
+        with:
+          poetry-version: "1.8.5"
+
+      - name: Install dependencies
+        run: poetry install --with dev
+
+      - name: Bandit security scan
+        run: poetry run bandit -r .\prediction_tennis\ --exclude '*/test_*.py' -ll # report issues for MEDIUM and higher
+  # ##########################################
+  # # 2️⃣ Qualité de code
+  # ##########################################
+  # code_quality:
+  #   name: Code Quality
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v4
+  #       with:
+  #         python-version: "3.12" 
+
+  #     - name: Install Poetry
+  #       uses: abatilo/actions-poetry@v4
+  #       with:
+  #         poetry-version: "1.8.5"
+
+  #     - name: Install dependencies
+  #       run: poetry install --with dev
+
+  #     - name: Spelling check
+  #       run: poetry run codespell
+
+
+
+  ##########################################
+  # 3️⃣ Tests unitaires
+  ##########################################
+  pytest:
+    name: Pytest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12" 
+
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v4
+        with:
+          poetry-version: "1.8.5"
+
+      - name: Install dependencies
+        run: poetry install --with dev
+
+      - name: Run pytest
+        run: poetry run pytest --disable-warnings -v
