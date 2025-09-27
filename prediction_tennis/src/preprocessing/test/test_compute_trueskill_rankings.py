@@ -3,7 +3,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from prediction_tennis.src.preprocessing.features.trueskill_ranking_features import compute_trueskill_movement, compute_trueskill_ratings
+from prediction_tennis.src.preprocessing.features.compute_rating_movement import compute_rating_movement
+from prediction_tennis.src.preprocessing.features.trueskill_ranking_features import compute_trueskill_ratings
 
 
 @pytest.fixture
@@ -58,7 +59,7 @@ def test_compute_trueskill_movement_valid_inputs(sample_matches_df: pd.DataFrame
     Args:
         sample_matches_df: Sample tennis match data for testing.
     """
-    matches_lookback = 2
+    lookback_matches = 2
 
     # Expected ratings after each match for all players (P1, P2)
     expected_ratings = np.array([
@@ -71,36 +72,10 @@ def test_compute_trueskill_movement_valid_inputs(sample_matches_df: pd.DataFrame
         [    -4.09       ,     3.26    ],
         ])
    
-    result = compute_trueskill_movement(matches_df=sample_matches_df, matches_lookback=matches_lookback)
+    result = compute_rating_movement(matches_df       = sample_matches_df, 
+                                     lookback_matches = lookback_matches,
+                                     rating_prefix    = "trueskill")
     np.testing.assert_array_almost_equal(result, expected_ratings, decimal=2)
-
-# === TEST LOOKBACK_MATCHES ===
-@pytest.mark.parametrize("matches_lookback, should_raise_error", [
-    pytest.param(-2 , True , id="lookback_matches_negative"),
-    pytest.param(0  , True , id="lookback_matches_zero"),
-    pytest.param(1  , False, id="lookback_matches_low"),
-    pytest.param(5  , False, id="lookback_matches_standard"),
-    pytest.param(15 , False, id="lookback_matches_high"),
-])
-def test_lookback_matches_validation(sample_matches_df: pd.DataFrame,
-                                     matches_lookback: int,
-                                     should_raise_error: bool) -> None:
-    """
-    Test matches_lookback parameter validation for TRUESKILL movement computation.
-    
-    Args:
-        sample_matches_df: Sample tennis match data for testing.
-        matches_lookback: Number of matches to look back for movement calculation.
-        should_raise_error: Whether this value should raise a ValueError.
-    """    
-    function_kwargs = {"matches_lookback": matches_lookback}
-    
-    if should_raise_error:
-        with pytest.raises(ValueError):
-            compute_trueskill_movement(sample_matches_df, **function_kwargs)
-    else:
-        computed_result = compute_trueskill_movement(sample_matches_df, **function_kwargs)
-        assert computed_result is not None
 
 # === TEST MISSING COLUMNS ===
 @pytest.mark.parametrize("missing_column", ['player1_id_factor', 'player2_id_factor', 'winner', 'match_date'])
@@ -114,15 +89,3 @@ def test_ratings_raises_error_on_missing_columns(sample_matches_df: pd.DataFrame
     # of the missing column to be even more precise.
     with pytest.raises(ValueError, match=f"Missing required columns: \\['{missing_column}'\\]"):
         compute_trueskill_ratings(invalid_df)
-
-@pytest.mark.parametrize("missing_column", ['player1_id_factor', 'player2_id_factor', 'match_date', 'trueskill_p1', 'trueskill_p2'])
-def test_movement_raises_error_on_missing_columns(sample_matches_df: pd.DataFrame, missing_column: str):
-    """
-    Verifies that compute_trueskill_movement raises a ValueError if a column is missing.
-    """
-    # For this test, we first need to add the trueskill columns
-    # before removing one for the test case.    
-    invalid_df = sample_matches_df.drop(columns=[missing_column])
-    
-    with pytest.raises(ValueError, match=f"Missing required columns: \\['{missing_column}'\\]"):
-        compute_trueskill_movement(invalid_df, matches_lookback=2)

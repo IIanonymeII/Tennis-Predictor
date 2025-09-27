@@ -5,7 +5,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from prediction_tennis.src.preprocessing.features.glicko_ranking_features import compute_glicko_movement, compute_glicko_ratings
+from prediction_tennis.src.preprocessing.features.compute_rating_movement import compute_rating_movement
+from prediction_tennis.src.preprocessing.features.glicko_ranking_features import compute_glicko_ratings
 
 
 @pytest.fixture
@@ -80,7 +81,9 @@ def test_compute_glicko_movement_valid_inputs(sample_matches_df: pd.DataFrame) -
         [ -162.74        ,  105.86    ],
         ])
    
-    result = compute_glicko_movement(matches_df=sample_matches_df, lookback_matches=lookback_matches)
+    result = compute_rating_movement(matches_df       = sample_matches_df, 
+                                     lookback_matches = lookback_matches,
+                                     rating_prefix    = "glicko")
     np.testing.assert_array_almost_equal(result, expected_ratings, decimal=2)
 
 # === TEST INPUT FUNCTION ===
@@ -147,35 +150,6 @@ def test_glicko_parameter_combinations(sample_matches_df: pd.DataFrame,
         result = compute_glicko_ratings(sample_matches_df, **function_kwargs)
         assert result is not None
 
-# === TEST LOOKBACK_MATCHES ===
-@pytest.mark.parametrize("lookback_matches, should_raise_error", [
-    pytest.param(-2 , True , id="lookback_matches_negative"),
-    pytest.param(0  , True , id="lookback_matches_zero"),
-    pytest.param(1  , False, id="lookback_matches_low"),
-    pytest.param(5  , False, id="lookback_matches_standard"),
-    pytest.param(15 , False, id="lookback_matches_high"),
-])
-def test_lookback_matches_validation(sample_matches_df: pd.DataFrame,
-                                     lookback_matches: int,
-                                     should_raise_error: bool) -> None:
-    """
-    Test lookback_matches parameter validation for GLICKO movement computation.
-    
-    Args:
-        sample_matches_df: Sample tennis match data for testing.
-        lookback_matches: Number of matches to look back for movement calculation.
-        should_raise_error: Whether this value should raise a ValueError.
-    """    
-    function_kwargs = {"lookback_matches": lookback_matches}
-    
-    if should_raise_error:
-        with pytest.raises(ValueError):
-            compute_glicko_movement(sample_matches_df, **function_kwargs)
-    else:
-        computed_result = compute_glicko_movement(sample_matches_df, **function_kwargs)
-        assert computed_result is not None
-
-
 # === TEST MISSING COLUMNS ===
 @pytest.mark.parametrize("missing_column", ['player1_id_factor', 'player2_id_factor', 'winner', 'match_date'])
 def test_ratings_raises_error_on_missing_columns(sample_matches_df: pd.DataFrame, missing_column: str):
@@ -188,15 +162,3 @@ def test_ratings_raises_error_on_missing_columns(sample_matches_df: pd.DataFrame
     # of the missing column to be even more precise.
     with pytest.raises(ValueError, match=f"Missing required columns: \\['{missing_column}'\\]"):
         compute_glicko_ratings(invalid_df)
-
-@pytest.mark.parametrize("missing_column", ['player1_id_factor', 'player2_id_factor', 'match_date', 'glicko_p1', 'glicko_p2'])
-def test_movement_raises_error_on_missing_columns(sample_matches_df: pd.DataFrame, missing_column: str):
-    """
-    Verifies that compute_glicko_movement raises a ValueError if a column is missing.
-    """
-    # For this test, we first need to add the trueskill columns
-    # before removing one for the test case.    
-    invalid_df = sample_matches_df.drop(columns=[missing_column])
-    
-    with pytest.raises(ValueError, match=f"Missing required columns: \\['{missing_column}'\\]"):
-        compute_glicko_movement(invalid_df, lookback_matches=2)

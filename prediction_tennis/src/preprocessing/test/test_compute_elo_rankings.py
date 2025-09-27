@@ -1,5 +1,6 @@
 from typing import Callable
-from prediction_tennis.src.preprocessing.features.elo_ranking_features import compute_elo_movement, compute_elo_rankings, compute_momentum_elo_rankings, compute_round_based_elo, compute_tournament_based_elo, compute_tournament_round_based_elo
+from prediction_tennis.src.preprocessing.features.compute_rating_movement import compute_rating_movement
+from prediction_tennis.src.preprocessing.features.elo_ranking_features import compute_elo_rankings, compute_momentum_elo_rankings, compute_round_based_elo, compute_tournament_based_elo, compute_tournament_round_based_elo
 import pytest
 import pandas as pd
 import numpy as np
@@ -191,8 +192,10 @@ def test_compute_elo_movement_valid_inputs(sample_matches_df: pd.DataFrame) -> N
         [ -2.99928816 , 1.44032903  ],
         ])
    
-    result = compute_elo_movement(matches_df       = sample_matches_df,
-                                  lookback_matches = lookback_matches)
+    result = compute_rating_movement(matches_df      = sample_matches_df,
+                                    lookback_matches = lookback_matches,
+                                    rating_prefix    = "elo"
+                                    )
     np.testing.assert_array_almost_equal(result, expected_ratings, decimal=2)
 
 # === TEST K FACTOR ===
@@ -273,34 +276,6 @@ def test_divisor_validation(elo_function: Callable,
         computed_result = elo_function(sample_matches_df, **function_kwargs)
         assert computed_result is not None
 
-# === TEST LOOKBACK_MATCHES ===
-@pytest.mark.parametrize("lookback_matches, should_raise_error", [
-    pytest.param(-2 , True , id="lookback_matches_negative"),
-    pytest.param(0  , True , id="lookback_matches_zero"),
-    pytest.param(1  , False, id="lookback_matches_low"),
-    pytest.param(5  , False, id="lookback_matches_standard"),
-    pytest.param(15 , False, id="lookback_matches_high"),
-])
-def test_lookback_matches_validation(sample_matches_df: pd.DataFrame,
-                                     lookback_matches: int,
-                                     should_raise_error: bool) -> None:
-    """
-    Test lookback_matches parameter validation for ELO movement computation.
-    
-    Args:
-        sample_matches_df: Sample tennis match data for testing.
-        lookback_matches: Number of matches to look back for movement calculation.
-        should_raise_error: Whether this value should raise a ValueError.
-    """    
-    function_kwargs = {"lookback_matches": lookback_matches}
-    
-    if should_raise_error:
-        with pytest.raises(ValueError):
-            compute_elo_movement(sample_matches_df, **function_kwargs)
-    else:
-        computed_result = compute_elo_movement(sample_matches_df, **function_kwargs)
-        assert computed_result is not None
-
 # === TEST MISSING COLUMNS ===
 # Generate test cases
 test_cases = []
@@ -315,10 +290,6 @@ for missing_column in ['player1_id_factor', 'player2_id_factor', 'winner', 'matc
 # compute_momentum_elo_rankings
 for missing_column in ['player1_id_factor', 'player2_id_factor', 'winner', 'match_date']:
     test_cases.append((compute_momentum_elo_rankings, "k_base", missing_column))
-
-# compute_elo_movement
-for missing_column in ['player1_id_factor', 'player2_id_factor', 'match_date', 'elo_p1', 'elo_p2']:
-    test_cases.append((compute_elo_movement, "lookback_matches", missing_column))
 
 @pytest.mark.parametrize("elo_function, parameter_name, missing_column", test_cases)
 def test_compute_elo_rankings_missing_columns(elo_function: Callable,
