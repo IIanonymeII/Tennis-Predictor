@@ -3,64 +3,40 @@
 [![GitHub license](https://img.shields.io/github/license/pretrehr/Sports-betting.svg)](https://github.com/pretrehr/Sports-betting/blob/master/LICENSE)
 # Prediction Betting (ATP & WTA)
 
-
-
-### Overview
 This project focuses on predicting betting outcomes for ATP and WTA tennis matches using historical match data and betting odds. It provides a comprehensive pipeline for data preparation, model development, and evaluation, leveraging modern tools and best practices for robust and maintainable code.
 
-### Key Features  
+## ✨ Key Features  
 
-- **Dependency Management**:  
-  Uses **Poetry** to create reproducible environments and handle dependencies effortlessly.  
-
-- **Testing**:  
-  - **Static Type Checking**: Ensures type safety with `mypy`.  
-  - **Unit Testing**: Validates functionality with `pytest`.  
-
-- **Continuous Integration (CI)**:  
-  Automates testing and validation using **GitHub Actions**, maintaining consistent code quality.  
-
-- **Documentation**:  
-  Provides clear and concise guidelines for setup, usage, and contribution. 
-
-## 📘 Requirement
-install all requirements
-```bash
-poetry install 
-```
+### 📦 Dependency Management
+- Managed with **[Poetry](https://python-poetry.org/)** → reproducible environments & easy dependency handling.  
 
 ---
 
-## ✅ Testing
-
-### Run Tests Locally (with Poetry)  
-```bash
-poetry run pytest
-```
-This ensures tests run inside the Poetry-managed virtual environment, with the correct dependencies.
-
-
-### Continuous Integration (GitHub Actions)
-This project uses GitHub Actions to automatically run tests on each push or pull request.
-The workflow configuration lives in: 
-```bash
-.github/workflows/tests.yml
-```
-
-Whenever you push to GitHub, the CI will:
-
-1. Install dependencies via Poetry.
-2. Run the full pytest suite.
-3. Report results directly in your PR or commit checks.
+### ✅ Testing & Quality Assurance
+- **Security** → [`bandit`](https://bandit.readthedocs.io)  
+- **Code Quality** → [`ruff`](https://docs.astral.sh/ruff/) (lint & format)  
+- **Documentation Coverage** → [`interrogate`](https://interrogate.readthedocs.io) (NumPy-style docstrings)  
+- **Type Safety** → [`mypy`](https://mypy-lang.org/)  
+- **Unit Tests** → [`pytest`](https://docs.pytest.org)  
+- **Documentation Build** → [`Sphinx`](https://www.sphinx-doc.org/)  
 
 ---
 
+### 🔄 Continuous Integration
+- Automated pipelines with **GitHub Actions** → runs tests, linters, and checks on every push or pull request.  
+
+---
+
+### 📝 Documentation
+- Clear, concise guidelines for **setup, usage, and contributions**.  
+- Full documentation generated with **Sphinx** (`docs/` folder). 
 ## 📂 Project Structure
 ```
-├── data        # Data directory for input files 
+├── data                # Data directory for input files 
 │   ├── 01_raw/
 │   ├── 02_processed/
 │   └── 03_final/
+├── docs/               # Documentation sources (Sphinx)
 ├── src 
 │   ├── dataset/        # Data collection, cleaning, and feature engineering
 │   ├── preprocessing/  # Data preprocessing and feature generation
@@ -70,22 +46,61 @@ Whenever you push to GitHub, the CI will:
 └── tests               # Unit tests for the project
 ```
 
+---
+
 ## ⚙️ Data Structure
 
-* `data/01_raw/`  
-Unmodified raw data collected directly from external sources (web scraping, APIs, downloads, etc.). These files remain untouched to preserve traceability.
+> * `data/01_raw/`  
+  Unmodified raw data collected directly from external sources (web scraping, APIs, downloads, etc.). These files remain untouched to preserve traceability.
+>
+>  - `atptour/`    → ATP Tour player data (bio, stats)  
+>  - `flashscore/` → Matches, odds, rankings  
+>  - `wikipedia/`  → Tournament info  
 
-  - `atptour/`    → ATP Tour player data (bio, stats)  
-  - `flashscore/` → Matches, odds, rankings  
-  - `wikipedia/`  → Tournament info  
+> * `data/02_processed/`  
+  Cleaned and pre-processed datasets derived from `01_raw/`.  
 
-* `data/02_processed/`  
-Cleaned and pre-processed datasets derived from `01_raw/`.  
-
-* `data/03_final/`  
-Ready-to-use datasets for modeling and analysis.  
+> * `data/03_final/`  
+  Ready-to-use datasets for modeling and analysis.  
 These files are optimized for training ML models and evaluation.
 
+---
+
+## 📦 Requirement
+install all requirements
+```bash
+poetry install 
+```
+
+---
+
+## ✅ Testing  
+This project integrates robust tools to ensure **security, code quality, documentation coverage, and correctness**.  
+
+- **Security** – [bandit](https://bandit.readthedocs.io): scan for vulnerabilities  
+- **Quality** – [ruff](https://docs.astral.sh/ruff/) (lint & format), [interrogate](https://interrogate.readthedocs.io) (docstrings, NumPy style, 80% min)  
+- **Unit Tests** – [pytest](https://docs.pytest.org): validate models, features, and evaluation logic  
+- **Documentation** – [sphinx](https://www.sphinx-doc.org/): auto-generate browsable docs  
+
+### Run locally (via Poetry)  
+```bash
+poetry run bandit -r ./prediction_tennis/ --exclude '*/test_*.py' -ll
+poetry run ruff check ./prediction_tennis/
+poetry run ruff format --check ./prediction_tennis/
+poetry run interrogate ./prediction_tennis/
+poetry run pytest --disable-warnings -v
+poetry run sphinx-build -b html docs/ build/
+```
+
+
+## 🔄 Continuous Integration (GitHub Actions)
+This project uses GitHub Actions to automatically run tests on each push or pull request.
+The workflow configuration lives in: 
+```bash
+.github/workflows/tests.yml
+```
+
+---
 
 ## ⭐ License
 
