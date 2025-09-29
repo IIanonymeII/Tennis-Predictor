@@ -2,7 +2,8 @@
 
 This folder contains **feature engineering functions** used to transform raw tennis match data into model-ready features.  
 These features are used to capture player strength and momentum, making them critical inputs for predictive models.
----
+
+
 ## 📂 Structure
 
 ```
@@ -13,16 +14,10 @@ features/
 ├── trueskill_ranking_features.py # Functions for Trueskill rating 
 ├── glicko_ranking_features.py    # Functions for Glicko rating 
 ├── simple_ranking_features.py    # Functions for Simple rating 
+├── popularity_player_features.py # Functions for Popularity rating
 ├── compute_rating_movement.py    # Calculates rating movements between matches 
 └── README.md               
 ```
->**`compute_rating_movement.py`**
- ....
-  Supported variants include:
->
->   - **Movement during last *n* matches**: Tracks variations over a rolling match window  
-
----
 
 ## ⚙️ Responsibilities
 
@@ -54,6 +49,11 @@ features/
 >
 >   - **Standard rating**: Adds `win_step` for a win and subtracts `lose_step` for a loss.
 >   - **Transformed ratings (exp, log, power):**: Applies a mathematical transformation to the standard rating. For example, the result can be `exp(value + step)`, `log(value + step)`, or `power(value + step)` depending on the chosen transformation method.
+
+>**`popularity_player_features.py`** 
+  calculates player popularity based on past tournament performance.
+Players gain popularity by playing more matches and advancing further in important rounds or tournaments.
+Players with few or no games are considered less popular.
 
 >**`compute_rating_movement.py`**
  Computes the rating movement for tennis players by comparing their current pre-match rating with ratings from a specified number of matches ago. This module tracks how player ratings change over time based on match outcomes and provides insights into rating volatility.
