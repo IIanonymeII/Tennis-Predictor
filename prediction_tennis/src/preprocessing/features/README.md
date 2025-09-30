@@ -15,7 +15,7 @@ features/
 ├── glicko_ranking_features.py    # Functions for Glicko rating 
 ├── simple_ranking_features.py    # Functions for Simple rating 
 ├── popularity_player_features.py # Functions for Popularity rating
-├── last_match_played.py          # Calculate matches played (time window)
+├── last_match_metrics.py         # Calculate last-match metrics
 ├── compute_rating_movement.py    # Calculates rating movements between matches 
 └── README.md               
 ```
@@ -23,7 +23,8 @@ features/
 ## ⚙️ Responsibilities
 
 >**`elo_ranking_features.py`**
- Implements Elo rating calculations adapted for tennis
+>
+> Implements Elo rating calculations adapted for tennis
   Supported variants include:
 >
 >   - **Standard Elo**: Classic rating update system  
@@ -33,36 +34,42 @@ features/
 >   - **Momentum-aware Elo**: Incorporates player momentum from recent performances  
 
 >**`trueskill_ranking_features.py`**
- Implements TrueSkill ratings for tennis match data.
+>
+> Implements TrueSkill ratings for tennis match data.
   Supported variants include:
 >
 >   - **Standard Trueskill**: Classic rating update system  
 
 >**`glicko_ranking_features.py`**
- Implements Glicko ratings for tennis match data.
+>
+> Implements Glicko ratings for tennis match data.
   Supported variants include:
 >
 >   - **Standard Glicko**: Classic rating update system  
 
 >**`simple_ranking_features.py`**
- Implements Simple ratings for tennis match data.
+>
+> Implements Simple ratings for tennis match data.
   Supported variants include:
 >
 >   - **Standard rating**: Adds `win_step` for a win and subtracts `lose_step` for a loss.
 >   - **Transformed ratings (exp, log, power):**: Applies a mathematical transformation to the standard rating. For example, the result can be `exp(value + step)`, `log(value + step)`, or `power(value + step)` depending on the chosen transformation method.
 
 >**`popularity_player_features.py`** 
-  calculates player popularity based on past tournament performance.
+>
+>  calculates player popularity based on past tournament performance.
 Players gain popularity by playing more matches and advancing further in important rounds or tournaments.
 Players with few or no games are considered less popular.
 
->**`last_match_played.py`** 
-  Provides features based on the number of matches played in the last *n* days. 
-  `Ratio mode`: returns a normalized value between `0` and `1` (matches/day). 
-  `Non-ratio mode`: returns the raw count of matches played.
+>**`last_match_metrics.py`** 
+>
+>  Provides features based on the most recent matches :
+>   - **match_played**: number of matches played in the last `n` days.
+>   - **match_win**: number of matches won in the last `n` days.
 
 >**`compute_rating_movement.py`**
- Computes the rating movement for tennis players by comparing their current pre-match rating with ratings from a specified number of matches ago. This module tracks how player ratings change over time based on match outcomes and provides insights into rating volatility.
+>
+> Computes the rating movement for tennis players by comparing their current pre-match rating with ratings from a specified number of matches ago. This module tracks how player ratings change over time based on match outcomes and provides insights into rating volatility.
   Supported variants include:
 >
 >   - **Movement during last *n* matches**: Tracks variations over a rolling match window  
