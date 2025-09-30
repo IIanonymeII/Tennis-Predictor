@@ -15,6 +15,7 @@ features/
 ├── glicko_ranking_features.py    # Functions for Glicko rating 
 ├── simple_ranking_features.py    # Functions for Simple rating 
 ├── popularity_player_features.py # Functions for Popularity rating
+├── last_match_played.py          # Calculate matches played (time window)
 ├── compute_rating_movement.py    # Calculates rating movements between matches 
 └── README.md               
 ```
@@ -54,6 +55,11 @@ features/
   calculates player popularity based on past tournament performance.
 Players gain popularity by playing more matches and advancing further in important rounds or tournaments.
 Players with few or no games are considered less popular.
+
+>**`last_match_played.py`** 
+  Provides features based on the number of matches played in the last *n* days. 
+  `Ratio mode`: returns a normalized value between `0` and `1` (matches/day). 
+  `Non-ratio mode`: returns the raw count of matches played.
 
 >**`compute_rating_movement.py`**
  Computes the rating movement for tennis players by comparing their current pre-match rating with ratings from a specified number of matches ago. This module tracks how player ratings change over time based on match outcomes and provides insights into rating volatility.
