@@ -12,6 +12,7 @@ preprocessing/
   ├── test/
   ├── utils/
   ├── main_cleaning.ipynb
+  ├── main_feature.ipynb
   └── README.md   
 ```
 
@@ -36,13 +37,17 @@ preprocessing/
 >  - Helper functions for column pairing (p1 vs. p2)  
 
 > - **`main_cleaning.ipynb`**  
-  Central notebook for preprocessing. It concatenates all raw data and starts the cleaning process.  
+  Entry point for raw data cleaning. It concatenates all raw data and starts the cleaning process.  
   Uses [fuzzywuzzy](https://pypi.org/project/fuzzywuzzy/) to match and link tournaments between `Flashscore` and `Wikipedia`, as well as to reconcile player data between `ATPTour` and `Flashscore`.
+
+> - **`main_feature.ipynb`**  
+  Main notebook for feature engineering. Generates advanced features from the cleaned dataset. 
+  Includes Elo, Trueskill, Glicko ratings. Adds last-match statistics, match-level stats (sets, scores, etc.), and derived metrics
 
 ## 💻 Usage
 
 ### Run Preprocessing & Feature Engineering
 
 1. Open and execute all cells in **`main_cleaning.ipynb`** to perform data concatenation and cleaning.  
-2. ...
+2. Open and execute all cells in **`main_feature.ipynb`** to generate engineered features from the cleaned data.
 3. ...
