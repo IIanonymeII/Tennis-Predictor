@@ -17,6 +17,7 @@ features/
 ├── popularity_player_features.py # Functions for Popularity rating
 ├── last_match_metrics.py         # Calculate last-match metrics
 ├── compute_rating_movement.py    # Calculates rating movements between matches 
+├── calculate_mvi_features.py     # Calculates MVI (Momentum & Variability Index)
 └── README.md               
 ```
 
@@ -73,6 +74,12 @@ Players with few or no games are considered less popular.
   Supported variants include:
 >
 >   - **Movement during last *n* matches**: Tracks variations over a rolling match window  
+
+>**`calculate_mvi_features.py`**
+>
+> Calculates the **Momentum & Variability Index (MVI)** for players.
+> This metric captures both recent performance momentum and rating variability, providing a more dynamic view of player form leading into a match.
+
 
 ---
 

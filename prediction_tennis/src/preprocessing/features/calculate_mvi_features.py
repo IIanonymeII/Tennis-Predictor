@@ -8,7 +8,6 @@ calculates the Match Volatility Index (MVI) for each player and merges this
 information back into the original match DataFrame.
 """
 
-
 import logging
 import numpy as np
 import pandas as pd
@@ -21,6 +20,7 @@ logger = logging.getLogger("[FEATURE MVI]")
 # --- Constants ---
 ALPHA: float = 0.1
 EPSILON: float = 1e-8
+
 
 def create_player_centric_view(match_data: pd.DataFrame) -> pd.DataFrame:
     """
@@ -70,9 +70,10 @@ def create_player_centric_view(match_data: pd.DataFrame) -> pd.DataFrame:
 
     return player_centric_df
 
-def calculate_volatility_metrics(player_history: pd.DataFrame, 
-                                 alpha: float, 
-                                 epsilon: float) -> pd.DataFrame:
+
+def calculate_volatility_metrics(
+    player_history: pd.DataFrame, alpha: float, epsilon: float
+) -> pd.DataFrame:
     """
     Calculates rolling performance metrics for a single player's history.
 
@@ -126,6 +127,7 @@ def calculate_volatility_metrics(player_history: pd.DataFrame,
 
     return player_history
 
+
 def add_mvi_features_to_matches(match_data: pd.DataFrame) -> np.ndarray:
     """
     Orchestrates MVI calculation and returns the MVI values as a NumPy array.
@@ -156,7 +158,8 @@ def add_mvi_features_to_matches(match_data: pd.DataFrame) -> np.ndarray:
     logger.info("Calculating volatility metrics for all players...")
     # Apply the calculation to each player's history group.
     player_metrics_df = player_centric_df.groupby("player_id", group_keys=False).apply(
-        lambda group: calculate_volatility_metrics(group, ALPHA, EPSILON))
+        lambda group: calculate_volatility_metrics(group, ALPHA, EPSILON)
+    )
 
     logger.info("Aligning dataframes to merge MVI features.")
     # This step requires the original player views for proper alignment.
