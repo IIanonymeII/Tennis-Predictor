@@ -18,6 +18,7 @@ from prediction_tennis.src.dataset.flashscore.utils.tournament_saver import (
 from prediction_tennis.src.dataset.wikipedia.models.tournaments import Tournaments
 from prediction_tennis.src.dataset.wikipedia.parsers.season_links import ATPSeasonLinkExtractor
 from prediction_tennis.src.dataset.wikipedia.parsers.season_tournament import ATPSeasonParser
+from prediction_tennis.src.dataset.wikipedia.utils.config import TOURNAMENT_PARTICULAR_CASE
 from prediction_tennis.src.utils.log_setup import initialize_logging
 
 
@@ -50,7 +51,7 @@ def main() -> None:
     for year, link in tournament_progress:
         tournament_progress.set_description(f"Processing Tournament: '{year}'")
 
-        # Skip years before 2000.
+        # Skip years before 1998.
         if int(year) < 1998:
             continue
 
@@ -58,6 +59,9 @@ def main() -> None:
         tournament_list: List[Tournaments] = tournament_parser.parse(url=link, year=year)
         for tournament in tournament_list:
             tournament_data.append(tournament.to_dict())
+    
+    # add particular case
+    tournament_data = tournament_data + TOURNAMENT_PARTICULAR_CASE
 
     # Save tournament data to CSV
     save_tournament_data_to_csv(
