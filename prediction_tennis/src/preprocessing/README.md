@@ -13,6 +13,7 @@ preprocessing/
   ├── utils/
   ├── main_cleaning.ipynb
   ├── main_feature.ipynb
+  ├── main_transformation.ipynb
   └── README.md   
 ```
 
@@ -43,6 +44,15 @@ preprocessing/
 > - **`main_feature.ipynb`**  
   Main notebook for feature engineering. Generates advanced features from the cleaned dataset. 
   Includes Elo, Trueskill, Glicko ratings. Adds last-match statistics, match-level stats (sets, scores, etc.), and derived metrics
+
+> - **`main_transformation.ipynb`**  
+  Final transformation stage before model training.
+  This notebook:
+  - Applies log1p transformations to stabilize distributions of numeric features
+  - Builds a consistent preprocessing pipeline (scaling, encoding, feature selection)
+  - Performs data splitting into `train`, `validation`, and `test` sets
+  - Duplicates matches to ensure symmetry between `(player1, player2)` and `(player2, player1)` pairs — crucial for unbiased model learning
+  - Outputs final model-ready datasets for training and evaluation
 
 ## 💻 Usage
 
