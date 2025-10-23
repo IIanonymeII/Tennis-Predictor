@@ -7,7 +7,7 @@ from tqdm import tqdm
 from prediction_tennis.src.dataset.atptour.models.players import Player
 from prediction_tennis.src.dataset.atptour.parsers.data_fetcher import fetch_player_data
 from prediction_tennis.src.dataset.atptour.parsers.data_parser import parse_player_json
-from prediction_tennis.src.dataset.atptour.utils.config import NAME_DO_NOT_EXISTS
+from prediction_tennis.src.dataset.atptour.utils.config import NAME_DO_NOT_EXISTS, PARTICULAR_CASE_ID
 from prediction_tennis.src.dataset.atptour.utils.player_utils import (
     build_player_url,
     clean_key,
@@ -95,6 +95,13 @@ def _process_single_player_match(
         return "skipped"
 
     try:
+        
+        if cleaned_player_name in PARTICULAR_CASE_ID.keys():
+            matched_player_id = PARTICULAR_CASE_ID.get(cleaned_player_name, "")
+            atp_player_url = build_player_url(player_id=matched_player_id)
+            players_dataframe.loc[players_dataframe["player_name"] == original_player_name, "url_atptour"] = atp_player_url
+            return "success"
+
         # Perform fuzzy matching
         best_match_name, match_score = find_best_match(
             target=cleaned_player_name, names=atp_player_names
