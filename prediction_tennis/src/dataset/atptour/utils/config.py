@@ -19,22 +19,23 @@ NAME_DO_NOT_EXISTS = [
     "al houni motasam khaled",
 ]
 
-PARTICULAR_CASE_ID = {"novak jiri"                : "n254",
-                      "damm martin 1972"          : "d214",
-                      "damm martin 2003"          : "d0dt",
-                      "watanuki yosuke 1998"      : "wb08",
-                      "alonso julian 1977"        : "a272",
-                      "metreveli aleksandre 1993" : "mn23",
-                      "meister nicolas 1989"      : "mg84",
-                      "mu tao 2000"               : "m09e",
-                      "watanuki yusuke 1990"      : "w609",
-                      "alves mateus 2001"         : "d0ar",
-                      "gao xin 1994"              : "g820",
-                      "tobon miguel sr"           : "t133",
-                      "gomez andres"              : "g023",
-                      "pognon christophe"         : "p469",
-                      "lopes tiago"               : "l812",
-                      }
+PARTICULAR_CASE_ID = {
+    "novak jiri": "n254",
+    "damm martin 1972": "d214",
+    "damm martin 2003": "d0dt",
+    "watanuki yosuke 1998": "wb08",
+    "alonso julian 1977": "a272",
+    "metreveli aleksandre 1993": "mn23",
+    "meister nicolas 1989": "mg84",
+    "mu tao 2000": "m09e",
+    "watanuki yusuke 1990": "w609",
+    "alves mateus 2001": "d0ar",
+    "gao xin 1994": "g820",
+    "tobon miguel sr": "t133",
+    "gomez andres": "g023",
+    "pognon christophe": "p469",
+    "lopes tiago": "l812",
+}
 
 REPLACE_KEYS = {
     "lalami laaroussi younes": "younes lalami",

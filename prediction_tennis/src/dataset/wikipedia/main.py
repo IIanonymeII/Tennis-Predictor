@@ -59,7 +59,7 @@ def main() -> None:
         tournament_list: List[Tournaments] = tournament_parser.parse(url=link, year=year)
         for tournament in tournament_list:
             tournament_data.append(tournament.to_dict())
-    
+
     # add particular case
     tournament_data = tournament_data + TOURNAMENT_PARTICULAR_CASE
 
