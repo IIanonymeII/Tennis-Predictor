@@ -1,4 +1,5 @@
 """..."""
+
 TOURNAMENT_PARTICULAR_CASE = [
     {
         "name": "united-cup",
